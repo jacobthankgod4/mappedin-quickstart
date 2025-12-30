@@ -7,12 +7,22 @@ const options = {
   mapId: '65c0ff7430b94e3fabd5bb8c'
 };
 
+let mapView: any = null;
+let stores: any[] = [];
+
 async function init() {
   const mapData = await getMapData(options);
-  await show3dMap(
+  mapView = await show3dMap(
     document.getElementById('mappedin-map')!,
     mapData
   );
+  setupStores(mapData);
+}
+
+function setupStores(mapData: any) {
+  const allSpaces = mapData.getByType('space');
+  stores = allSpaces.filter((space: any) => space.name);
+  console.log(`Found ${stores.length} stores:`, stores.map((s: any) => s.name));
 }
 
 init();
