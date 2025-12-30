@@ -7,15 +7,7 @@ const options = {
   mapId: "65c0ff7430b94e3fabd5bb8c",
 };
 
-const mallConfig = {
-  backgroundColor: "#f8f9fa",
-  antialias: true,
-  shadows: true,
-  lighting: {
-    ambient: 0.6,
-    directional: 0.8,
-  },
-};
+
 
 const storeCategories = [
   "Fashion & Apparel",
@@ -35,7 +27,7 @@ let currentFloor: any = null;
 const init = async () => {
   try {
     const mapData = await getMapData(options);
-    mapView = await show3dMap(document.getElementById("app")!, mapData, mallConfig);
+    mapView = await show3dMap(document.getElementById("app")!, mapData);
     await setupShoppingMallFeatures(mapView, mapData);
   } catch (err) {
     console.error("Map initialization failed:", err);
@@ -61,10 +53,10 @@ const setupShoppingMallFeatures = async (mapViewInstance: any, mapData: any) => 
     padding: 8,
   });
 
-  addPromotionalMarkers(mapViewInstance, stores);
-  setupEventHandlers(mapViewInstance);
-  addDirectoryKiosks(mapViewInstance, mapData);
-  setupUI(mapViewInstance);
+  addPromotionalMarkers(mapView, stores);
+  setupEventHandlers(mapView);
+  addDirectoryKiosks(mapView, mapData);
+  setupUI();
 };
 
 const addPromotionalMarkers = (mapViewInstance: any, storeSpaces: any[]) => {
@@ -238,7 +230,7 @@ const filterByCategory = (category: string) => {
   });
 };
 
-const setupUI = (mapViewInstance: any) => {
+const setupUI = () => {
   const app = document.getElementById("app")!;
   const controlsDiv = document.createElement("div");
   controlsDiv.id = "controls";
