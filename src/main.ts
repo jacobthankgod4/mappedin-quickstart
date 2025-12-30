@@ -53,10 +53,10 @@ const setupShoppingMallFeatures = async (mapViewInstance: any, mapData: any) => 
     padding: 8,
   });
 
+  setupUI();
   addPromotionalMarkers(mapView, stores);
   setupEventHandlers(mapView);
   addDirectoryKiosks(mapView, mapData);
-  setupUI();
 };
 
 const addPromotionalMarkers = (mapViewInstance: any, storeSpaces: any[]) => {
