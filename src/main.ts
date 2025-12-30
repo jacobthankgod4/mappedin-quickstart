@@ -2,12 +2,10 @@ import { getMapData, show3dMap } from "@mappedin/mappedin-js";
 import "@mappedin/mappedin-js/lib/index.css";
 
 const options = {
-  key: "mik_yeBk6oNLFVhz8VjTo2463b852",
-  secret: "mis_2g9ST8ZcbZHEw5k3CZzOBpKwVLXKU2YGnFWWKKlCrAuU2T7",
+  key: "mik_public",
+  secret: "mis_public",
   mapId: "65c0ff7430b94e3fabd5bb8c",
 };
-
-
 
 const storeCategories = [
   "Fashion & Apparel",
