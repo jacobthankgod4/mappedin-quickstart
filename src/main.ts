@@ -10,6 +10,7 @@ const options = {
 let mapView: any = null;
 let stores: any[] = [];
 let searchResults: any[] = [];
+let selectedStore: any = null;
 
 async function init() {
   const mapData = await getMapData(options);
@@ -36,6 +37,16 @@ function searchStores(query: string) {
       store.name.toLowerCase().includes(query.toLowerCase())
     );
   }
+  updateStoreList();
+}
+
+function selectStore(store: any) {
+  selectedStore = store;
+  mapView.Camera.focusOn(store, {
+    zoom: 1000,
+    tilt: 30,
+    duration: 1000
+  });
   updateStoreList();
 }
 
@@ -91,19 +102,31 @@ function updateStoreList() {
   storeList.innerHTML = searchResults
     .map(
       (store) => `
-    <div style="
-      padding: 10px;
-      margin: 5px 0;
-      background: #f8f9fa;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-    ">
+    <div 
+      class="store-item"
+      data-store-id="${store.id}"
+      style="
+        padding: 10px;
+        margin: 5px 0;
+        background: ${selectedStore?.id === store.id ? '#3498db' : '#f8f9fa'};
+        color: ${selectedStore?.id === store.id ? 'white' : '#333'};
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      ">
       ${store.name}
     </div>
   `
     )
     .join('');
+
+  document.querySelectorAll('.store-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      const storeId = item.getAttribute('data-store-id');
+      const store = stores.find((s) => s.id === storeId);
+      if (store) selectStore(store);
+    });
+  });
 }
 
 init();
