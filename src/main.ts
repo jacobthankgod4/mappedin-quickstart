@@ -11,6 +11,7 @@ let mapView: any = null;
 let stores: any[] = [];
 let searchResults: any[] = [];
 let selectedStore: any = null;
+let currentFloor: any = null;
 
 async function init() {
   const mapData = await getMapData(options);
@@ -20,6 +21,7 @@ async function init() {
   );
   setupStores(mapData);
   setupLabels();
+  setupFloorIndicator(mapData);
   setupUI();
 }
 
@@ -37,6 +39,33 @@ function setupLabels() {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 4,
     padding: 8
+  });
+}
+
+function setupFloorIndicator(mapData: any) {
+  const floors = mapData.getByType('floor');
+  currentFloor = floors[0];
+
+  const container = document.getElementById('mappedin-map')!;
+  const indicator = document.createElement('div');
+  indicator.id = 'floorIndicator';
+  indicator.style.cssText = `
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    z-index: 10;
+  `;
+  indicator.textContent = `Floor: ${currentFloor?.name || 'Unknown'}`;
+  container.appendChild(indicator);
+
+  mapView.on('floor-change', (event: any) => {
+    currentFloor = event.floor;
+    indicator.textContent = `Floor: ${currentFloor?.name || 'Unknown'}`;
   });
 }
 
