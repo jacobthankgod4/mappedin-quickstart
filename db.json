@@ -1,0 +1,150 @@
+{
+  "stores": [
+    {
+      "id": "store-001",
+      "name": "Fresh Market",
+      "type": "supermarket",
+      "location": "Mall Level 1"
+    }
+  ],
+  "products": [
+    {
+      "id": "prod-001",
+      "name": "Pasta Sauce",
+      "description": "Organic tomato pasta sauce",
+      "price": 3.99,
+      "category": "Pantry",
+      "polygonName": "Aisle 1",
+      "stock": 45,
+      "inStock": true,
+      "barcode": "123456789012",
+      "brand": "Organic Valley",
+      "lastUpdated": "2025-01-27T10:00:00Z"
+    },
+    {
+      "id": "prod-002", 
+      "name": "Fresh Bread",
+      "description": "Artisan sourdough bread",
+      "price": 2.49,
+      "category": "Bakery",
+      "polygonName": "Bakery",
+      "stock": 12,
+      "inStock": true,
+      "barcode": "123456789013",
+      "brand": "Local Bakery",
+      "lastUpdated": "2025-01-27T09:30:00Z"
+    },
+    {
+      "id": "prod-003",
+      "name": "Whole Milk",
+      "description": "Fresh whole milk 1 gallon",
+      "price": 4.29,
+      "category": "Dairy",
+      "polygonName": "Dairy",
+      "stock": 28,
+      "inStock": true,
+      "barcode": "123456789014",
+      "brand": "Farm Fresh",
+      "lastUpdated": "2025-01-27T08:00:00Z"
+    },
+    {
+      "id": "prod-004",
+      "name": "Red Apples",
+      "description": "Crisp red apples per lb",
+      "price": 5.99,
+      "category": "Produce",
+      "polygonName": "Produce",
+      "stock": 67,
+      "inStock": true,
+      "barcode": "123456789015",
+      "brand": "Local Farm",
+      "lastUpdated": "2025-01-27T07:00:00Z"
+    },
+    {
+      "id": "prod-005",
+      "name": "Chicken Breast",
+      "description": "Fresh chicken breast per lb",
+      "price": 8.99,
+      "category": "Meat",
+      "polygonName": "Meat",
+      "stock": 15,
+      "inStock": true,
+      "barcode": "123456789016",
+      "brand": "Premium Poultry",
+      "lastUpdated": "2025-01-27T06:00:00Z"
+    },
+    {
+      "id": "prod-006",
+      "name": "Bananas",
+      "description": "Fresh bananas per bunch",
+      "price": 1.99,
+      "category": "Produce",
+      "polygonName": "Produce",
+      "stock": 89,
+      "inStock": true,
+      "barcode": "123456789017",
+      "brand": "Tropical Farms",
+      "lastUpdated": "2025-01-27T07:00:00Z"
+    },
+    {
+      "id": "prod-007",
+      "name": "Cheddar Cheese",
+      "description": "Sharp cheddar cheese block",
+      "price": 6.49,
+      "category": "Dairy",
+      "polygonName": "Dairy",
+      "stock": 3,
+      "inStock": true,
+      "barcode": "123456789018",
+      "brand": "Artisan Cheese Co",
+      "lastUpdated": "2025-01-27T08:00:00Z"
+    },
+    {
+      "id": "prod-008",
+      "name": "Olive Oil",
+      "description": "Extra virgin olive oil 500ml",
+      "price": 12.99,
+      "category": "Pantry",
+      "polygonName": "Aisle 1",
+      "stock": 0,
+      "inStock": false,
+      "barcode": "123456789019",
+      "brand": "Mediterranean Gold",
+      "lastUpdated": "2025-01-27T10:00:00Z"
+    },
+    {
+      "id": "prod-009",
+      "name": "Salmon Fillet",
+      "description": "Fresh Atlantic salmon per lb",
+      "price": 15.99,
+      "category": "Seafood",
+      "polygonName": "Meat",
+      "stock": 8,
+      "inStock": true,
+      "barcode": "123456789020",
+      "brand": "Ocean Fresh",
+      "lastUpdated": "2025-01-27T06:00:00Z"
+    },
+    {
+      "id": "prod-010",
+      "name": "Greek Yogurt",
+      "description": "Plain Greek yogurt 32oz",
+      "price": 4.99,
+      "category": "Dairy",
+      "polygonName": "Dairy",
+      "stock": 22,
+      "inStock": true,
+      "barcode": "123456789021",
+      "brand": "Greek Gods",
+      "lastUpdated": "2025-01-27T08:00:00Z"
+    }
+  ],
+  "categories": [
+    { "id": "cat-001", "name": "Produce", "color": "#4CAF50" },
+    { "id": "cat-002", "name": "Dairy", "color": "#2196F3" },
+    { "id": "cat-003", "name": "Meat", "color": "#F44336" },
+    { "id": "cat-004", "name": "Bakery", "color": "#FF9800" },
+    { "id": "cat-005", "name": "Pantry", "color": "#9C27B0" },
+    { "id": "cat-006", "name": "Seafood", "color": "#00BCD4" }
+  ]
+}
