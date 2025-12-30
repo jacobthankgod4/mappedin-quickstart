@@ -19,6 +19,7 @@ async function init() {
     mapData
   );
   setupStores(mapData);
+  setupLabels();
   setupUI();
 }
 
@@ -27,6 +28,16 @@ function setupStores(mapData: any) {
   stores = allSpaces.filter((space: any) => space.name);
   searchResults = stores;
   console.log(`Found ${stores.length} stores:`, stores.map((s: any) => s.name));
+}
+
+function setupLabels() {
+  mapView.Labels.labelAll({
+    fontSize: 12,
+    fontColor: '#2c3e50',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 4,
+    padding: 8
+  });
 }
 
 function searchStores(query: string) {
