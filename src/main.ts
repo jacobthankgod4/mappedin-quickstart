@@ -14,11 +14,11 @@ let selectedStore: any = null;
 let currentFloor: any = null;
 
 async function init() {
+  const container = document.getElementById('mappedin-map')!;
+  container.style.position = 'relative';
+
   const mapData = await getMapData(options);
-  mapView = await show3dMap(
-    document.getElementById('mappedin-map')!,
-    mapData
-  );
+  mapView = await show3dMap(container, mapData);
   setupStores(mapData);
   setupLabels();
   setupFloorIndicator(mapData);
@@ -58,7 +58,7 @@ function setupFloorIndicator(mapData: any) {
     padding: 10px 15px;
     border-radius: 20px;
     font-size: 14px;
-    z-index: 10;
+    z-index: 100;
   `;
   indicator.textContent = `Floor: ${currentFloor?.name || 'Unknown'}`;
   container.appendChild(indicator);
@@ -105,7 +105,7 @@ function setupUI() {
     width: 300px;
     max-height: 80vh;
     overflow-y: auto;
-    z-index: 10;
+    z-index: 100;
   `;
 
   panel.innerHTML = `
