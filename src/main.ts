@@ -12,6 +12,7 @@ let stores: any[] = [];
 let searchResults: any[] = [];
 let selectedStore: any = null;
 let currentFloor: any = null;
+let selectedPolygon: any = null;
 
 async function init() {
   const container = document.getElementById('mappedin-map')!;
@@ -22,6 +23,8 @@ async function init() {
   
   setupStores(mapData);
   setupFloorIndicator(mapData);
+  addPromotionalMarkers();
+  addDirectoryKiosks(mapData);
   setupUI();
 }
 
@@ -66,6 +69,60 @@ function setupFloorIndicator(mapData: any) {
   });
 }
 
+function addPromotionalMarkers() {
+  const promotionTypes = ['SALE', 'NEW', 'HOT', '50% OFF', 'GRAND OPENING'];
+  const colors = ['#e74c3c', '#f39c12', '#e67e22', '#27ae60', '#9b59b6'];
+  
+  stores.slice(0, 5).forEach((store, index) => {
+    try {
+      mapView.Markers.add(store, `
+        <div style="
+          background: ${colors[index]};
+          color: white;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-weight: bold;
+          font-size: 11px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        ">
+          ${promotionTypes[index]}
+        </div>
+      `, { rank: 2 });
+    } catch (err) {
+      console.error('Marker error:', err);
+    }
+  });
+}
+
+function addDirectoryKiosks(mapData: any) {
+  try {
+    const spaces = mapData.getByType?.('space') || [];
+    const entrances = spaces.filter((s: any) => s.name && s.name.toLowerCase().includes('entrance'));
+    
+    entrances.forEach((entrance: any) => {
+      mapView.Markers.add(entrance, `
+        <div style="
+          background: #3498db;
+          color: white;
+          padding: 8px;
+          border-radius: 50%;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+        ">
+          ℹ️
+        </div>
+      `, { rank: 3 });
+    });
+  } catch (err) {
+    console.error('Kiosk error:', err);
+  }
+}
+
 function searchStores(query: string) {
   if (!query.trim()) {
     searchResults = stores;
@@ -91,6 +148,22 @@ function searchStores(query: string) {
 function selectStore(store: any) {
   try {
     selectedStore = store;
+    
+    // Clear previous polygon
+    if (selectedPolygon) {
+      try {
+        mapView.Polygons.remove(selectedPolygon);
+      } catch (err) {}
+    }
+    
+    // Add new polygon
+    selectedPolygon = mapView.Polygons.add(store, {
+      color: '#3498db',
+      opacity: 0.3,
+      strokeColor: '#2980b9',
+      strokeWidth: 2
+    });
+    
     mapView.Camera.focusOn(store, {
       zoom: 1000,
       tilt: 30,
@@ -104,6 +177,36 @@ function selectStore(store: any) {
 
 function clearSelection() {
   selectedStore = null;
+  if (selectedPolygon) {
+    try {
+      mapView.Polygons.remove(selectedPolygon);
+    } catch (err) {}
+    selectedPolygon = null;
+  }
+  updateStoreList();
+}
+
+function filterByCategory(category: string) {
+  if (!category) {
+    searchResults = stores;
+  } else {
+    const keywords: any = {
+      'Fashion': ['fashion', 'clothing', 'apparel', 'shoes'],
+      'Electronics': ['electronics', 'tech', 'phone', 'computer'],
+      'Food': ['restaurant', 'cafe', 'food', 'dining'],
+      'Beauty': ['beauty', 'health', 'pharmacy', 'salon'],
+      'Home': ['home', 'furniture', 'garden'],
+      'Entertainment': ['cinema', 'games', 'entertainment'],
+      'Services': ['bank', 'service', 'repair']
+    };
+    
+    const categoryKeywords = keywords[category] || [];
+    searchResults = stores.filter(store =>
+      categoryKeywords.some(keyword => 
+        store.name.toLowerCase().includes(keyword)
+      )
+    );
+  }
   updateStoreList();
 }
 
@@ -124,7 +227,7 @@ function setupUI() {
   `;
 
   panel.innerHTML = `
-    <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 16px;">🏬 Directory</h3>
+    <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 16px;">🏬 Mall Directory</h3>
     <input
       id="searchInput"
       type="text"
@@ -139,7 +242,20 @@ function setupUI() {
         font-size: 14px;
       "
     />
-    <div id="content" style="max-height: 500px; overflow-y: auto;"></div>
+    <div style="margin-bottom: 15px;">
+      <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px;">Filter by Category:</label>
+      <select id="categoryFilter" style="width: 100%; padding: 8px; border-radius: 4px; font-size: 13px;">
+        <option value="">All Categories</option>
+        <option value="Fashion">Fashion & Apparel</option>
+        <option value="Electronics">Electronics</option>
+        <option value="Food">Food & Dining</option>
+        <option value="Beauty">Beauty & Health</option>
+        <option value="Home">Home & Garden</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Services">Services</option>
+      </select>
+    </div>
+    <div id="content" style="max-height: 400px; overflow-y: auto;"></div>
   `;
 
   document.body.appendChild(panel);
@@ -148,6 +264,13 @@ function setupUI() {
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       searchStores((e.target as HTMLInputElement).value);
+    });
+  }
+
+  const categoryFilter = document.getElementById('categoryFilter');
+  if (categoryFilter) {
+    categoryFilter.addEventListener('change', (e) => {
+      filterByCategory((e.target as HTMLSelectElement).value);
     });
   }
 
@@ -194,13 +317,13 @@ function updateStoreList() {
       }
     }
     
-    html += `<button id="backBtn" style="margin-top: 15px; width: 100%; padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">← Back to List</button>`;
+    html += `<button id="clearBtn" style="margin-top: 15px; width: 100%; padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">← Back to List</button>`;
     
     content.innerHTML = html;
     
-    const backBtn = document.getElementById('backBtn');
-    if (backBtn) {
-      backBtn.addEventListener('click', clearSelection);
+    const clearBtn = document.getElementById('clearBtn');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', clearSelection);
     }
   } else {
     content.innerHTML = searchResults
