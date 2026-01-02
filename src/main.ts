@@ -103,18 +103,18 @@ function setupUI() {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    width: 350px;
+    width: 380px;
     max-height: 80vh;
     overflow-y: auto;
     z-index: 100;
   `;
 
   panel.innerHTML = `
-    <h3 style="margin: 0 0 15px 0; color: #2c3e50;">🏬 Stores</h3>
+    <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 16px;">🏬 Directory</h3>
     <input
       id="searchInput"
       type="text"
-      placeholder="Search stores..."
+      placeholder="Search..."
       style="
         width: 100%;
         padding: 10px;
@@ -122,6 +122,7 @@ function setupUI() {
         border-radius: 4px;
         margin-bottom: 15px;
         box-sizing: border-box;
+        font-size: 14px;
       "
     />
     <div id="storeList" style="max-height: 500px; overflow-y: auto;"></div>
@@ -146,27 +147,40 @@ function updateStoreList() {
   storeList.innerHTML = searchResults
     .map((store) => {
       const isSelected = selectedStore?.id === store.id;
-      let detailsHtml = '';
+      let contentHtml = `<div style="font-weight: 600; font-size: 14px; color: #2c3e50; margin-bottom: 8px;">${store.name}</div>`;
 
       if (isSelected) {
-        // Show location details if available
+        // Show location details from enterpriseLocations
         if (store.enterpriseLocations && store.enterpriseLocations.length > 0) {
           const location = store.enterpriseLocations[0];
           
-          detailsHtml = `
-            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee;">
-              ${location.gallery && location.gallery.length > 0 ? `<img src="${location.gallery[0].image}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">` : ''}
-              ${location.description ? `<p style="margin: 0 0 8px 0; color: #555; font-size: 13px;">${location.description}</p>` : ''}
-              ${location.amenity ? `<p style="margin: 0 0 8px 0; color: #666; font-size: 12px;"><strong>Type:</strong> ${location.amenity}</p>` : ''}
-              ${location.extra ? Object.entries(location.extra).map(([key, value]) => `<p style="margin: 0 0 4px 0; color: #666; font-size: 12px;"><strong>${key}:</strong> ${value}</p>`).join('') : ''}
-            </div>
-          `;
+          // Gallery images
+          if (location.gallery && location.gallery.length > 0) {
+            contentHtml += `
+              <div style="margin-bottom: 10px;">
+                <img src="${location.gallery[0].image}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 6px;">
+              </div>
+            `;
+          }
+          
+          // Description
+          if (location.description) {
+            contentHtml += `<p style="margin: 0 0 8px 0; font-size: 13px; color: #555; line-height: 1.4;">${location.description}</p>`;
+          }
+          
+          // Amenity/Type
+          if (location.amenity) {
+            contentHtml += `<p style="margin: 0 0 6px 0; font-size: 12px; color: #666;"><strong>Type:</strong> ${location.amenity}</p>`;
+          }
+          
+          // Extra properties
+          if (location.extra) {
+            Object.entries(location.extra).forEach(([key, value]) => {
+              contentHtml += `<p style="margin: 0 0 4px 0; font-size: 12px; color: #666;"><strong>${key}:</strong> ${value}</p>`;
+            });
+          }
         } else if (store.description) {
-          detailsHtml = `
-            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee;">
-              <p style="margin: 0; color: #555; font-size: 13px;">${store.description}</p>
-            </div>
-          `;
+          contentHtml += `<p style="margin: 0; font-size: 13px; color: #555;">${store.description}</p>`;
         }
       }
 
@@ -175,16 +189,15 @@ function updateStoreList() {
           class="store-item"
           data-store-id="${store.id}"
           style="
-            padding: 12px;
+            padding: 14px;
             margin: 8px 0;
-            background: ${isSelected ? '#f0f7ff' : '#f8f9fa'};
-            border: ${isSelected ? '2px solid #3498db' : '1px solid #ddd'};
+            background: ${isSelected ? '#e8f4fd' : '#f8f9fa'};
+            border: ${isSelected ? '2px solid #3498db' : '1px solid #e0e0e0'};
             border-radius: 6px;
             cursor: pointer;
-            overflow: hidden;
+            transition: all 0.2s ease;
           ">
-          <div style="font-weight: bold; font-size: 14px; color: #2c3e50;">${store.name}</div>
-          ${detailsHtml}
+          ${contentHtml}
         </div>
       `;
     })
