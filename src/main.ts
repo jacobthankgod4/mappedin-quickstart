@@ -86,6 +86,7 @@ function addLabels() {
     console.error('Labels error:', err);
   }
 }
+function addPromotionalMarkers() {
   const promotionTypes = ['SALE', 'NEW', 'HOT', '50% OFF', 'GRAND OPENING'];
   const colors = ['#e74c3c', '#f39c12', '#e67e22', '#27ae60', '#9b59b6'];
   
