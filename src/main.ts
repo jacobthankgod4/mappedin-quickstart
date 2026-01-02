@@ -252,7 +252,8 @@ function clearNavigation() {
 
 
 function setupUI() {
-  document.body.innerHTML += `
+  const uiContainer = document.createElement('div');
+  uiContainer.innerHTML = `
     <div class="search-bar">
       <input id="searchInput" class="search-input" type="text" placeholder="Search stores..." />
       <span class="search-icon">🔍</span>
@@ -266,6 +267,7 @@ function setupUI() {
     </div>
     <button id="navFab" class="fab" style="display:none;">📍</button>
   `;
+  document.body.appendChild(uiContainer);
 
   const sheet = document.getElementById('bottomSheet')!;
   const handle = sheet.querySelector('.sheet-handle')!;
