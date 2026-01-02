@@ -14,15 +14,28 @@ let selectedStore: any = null;
 let currentFloor: any = null;
 
 async function init() {
+  console.log('=== INIT START ===');
   const container = document.getElementById('mappedin-map')!;
+  console.log('Container:', container);
   container.style.position = 'relative';
 
   const mapData = await getMapData(options);
+  console.log('Map data loaded');
   mapView = await show3dMap(container, mapData);
+  console.log('show3dMap completed, mapView:', mapView);
+  
   setupStores(mapData);
+  console.log('setupStores done');
+  
   setupLabels();
+  console.log('setupLabels done');
+  
   setupFloorIndicator(mapData);
+  console.log('setupFloorIndicator done');
+  
   setupUI();
+  console.log('setupUI done');
+  console.log('=== INIT END ===');
 }
 
 function setupStores(mapData: any) {
@@ -33,13 +46,19 @@ function setupStores(mapData: any) {
 }
 
 function setupLabels() {
-  mapView.Labels.labelAll({
-    fontSize: 12,
-    fontColor: '#2c3e50',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 4,
-    padding: 8
-  });
+  console.log('setupLabels: mapView.Labels exists?', !!mapView?.Labels);
+  try {
+    mapView.Labels.labelAll({
+      fontSize: 12,
+      fontColor: '#2c3e50',
+      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+      borderRadius: 4,
+      padding: 8
+    });
+    console.log('Labels applied');
+  } catch (err) {
+    console.error('Labels error:', err);
+  }
 }
 
 function setupFloorIndicator(mapData: any) {
@@ -62,6 +81,7 @@ function setupFloorIndicator(mapData: any) {
   `;
   indicator.textContent = `Floor: ${currentFloor?.name || 'Unknown'}`;
   container.appendChild(indicator);
+  console.log('Floor indicator appended');
 
   mapView.on('floor-change', (event: any) => {
     currentFloor = event.floor;
@@ -91,6 +111,7 @@ function selectStore(store: any) {
 }
 
 function setupUI() {
+  console.log('setupUI: creating panel');
   const container = document.getElementById('mappedin-map')!;
   
   const panel = document.createElement('div');
@@ -127,6 +148,7 @@ function setupUI() {
   `;
 
   container.appendChild(panel);
+  console.log('Panel appended to container');
 
   document.getElementById('searchInput')?.addEventListener('input', (e) => {
     searchStores((e.target as HTMLInputElement).value);
