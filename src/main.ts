@@ -39,10 +39,15 @@ async function init() {
 }
 
 function setupStores(mapData: any) {
-  const allSpaces = mapData.getByType('space');
-  stores = allSpaces.filter((space: any) => space.name);
+  stores = mapData.locations || [];
   searchResults = stores;
   console.log(`Found ${stores.length} stores:`, stores.map((s: any) => s.name));
+  console.log('Store details:', stores.map((s: any) => ({
+    name: s.name,
+    hasImages: !!s.images?.length,
+    hasDescription: !!s.description,
+    hasPhone: !!s.phone
+  })));
 }
 
 function setupLabels() {
@@ -162,24 +167,32 @@ function updateStoreList() {
   if (!storeList) return;
 
   storeList.innerHTML = searchResults
-    .map(
-      (store) => `
-    <div 
-      class="store-item"
-      data-store-id="${store.id}"
-      style="
-        padding: 10px;
-        margin: 5px 0;
-        background: ${selectedStore?.id === store.id ? '#3498db' : '#f8f9fa'};
-        color: ${selectedStore?.id === store.id ? 'white' : '#333'};
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-      ">
-      ${store.name}
-    </div>
-  `
-    )
+    .map((store) => {
+      const image = store.images?.[0]?.url || '';
+      const description = store.description || '';
+      const phone = store.phone || '';
+      const isSelected = selectedStore?.id === store.id;
+      
+      return `
+        <div 
+          class="store-item"
+          data-store-id="${store.id}"
+          style="
+            padding: 12px;
+            margin: 8px 0;
+            background: ${isSelected ? '#3498db' : '#f8f9fa'};
+            color: ${isSelected ? 'white' : '#333'};
+            border-radius: 6px;
+            cursor: pointer;
+            overflow: hidden;
+          ">
+          ${image ? `<img src="${image}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 4px; margin-bottom: 8px; display: block;">` : ''}
+          <div style="font-weight: bold; font-size: 14px;">${store.name}</div>
+          ${description ? `<div style="font-size: 12px; margin-top: 4px; opacity: ${isSelected ? '0.9' : '0.7'};">${description}</div>` : ''}
+          ${phone ? `<div style="font-size: 11px; margin-top: 4px; opacity: ${isSelected ? '0.9' : '0.7'};">${phone}</div>` : ''}
+        </div>
+      `;
+    })
     .join('');
 
   document.querySelectorAll('.store-item').forEach((item) => {
