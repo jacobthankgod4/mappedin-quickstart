@@ -201,9 +201,9 @@ function filterByCategory(category: string) {
       'Services': ['bank', 'service', 'repair']
     };
     
-    const categoryKeywords = keywords[category] || [];
+    const categoryKeywords: string[] = keywords[category] || [];
     searchResults = stores.filter(store =>
-      categoryKeywords.some(keyword => 
+      categoryKeywords.some((keyword: string) => 
         store.name.toLowerCase().includes(keyword)
       )
     );
