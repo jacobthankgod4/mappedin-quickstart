@@ -88,83 +88,28 @@ function selectStore(store: any) {
       });
     }
     updateStoreList();
-    showStoreDetails(store);
   } catch (err) {
     console.error('selectStore error:', err);
   }
 }
 
-function showStoreDetails(store: any) {
-  const detailsPanel = document.getElementById('detailsPanel');
-  if (!detailsPanel) return;
-
-  let html = `<div style="margin-bottom: 20px;">`;
-  
-  // Show location details if space has enterprise locations
-  if (store.enterpriseLocations && store.enterpriseLocations.length > 0) {
-    const location = store.enterpriseLocations[0];
-    
-    // Gallery/Images
-    if (location.gallery && location.gallery.length > 0) {
-      html += `<img src="${location.gallery[0].image}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`;
-    }
-    
-    // Name
-    html += `<h2 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 18px;">${location.name}</h2>`;
-    
-    // Description
-    if (location.description) {
-      html += `<p style="margin: 0 0 10px 0; color: #555; font-size: 14px;">${location.description}</p>`;
-    }
-    
-    // Amenity
-    if (location.amenity) {
-      html += `<p style="margin: 0 0 10px 0; color: #666; font-size: 13px;"><strong>Type:</strong> ${location.amenity}</p>`;
-    }
-    
-    // Extra properties
-    if (location.extra) {
-      Object.entries(location.extra).forEach(([key, value]) => {
-        html += `<p style="margin: 0 0 5px 0; color: #666; font-size: 13px;"><strong>${key}:</strong> ${value}</p>`;
-      });
-    }
-  } else {
-    // Fallback to space description
-    html += `<h2 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 18px;">${store.name}</h2>`;
-    if (store.description) {
-      html += `<p style="margin: 0 0 10px 0; color: #555; font-size: 14px;">${store.description}</p>`;
-    }
-  }
-  
-  html += `</div>`;
-  detailsPanel.innerHTML = html;
-}
-
 function setupUI() {
-  const container = document.createElement('div');
-  container.style.cssText = `
+  const panel = document.createElement('div');
+  panel.style.cssText = `
     position: fixed;
     top: 20px;
     left: 20px;
-    display: flex;
-    gap: 15px;
-    z-index: 100;
-    max-height: 80vh;
-  `;
-
-  // Store list panel
-  const listPanel = document.createElement('div');
-  listPanel.style.cssText = `
     background: white;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    width: 300px;
+    width: 350px;
     max-height: 80vh;
     overflow-y: auto;
+    z-index: 100;
   `;
 
-  listPanel.innerHTML = `
+  panel.innerHTML = `
     <h3 style="margin: 0 0 15px 0; color: #2c3e50;">🏬 Stores</h3>
     <input
       id="searchInput"
@@ -179,26 +124,10 @@ function setupUI() {
         box-sizing: border-box;
       "
     />
-    <div id="storeList" style="max-height: 400px; overflow-y: auto;"></div>
+    <div id="storeList" style="max-height: 500px; overflow-y: auto;"></div>
   `;
 
-  // Details panel
-  const detailsPanel = document.createElement('div');
-  detailsPanel.id = 'detailsPanel';
-  detailsPanel.style.cssText = `
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    width: 350px;
-    max-height: 80vh;
-    overflow-y: auto;
-  `;
-  detailsPanel.innerHTML = `<p style="color: #999;">Select a store to view details</p>`;
-
-  container.appendChild(listPanel);
-  container.appendChild(detailsPanel);
-  document.body.appendChild(container);
+  document.body.appendChild(panel);
 
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
@@ -217,7 +146,30 @@ function updateStoreList() {
   storeList.innerHTML = searchResults
     .map((store) => {
       const isSelected = selectedStore?.id === store.id;
-      
+      let detailsHtml = '';
+
+      if (isSelected) {
+        // Show location details if available
+        if (store.enterpriseLocations && store.enterpriseLocations.length > 0) {
+          const location = store.enterpriseLocations[0];
+          
+          detailsHtml = `
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee;">
+              ${location.gallery && location.gallery.length > 0 ? `<img src="${location.gallery[0].image}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">` : ''}
+              ${location.description ? `<p style="margin: 0 0 8px 0; color: #555; font-size: 13px;">${location.description}</p>` : ''}
+              ${location.amenity ? `<p style="margin: 0 0 8px 0; color: #666; font-size: 12px;"><strong>Type:</strong> ${location.amenity}</p>` : ''}
+              ${location.extra ? Object.entries(location.extra).map(([key, value]) => `<p style="margin: 0 0 4px 0; color: #666; font-size: 12px;"><strong>${key}:</strong> ${value}</p>`).join('') : ''}
+            </div>
+          `;
+        } else if (store.description) {
+          detailsHtml = `
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee;">
+              <p style="margin: 0; color: #555; font-size: 13px;">${store.description}</p>
+            </div>
+          `;
+        }
+      }
+
       return `
         <div 
           class="store-item"
@@ -225,13 +177,14 @@ function updateStoreList() {
           style="
             padding: 12px;
             margin: 8px 0;
-            background: ${isSelected ? '#3498db' : '#f8f9fa'};
-            color: ${isSelected ? 'white' : '#333'};
+            background: ${isSelected ? '#f0f7ff' : '#f8f9fa'};
+            border: ${isSelected ? '2px solid #3498db' : '1px solid #ddd'};
             border-radius: 6px;
             cursor: pointer;
             overflow: hidden;
           ">
-          <div style="font-weight: bold; font-size: 14px;">${store.name}</div>
+          <div style="font-weight: bold; font-size: 14px; color: #2c3e50;">${store.name}</div>
+          ${detailsHtml}
         </div>
       `;
     })
