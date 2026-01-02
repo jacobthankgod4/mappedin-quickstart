@@ -12,12 +12,6 @@ let stores: any[] = [];
 let searchResults: any[] = [];
 let selectedStore: any = null;
 let currentFloor: any = null;
-let debugMessages: string[] = [];
-
-function debugLog(msg: string) {
-  console.log(msg);
-  debugMessages.push(msg);
-}
 
 async function init() {
   const container = document.getElementById('mappedin-map')!;
@@ -29,26 +23,6 @@ async function init() {
   setupStores(mapData);
   setupFloorIndicator(mapData);
   setupUI();
-  
-  // Create debug panel after everything loads
-  const debugPanel = document.createElement('div');
-  debugPanel.id = 'debugPanel';
-  debugPanel.style.cssText = `
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.95);
-    color: #0f0;
-    padding: 8px;
-    border-radius: 4px;
-    font-family: monospace;
-    max-width: 280px;
-    max-height: 250px;
-    overflow-y: auto;
-    z-index: 2000;
-  `;
-  debugPanel.innerHTML = debugMessages.map(m => `<div style="font-size: 10px; margin: 2px 0;">${m}</div>`).join('');
-  document.body.appendChild(debugPanel);
 }
 
 function setupStores(mapData: any) {
@@ -60,12 +34,11 @@ function setupStores(mapData: any) {
       stores = spaces.filter((s: any) => s && s.name);
     }
     searchResults = stores;
-    debugLog('Stores: ' + stores.length);
   } catch (err) {
     stores = [];
     searchResults = [];
   }
-}}
+}
 
 function setupFloorIndicator(mapData: any) {
   const floors = mapData.getByType('floor');
@@ -108,7 +81,7 @@ function searchStores(query: string) {
           duration: 1000
         });
       } catch (err) {
-        debugLog('Zoom error');
+        console.error('Zoom error');
       }
     }
   }
@@ -118,20 +91,6 @@ function searchStores(query: string) {
 function selectStore(store: any) {
   try {
     selectedStore = store;
-    debugLog('Selected: ' + store.name);
-    debugLog('Has entLoc: ' + !!store.enterpriseLocations);
-    
-    if (store.enterpriseLocations && store.enterpriseLocations.length > 0) {
-      const loc = store.enterpriseLocations[0];
-      debugLog('Loc: ' + loc.name);
-      debugLog('Loc keys: ' + Object.keys(loc).join('|'));
-      debugLog('gallery: ' + !!loc.gallery);
-      debugLog('picture: ' + !!loc.picture);
-      debugLog('images: ' + !!loc.images);
-      debugLog('logoImage: ' + !!loc.logoImage);
-      if (loc.images) debugLog('images.length: ' + loc.images.length);
-    }
-    
     mapView.Camera.focusOn(store, {
       zoom: 1000,
       tilt: 30,
@@ -139,7 +98,7 @@ function selectStore(store: any) {
     });
     updateStoreList();
   } catch (err) {
-    debugLog('Error: ' + err);
+    console.error('selectStore error:', err);
   }
 }
 
