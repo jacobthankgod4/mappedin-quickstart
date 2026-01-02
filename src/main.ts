@@ -23,6 +23,7 @@ async function init() {
   
   setupStores(mapData);
   setupFloorIndicator(mapData);
+  addLabels();
   addPromotionalMarkers();
   addDirectoryKiosks(mapData);
   setupUI();
@@ -69,7 +70,22 @@ function setupFloorIndicator(mapData: any) {
   });
 }
 
-function addPromotionalMarkers() {
+function addLabels() {
+  try {
+    stores.forEach((store) => {
+      mapView.Labels.add(store, store.name, {
+        fontSize: 12,
+        fontColor: '#2c3e50',
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderRadius: 4,
+        padding: 8
+      });
+    });
+    console.log('Labels added');
+  } catch (err) {
+    console.error('Labels error:', err);
+  }
+}
   const promotionTypes = ['SALE', 'NEW', 'HOT', '50% OFF', 'GRAND OPENING'];
   const colors = ['#e74c3c', '#f39c12', '#e67e22', '#27ae60', '#9b59b6'];
   
