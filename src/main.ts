@@ -73,6 +73,18 @@ function searchStores(query: string) {
     searchResults = stores.filter((store) =>
       store.name.toLowerCase().includes(query.toLowerCase())
     );
+    // Zoom to first search result
+    if (searchResults.length > 0) {
+      try {
+        mapView.Camera.focusOn(searchResults[0], {
+          zoom: 1000,
+          tilt: 30,
+          duration: 1000
+        });
+      } catch (err) {
+        console.error('Zoom error:', err);
+      }
+    }
   }
   updateStoreList();
 }
@@ -80,17 +92,20 @@ function searchStores(query: string) {
 function selectStore(store: any) {
   try {
     selectedStore = store;
-    if (mapView?.Camera?.focusOn) {
-      mapView.Camera.focusOn(store, {
-        zoom: 1000,
-        tilt: 30,
-        duration: 1000
-      });
-    }
+    mapView.Camera.focusOn(store, {
+      zoom: 1000,
+      tilt: 30,
+      duration: 1000
+    });
     updateStoreList();
   } catch (err) {
     console.error('selectStore error:', err);
   }
+}
+
+function clearSelection() {
+  selectedStore = null;
+  updateStoreList();
 }
 
 function setupUI() {
@@ -103,7 +118,7 @@ function setupUI() {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    width: 380px;
+    width: 350px;
     max-height: 80vh;
     overflow-y: auto;
     z-index: 100;
@@ -125,7 +140,7 @@ function setupUI() {
         font-size: 14px;
       "
     />
-    <div id="storeList" style="max-height: 500px; overflow-y: auto;"></div>
+    <div id="content" style="max-height: 500px; overflow-y: auto;"></div>
   `;
 
   document.body.appendChild(panel);
@@ -141,75 +156,82 @@ function setupUI() {
 }
 
 function updateStoreList() {
-  const storeList = document.getElementById('storeList');
-  if (!storeList) return;
+  const content = document.getElementById('content');
+  if (!content) return;
 
-  storeList.innerHTML = searchResults
-    .map((store) => {
-      const isSelected = selectedStore?.id === store.id;
-      let contentHtml = `<div style="font-weight: 600; font-size: 14px; color: #2c3e50; margin-bottom: 8px;">${store.name}</div>`;
-
-      if (isSelected) {
-        // Show location details from enterpriseLocations
-        if (store.enterpriseLocations && store.enterpriseLocations.length > 0) {
-          const location = store.enterpriseLocations[0];
-          
-          // Gallery images
-          if (location.gallery && location.gallery.length > 0) {
-            contentHtml += `
-              <div style="margin-bottom: 10px;">
-                <img src="${location.gallery[0].image}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 6px;">
-              </div>
-            `;
-          }
-          
-          // Description
-          if (location.description) {
-            contentHtml += `<p style="margin: 0 0 8px 0; font-size: 13px; color: #555; line-height: 1.4;">${location.description}</p>`;
-          }
-          
-          // Amenity/Type
-          if (location.amenity) {
-            contentHtml += `<p style="margin: 0 0 6px 0; font-size: 12px; color: #666;"><strong>Type:</strong> ${location.amenity}</p>`;
-          }
-          
-          // Extra properties
-          if (location.extra) {
-            Object.entries(location.extra).forEach(([key, value]) => {
-              contentHtml += `<p style="margin: 0 0 4px 0; font-size: 12px; color: #666;"><strong>${key}:</strong> ${value}</p>`;
-            });
-          }
-        } else if (store.description) {
-          contentHtml += `<p style="margin: 0; font-size: 13px; color: #555;">${store.description}</p>`;
-        }
+  if (selectedStore) {
+    // Show details view
+    let html = '';
+    
+    if (selectedStore.enterpriseLocations && selectedStore.enterpriseLocations.length > 0) {
+      const location = selectedStore.enterpriseLocations[0];
+      
+      html += `<h2 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 18px;">${location.name}</h2>`;
+      
+      if (location.gallery && location.gallery.length > 0) {
+        html += `<img src="${location.gallery[0].image}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`;
       }
+      
+      if (location.description) {
+        html += `<p style="margin: 0 0 12px 0; color: #555; font-size: 14px; line-height: 1.5;">${location.description}</p>`;
+      }
+      
+      if (location.amenity) {
+        html += `<p style="margin: 0 0 8px 0; color: #666; font-size: 13px;"><strong>Type:</strong> ${location.amenity}</p>`;
+      }
+      
+      if (location.extra) {
+        Object.entries(location.extra).forEach(([key, value]) => {
+          html += `<p style="margin: 0 0 6px 0; color: #666; font-size: 13px;"><strong>${key}:</strong> ${value}</p>`;
+        });
+      }
+    } else {
+      html += `<h2 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 18px;">${selectedStore.name}</h2>`;
+      if (selectedStore.description) {
+        html += `<p style="margin: 0; color: #555; font-size: 14px;">${selectedStore.description}</p>`;
+      }
+    }
+    
+    html += `<button id="backBtn" style="margin-top: 15px; width: 100%; padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">← Back to List</button>`;
+    
+    content.innerHTML = html;
+    
+    const backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+      backBtn.addEventListener('click', clearSelection);
+    }
+  } else {
+    // Show list view
+    content.innerHTML = searchResults
+      .map((store) => {
+        return `
+          <div 
+            class="store-item"
+            data-store-id="${store.id}"
+            style="
+              padding: 12px;
+              margin: 8px 0;
+              background: #f8f9fa;
+              color: #333;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 14px;
+              transition: all 0.2s ease;
+            ">
+            ${store.name}
+          </div>
+        `;
+      })
+      .join('');
 
-      return `
-        <div 
-          class="store-item"
-          data-store-id="${store.id}"
-          style="
-            padding: 14px;
-            margin: 8px 0;
-            background: ${isSelected ? '#e8f4fd' : '#f8f9fa'};
-            border: ${isSelected ? '2px solid #3498db' : '1px solid #e0e0e0'};
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-          ">
-          ${contentHtml}
-        </div>
-      `;
-    })
-    .join('');
-
-  document.querySelectorAll('.store-item').forEach((item) => {
-    item.addEventListener('click', () => {
-      const storeId = item.getAttribute('data-store-id');
-      const store = stores.find((s) => s.id === storeId);
-      if (store) selectStore(store);
+    document.querySelectorAll('.store-item').forEach((item) => {
+      item.addEventListener('click', () => {
+        const storeId = item.getAttribute('data-store-id');
+        const store = stores.find((s) => s.id === storeId);
+        if (store) selectStore(store);
+      });
     });
-  });
+  }
 }
 
 init();
