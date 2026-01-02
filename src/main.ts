@@ -264,8 +264,7 @@ function clearNavigation() {
 }
 
 function hideSheet() {
-  const sheet = document.getElementById('bottomSheet')!;
-  sheet.classList.remove('visible', 'peek');
+  document.getElementById('bottomSheet')!.style.display = 'none';
 }
 
 (window as any).clearSelection = clearSelection;
@@ -335,9 +334,9 @@ function setupUI() {
 function updateStoreList() {
   const content = document.getElementById('sheetContent')!;
   const sheet = document.getElementById('bottomSheet')!;
+  sheet.style.display = 'block';
 
   if (selectedStore) {
-    sheet.classList.add('visible');
     content.innerHTML = `
       <div class="directions-card">
         <div class="directions-header">
@@ -352,7 +351,6 @@ function updateStoreList() {
       </div>
     `;
   } else {
-    sheet.classList.add('peek');
     content.innerHTML = searchResults.map(store => `
       <div class="store-card" data-id="${store.id}">
         <div class="store-icon">🏪</div>
