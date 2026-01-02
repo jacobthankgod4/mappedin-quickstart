@@ -88,17 +88,73 @@ function selectStore(store: any) {
       });
     }
     updateStoreList();
+    showStoreDetails(store);
   } catch (err) {
     console.error('selectStore error:', err);
   }
 }
 
+function showStoreDetails(store: any) {
+  const detailsPanel = document.getElementById('detailsPanel');
+  if (!detailsPanel) return;
+
+  let html = `<div style="margin-bottom: 20px;">`;
+  
+  // Show location details if space has enterprise locations
+  if (store.enterpriseLocations && store.enterpriseLocations.length > 0) {
+    const location = store.enterpriseLocations[0];
+    
+    // Gallery/Images
+    if (location.gallery && location.gallery.length > 0) {
+      html += `<img src="${location.gallery[0].image}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`;
+    }
+    
+    // Name
+    html += `<h2 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 18px;">${location.name}</h2>`;
+    
+    // Description
+    if (location.description) {
+      html += `<p style="margin: 0 0 10px 0; color: #555; font-size: 14px;">${location.description}</p>`;
+    }
+    
+    // Amenity
+    if (location.amenity) {
+      html += `<p style="margin: 0 0 10px 0; color: #666; font-size: 13px;"><strong>Type:</strong> ${location.amenity}</p>`;
+    }
+    
+    // Extra properties
+    if (location.extra) {
+      Object.entries(location.extra).forEach(([key, value]) => {
+        html += `<p style="margin: 0 0 5px 0; color: #666; font-size: 13px;"><strong>${key}:</strong> ${value}</p>`;
+      });
+    }
+  } else {
+    // Fallback to space description
+    html += `<h2 style="margin: 0 0 10px 0; color: #2c3e50; font-size: 18px;">${store.name}</h2>`;
+    if (store.description) {
+      html += `<p style="margin: 0 0 10px 0; color: #555; font-size: 14px;">${store.description}</p>`;
+    }
+  }
+  
+  html += `</div>`;
+  detailsPanel.innerHTML = html;
+}
+
 function setupUI() {
-  const panel = document.createElement('div');
-  panel.style.cssText = `
+  const container = document.createElement('div');
+  container.style.cssText = `
     position: fixed;
     top: 20px;
     left: 20px;
+    display: flex;
+    gap: 15px;
+    z-index: 100;
+    max-height: 80vh;
+  `;
+
+  // Store list panel
+  const listPanel = document.createElement('div');
+  listPanel.style.cssText = `
     background: white;
     padding: 20px;
     border-radius: 8px;
@@ -106,10 +162,9 @@ function setupUI() {
     width: 300px;
     max-height: 80vh;
     overflow-y: auto;
-    z-index: 100;
   `;
 
-  panel.innerHTML = `
+  listPanel.innerHTML = `
     <h3 style="margin: 0 0 15px 0; color: #2c3e50;">🏬 Stores</h3>
     <input
       id="searchInput"
@@ -127,7 +182,23 @@ function setupUI() {
     <div id="storeList" style="max-height: 400px; overflow-y: auto;"></div>
   `;
 
-  document.body.appendChild(panel);
+  // Details panel
+  const detailsPanel = document.createElement('div');
+  detailsPanel.id = 'detailsPanel';
+  detailsPanel.style.cssText = `
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    width: 350px;
+    max-height: 80vh;
+    overflow-y: auto;
+  `;
+  detailsPanel.innerHTML = `<p style="color: #999;">Select a store to view details</p>`;
+
+  container.appendChild(listPanel);
+  container.appendChild(detailsPanel);
+  document.body.appendChild(container);
 
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
@@ -145,7 +216,6 @@ function updateStoreList() {
 
   storeList.innerHTML = searchResults
     .map((store) => {
-      const description = store.description || '';
       const isSelected = selectedStore?.id === store.id;
       
       return `
@@ -162,7 +232,6 @@ function updateStoreList() {
             overflow: hidden;
           ">
           <div style="font-weight: bold; font-size: 14px;">${store.name}</div>
-          ${description ? `<div style="font-size: 12px; margin-top: 4px; opacity: ${isSelected ? '0.9' : '0.7'};">${description}</div>` : ''}
         </div>
       `;
     })
