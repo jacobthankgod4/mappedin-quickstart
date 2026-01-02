@@ -126,25 +126,7 @@ function addDirectoryKiosks(mapData: any) {
   } catch (err) {}
 }
 
-function searchStores(query: string) {
-  if (!query.trim()) {
-    searchResults = stores;
-  } else {
-    searchResults = stores.filter((store) =>
-      store.name.toLowerCase().includes(query.toLowerCase())
-    );
-    if (searchResults.length > 0) {
-      try {
-        mapView.Camera.focusOn(searchResults[0], {
-          zoom: 1000,
-          tilt: 30,
-          duration: 1000
-        });
-      } catch (err) {}
-    }
-  }
-  updateStoreList();
-}
+
 
 function selectStore(store: any) {
   try {
@@ -176,23 +158,51 @@ function showDirections() {
   const content = document.getElementById('sheetContent')!;
   content.innerHTML = `
     <div class="directions-card">
-      <div style="font-size:18px;font-weight:500;color:#202124;margin-bottom:16px;">Choose starting point</div>
-      ${stores.map(store => `
-        <div class="store-card" data-id="${store.id}">
-          <div class="store-icon">📍</div>
-          <div class="store-info">
-            <div class="store-name">${store.name}</div>
-          </div>
+      <div style="font-size:18px;font-weight:500;color:#202124;margin-bottom:16px;">Get Directions</div>
+      
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:12px;color:#5f6368;margin-bottom:8px;">FROM</label>
+        <div style="position:relative;">
+          <input id="startInput" class="location-input" type="text" placeholder="Choose starting point" readonly />
+          <div id="startDropdown" class="location-dropdown" style="display:none;"></div>
         </div>
-      `).join('')}
+      </div>
+      
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:12px;color:#5f6368;margin-bottom:8px;">TO</label>
+        <div style="position:relative;">
+          <input id="endInput" class="location-input" type="text" value="${selectedStore.name}" readonly />
+        </div>
+      </div>
+      
+      <button class="btn-primary" id="startNavBtn" disabled>Start Navigation</button>
+      <button class="btn-secondary" style="margin-top:8px;" onclick="updateStoreList()">Cancel</button>
     </div>
   `;
-  content.querySelectorAll('.store-card').forEach(card => {
-    card.addEventListener('click', async () => {
-      navStartPoint = stores.find(s => s.id === card.getAttribute('data-id'));
-      navEndPoint = selectedStore;
-      await drawNavigation();
+  
+  const startInput = document.getElementById('startInput') as HTMLInputElement;
+  const startDropdown = document.getElementById('startDropdown')!;
+  const startNavBtn = document.getElementById('startNavBtn') as HTMLButtonElement;
+  
+  startInput.addEventListener('click', () => {
+    startDropdown.innerHTML = stores.map(s => `
+      <div class="dropdown-item" data-id="${s.id}">${s.name}</div>
+    `).join('');
+    startDropdown.style.display = 'block';
+    
+    startDropdown.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', () => {
+        navStartPoint = stores.find(st => st.id === item.getAttribute('data-id'));
+        startInput.value = navStartPoint!.name;
+        startDropdown.style.display = 'none';
+        startNavBtn.disabled = false;
+      });
     });
+  });
+  
+  startNavBtn.addEventListener('click', async () => {
+    navEndPoint = selectedStore;
+    await drawNavigation();
   });
 }
 
@@ -271,6 +281,7 @@ function setupUI() {
     <div class="search-bar">
       <span class="search-icon">🔍</span>
       <input id="searchInput" class="search-input" type="text" placeholder="Search here" />
+      <div id="searchResults" class="search-results" style="display:none;"></div>
     </div>
     <div id="bottomSheet" class="bottom-sheet">
       <div class="sheet-header">
@@ -282,8 +293,40 @@ function setupUI() {
   `;
   document.body.appendChild(uiContainer);
 
-  document.getElementById('searchInput')!.addEventListener('input', (e) => {
-    searchStores((e.target as HTMLInputElement).value);
+  const searchInput = document.getElementById('searchInput')!;
+  const searchResultsDiv = document.getElementById('searchResults')!;
+  
+  searchInput.addEventListener('input', (e) => {
+    const query = (e.target as HTMLInputElement).value;
+    if (query.trim()) {
+      const results = stores.filter(s => s.name.toLowerCase().includes(query.toLowerCase()));
+      if (results.length > 0) {
+        searchResultsDiv.innerHTML = results.map(s => `
+          <div class="search-result-item" data-id="${s.id}">${s.name}</div>
+        `).join('');
+        searchResultsDiv.style.display = 'block';
+        searchResultsDiv.querySelectorAll('.search-result-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const store = stores.find(st => st.id === item.getAttribute('data-id'));
+            if (store) {
+              selectStore(store);
+              searchInput.value = '';
+              searchResultsDiv.style.display = 'none';
+            }
+          });
+        });
+      } else {
+        searchResultsDiv.style.display = 'none';
+      }
+    } else {
+      searchResultsDiv.style.display = 'none';
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target as Node) && !searchResultsDiv.contains(e.target as Node)) {
+      searchResultsDiv.style.display = 'none';
+    }
   });
 
   updateStoreList();
