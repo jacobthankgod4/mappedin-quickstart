@@ -150,8 +150,11 @@ function selectStore(store: any) {
       tilt: 30,
       duration: 1000
     });
+    
     updateStoreList();
-  } catch (err) {}
+  } catch (err) {
+    console.error('Select store error:', err);
+  }
 }
 
 function showDirections() {
@@ -284,7 +287,7 @@ function setupUI() {
     </div>
     <div id="bottomSheet" class="bottom-sheet">
       <div class="sheet-header">
-        <div class="sheet-title">Places</div>
+        <div class="sheet-title">Stores</div>
         <button class="close-btn" onclick="hideSheet()">×</button>
       </div>
       <div id="sheetContent" class="sheet-content"></div>
