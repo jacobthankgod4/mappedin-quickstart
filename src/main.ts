@@ -12,13 +12,44 @@ let stores: any[] = [];
 let searchResults: any[] = [];
 let selectedStore: any = null;
 let currentFloor: any = null;
+let debugMessages: string[] = [];
+
+function debugLog(msg: string) {
+  console.log(msg);
+  debugMessages.push(msg);
+  const debugPanel = document.getElementById('debugPanel');
+  if (debugPanel) {
+    debugPanel.innerHTML = debugMessages.slice(-10).map(m => `<div style="font-size: 10px; margin: 2px 0; word-break: break-all;">${m}</div>`).join('');
+  }
+}
 
 async function init() {
+  // Create debug panel
+  const debugPanel = document.createElement('div');
+  debugPanel.id = 'debugPanel';
+  debugPanel.style.cssText = `
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.95);
+    color: #0f0;
+    padding: 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    max-width: 280px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 2000;
+  `;
+  document.body.appendChild(debugPanel);
+  debugLog('Init start');
+
   const container = document.getElementById('mappedin-map')!;
   container.style.position = 'relative';
 
   const mapData = await getMapData(options);
   mapView = await show3dMap(container, mapData);
+  debugLog('Map loaded');
   
   setupStores(mapData);
   setupFloorIndicator(mapData);
@@ -34,6 +65,7 @@ function setupStores(mapData: any) {
       stores = spaces.filter((s: any) => s && s.name);
     }
     searchResults = stores;
+    debugLog('Stores: ' + stores.length);
   } catch (err) {
     stores = [];
     searchResults = [];
@@ -73,7 +105,6 @@ function searchStores(query: string) {
     searchResults = stores.filter((store) =>
       store.name.toLowerCase().includes(query.toLowerCase())
     );
-    // Zoom to first search result
     if (searchResults.length > 0) {
       try {
         mapView.Camera.focusOn(searchResults[0], {
@@ -82,7 +113,7 @@ function searchStores(query: string) {
           duration: 1000
         });
       } catch (err) {
-        console.error('Zoom error:', err);
+        debugLog('Zoom error');
       }
     }
   }
@@ -92,14 +123,19 @@ function searchStores(query: string) {
 function selectStore(store: any) {
   try {
     selectedStore = store;
-    console.log('Selected store:', store.name);
-    console.log('Enterprise locations:', store.enterpriseLocations);
+    debugLog('Selected: ' + store.name);
+    debugLog('Has entLoc: ' + !!store.enterpriseLocations);
+    
     if (store.enterpriseLocations && store.enterpriseLocations.length > 0) {
       const loc = store.enterpriseLocations[0];
-      console.log('Location gallery:', loc.gallery);
-      console.log('Location name:', loc.name);
-      console.log('Location description:', loc.description);
+      debugLog('Loc name: ' + loc.name);
+      debugLog('Has gallery: ' + !!loc.gallery);
+      if (loc.gallery && loc.gallery.length > 0) {
+        debugLog('Gallery[0] keys: ' + Object.keys(loc.gallery[0]).join(','));
+        debugLog('Gallery[0]: ' + JSON.stringify(loc.gallery[0]).substring(0, 80));
+      }
     }
+    
     mapView.Camera.focusOn(store, {
       zoom: 1000,
       tilt: 30,
@@ -107,7 +143,7 @@ function selectStore(store: any) {
     });
     updateStoreList();
   } catch (err) {
-    console.error('selectStore error:', err);
+    debugLog('Error: ' + err);
   }
 }
 
@@ -168,20 +204,16 @@ function updateStoreList() {
   if (!content) return;
 
   if (selectedStore) {
-    // Show details view
     let html = '';
     
     if (selectedStore.enterpriseLocations && selectedStore.enterpriseLocations.length > 0) {
       const location = selectedStore.enterpriseLocations[0];
-      console.log('Full location object:', location);
-      console.log('Gallery:', location.gallery);
       
       html += `<h2 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 18px;">${location.name}</h2>`;
       
       if (location.gallery && location.gallery.length > 0) {
         const imageUrl = location.gallery[0].image || location.gallery[0];
-        console.log('Image URL:', imageUrl);
-        html += `<img src="${imageUrl}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; background: #f0f0f0;" onerror="console.log('Image failed to load')">`;
+        html += `<img src="${imageUrl}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; background: #f0f0f0;">`;
       }
       
       if (location.description) {
@@ -213,7 +245,6 @@ function updateStoreList() {
       backBtn.addEventListener('click', clearSelection);
     }
   } else {
-    // Show list view
     content.innerHTML = searchResults
       .map((store) => {
         return `
