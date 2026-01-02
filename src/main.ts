@@ -88,6 +88,7 @@ function addPromotionalMarkers() {
           ${promotionTypes[index]}
         </div>
       `, { rank: 2 });
+      console.log('Marker added:', store.name);
     } catch (err) {
       console.error('Marker error:', err);
     }
@@ -243,14 +244,14 @@ function setupUI() {
       "
     />
     <div style="margin-bottom: 15px;">
-      <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px;">Filter by Category:</label>
+      <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px;">Filter:</label>
       <select id="categoryFilter" style="width: 100%; padding: 8px; border-radius: 4px; font-size: 13px;">
-        <option value="">All Categories</option>
-        <option value="Fashion">Fashion & Apparel</option>
+        <option value="">All</option>
+        <option value="Fashion">Fashion</option>
         <option value="Electronics">Electronics</option>
-        <option value="Food">Food & Dining</option>
-        <option value="Beauty">Beauty & Health</option>
-        <option value="Home">Home & Garden</option>
+        <option value="Food">Food</option>
+        <option value="Beauty">Beauty</option>
+        <option value="Home">Home</option>
         <option value="Entertainment">Entertainment</option>
         <option value="Services">Services</option>
       </select>
@@ -259,6 +260,7 @@ function setupUI() {
   `;
 
   document.body.appendChild(panel);
+  console.log('UI panel created');
 
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
