@@ -173,11 +173,15 @@ function updateStoreList() {
     
     if (selectedStore.enterpriseLocations && selectedStore.enterpriseLocations.length > 0) {
       const location = selectedStore.enterpriseLocations[0];
+      console.log('Full location object:', location);
+      console.log('Gallery:', location.gallery);
       
       html += `<h2 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 18px;">${location.name}</h2>`;
       
       if (location.gallery && location.gallery.length > 0) {
-        html += `<img src="${location.gallery[0].image}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`;
+        const imageUrl = location.gallery[0].image || location.gallery[0];
+        console.log('Image URL:', imageUrl);
+        html += `<img src="${imageUrl}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; background: #f0f0f0;" onerror="console.log('Image failed to load')">`;
       }
       
       if (location.description) {
