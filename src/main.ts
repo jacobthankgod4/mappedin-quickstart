@@ -193,6 +193,27 @@ function selectStore(store: any) {
   }
 }
 
+function getDirections(targetStore: any) {
+  try {
+    const spaces = stores.filter((s: any) => s.name && s.name.toLowerCase().includes('entrance'));
+    const startPoint = spaces[0] || stores[0];
+    
+    mapView.getDirections(startPoint, targetStore).then((directions: any) => {
+      if (directions) {
+        mapView.Navigation.draw(directions, {
+          pathOptions: { color: '#27ae60', width: 4 },
+          startMarkerOptions: { visible: true },
+          endMarkerOptions: { visible: true }
+        });
+      }
+    }).catch((err: any) => {
+      console.error('Directions error:', err);
+    });
+  } catch (err) {
+    console.error('Get directions error:', err);
+  }
+}
+
 function clearSelection() {
   selectedStore = null;
   if (selectedPolygon) {
@@ -201,6 +222,9 @@ function clearSelection() {
     } catch (err) {}
     selectedPolygon = null;
   }
+  try {
+    mapView.Navigation.clear();
+  } catch (err) {}
   updateStoreList();
 }
 
@@ -336,9 +360,15 @@ function updateStoreList() {
       }
     }
     
-    html += `<button id="clearBtn" style="margin-top: 15px; width: 100%; padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">← Back to List</button>`;
+    html += `<button id="directionsBtn" style="margin-top: 15px; width: 100%; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-bottom: 10px;">📍 Get Directions</button>`;
+    html += `<button id="clearBtn" style="width: 100%; padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">← Back to List</button>`;
     
     content.innerHTML = html;
+    
+    const directionsBtn = document.getElementById('directionsBtn');
+    if (directionsBtn) {
+      directionsBtn.addEventListener('click', () => getDirections(selectedStore));
+    }
     
     const clearBtn = document.getElementById('clearBtn');
     if (clearBtn) {
