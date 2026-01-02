@@ -49,11 +49,19 @@ async function init() {
 }
 
 function setupStores(mapData: any) {
-  log('setupStores: checking locations');
-  log('locations type: ' + typeof mapData.locations);
-  log('locations length: ' + (mapData.locations ? mapData.locations.length : 'undefined'));
+  log('setupStores: checking data sources');
   
-  stores = mapData.locations || [];
+  // Try locations first
+  if (mapData.locations && mapData.locations.length > 0) {
+    stores = mapData.locations;
+    log('Using locations: ' + stores.length);
+  } else {
+    // Fall back to spaces
+    const spaces = mapData.getByType('space') || [];
+    stores = spaces.filter((s: any) => s.name);
+    log('Using spaces: ' + stores.length);
+  }
+  
   searchResults = stores;
   log('Found ' + stores.length + ' stores');
   
