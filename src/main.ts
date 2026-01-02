@@ -13,6 +13,8 @@ let searchResults: any[] = [];
 let selectedStore: any = null;
 let currentFloor: any = null;
 let selectedPolygon: any = null;
+let navStartPoint: any = null;
+let navEndPoint: any = null;
 
 async function init() {
   const container = document.getElementById('mappedin-map')!;
@@ -81,11 +83,11 @@ function addLabels() {
         padding: 8
       });
     });
-    console.log('Labels added');
   } catch (err) {
     console.error('Labels error:', err);
   }
 }
+
 function addPromotionalMarkers() {
   const promotionTypes = ['SALE', 'NEW', 'HOT', '50% OFF', 'GRAND OPENING'];
   const colors = ['#e74c3c', '#f39c12', '#e67e22', '#27ae60', '#9b59b6'];
@@ -105,10 +107,7 @@ function addPromotionalMarkers() {
           ${promotionTypes[index]}
         </div>
       `, { rank: 2 });
-      console.log('Marker added:', store.name);
-    } catch (err) {
-      console.error('Marker error:', err);
-    }
+    } catch (err) {}
   });
 }
 
@@ -136,9 +135,7 @@ function addDirectoryKiosks(mapData: any) {
         </div>
       `, { rank: 3 });
     });
-  } catch (err) {
-    console.error('Kiosk error:', err);
-  }
+  } catch (err) {}
 }
 
 function searchStores(query: string) {
@@ -155,9 +152,7 @@ function searchStores(query: string) {
           tilt: 30,
           duration: 1000
         });
-      } catch (err) {
-        console.error('Zoom error');
-      }
+      } catch (err) {}
     }
   }
   updateStoreList();
@@ -167,14 +162,12 @@ function selectStore(store: any) {
   try {
     selectedStore = store;
     
-    // Clear previous polygon
     if (selectedPolygon) {
       try {
         mapView.Polygons.remove(selectedPolygon);
       } catch (err) {}
     }
     
-    // Add new polygon
     selectedPolygon = mapView.Polygons.add(store, {
       color: '#3498db',
       opacity: 0.3,
@@ -188,29 +181,98 @@ function selectStore(store: any) {
       duration: 1000
     });
     updateStoreList();
-  } catch (err) {
-    console.error('selectStore error:', err);
+  } catch (err) {}
+}
+
+async function showStartSelection() {
+  navEndPoint = selectedStore;
+  const content = document.getElementById('content');
+  if (!content) return;
+  
+  content.innerHTML = `
+    <h3 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 16px;">Select Start Point</h3>
+    <p style="margin: 0 0 12px 0; color: #666; font-size: 13px;">Where are you now?</p>
+    <div id="startList" style="max-height: 400px; overflow-y: auto;"></div>
+    <button id="cancelNav" style="margin-top: 15px; width: 100%; padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Cancel</button>
+  `;
+  
+  const startList = document.getElementById('startList');
+  if (startList) {
+    startList.innerHTML = stores.map(store => `
+      <div class="start-item" data-store-id="${store.id}" style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 4px; cursor: pointer; font-size: 13px;">
+        ${store.name}
+      </div>
+    `).join('');
+    
+    document.querySelectorAll('.start-item').forEach(item => {
+      item.addEventListener('click', async () => {
+        const storeId = item.getAttribute('data-store-id');
+        const store = stores.find((s: any) => s.id === storeId);
+        if (store) {
+          navStartPoint = store;
+          await drawNavigation();
+        }
+      });
+    });
+  }
+  
+  const cancelBtn = document.getElementById('cancelNav');
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', () => {
+      navStartPoint = null;
+      navEndPoint = null;
+      updateStoreList();
+    });
   }
 }
 
-function getDirections(targetStore: any) {
+async function drawNavigation() {
+  if (!navStartPoint || !navEndPoint) return;
+  
   try {
-    const spaces = stores.filter((s: any) => s.name && s.name.toLowerCase().includes('entrance'));
-    const startPoint = spaces[0] || stores[0];
-    
-    mapView.getDirections(startPoint, targetStore).then((directions: any) => {
-      if (directions) {
-        mapView.Navigation.draw(directions, {
-          pathOptions: { color: '#27ae60', width: 4 },
-          startMarkerOptions: { visible: true },
-          endMarkerOptions: { visible: true }
-        });
+    const directions = await mapView.getDirections(navStartPoint, navEndPoint);
+    if (directions) {
+      await mapView.Navigation.draw(directions, {
+        pathOptions: { 
+          color: '#1890FF', 
+          nearRadius: 0.5, 
+          farRadius: 1.5,
+          pulseColor: '#1890FF'
+        },
+        markerOptions: { 
+          departureColor: '#52c41a', 
+          destinationColor: '#f5222d' 
+        },
+        setMapToDeparture: true,
+        animatePathDrawing: true
+      });
+      
+      mapView.Camera.focusOn({ nodes: directions.path });
+      
+      const content = document.getElementById('content');
+      if (content) {
+        const distance = directions.distance ? directions.distance.toFixed(1) : 'N/A';
+        content.innerHTML = `
+          <h3 style="margin: 0 0 12px 0; color: #27ae60; font-size: 16px;">✓ Navigation Active</h3>
+          <p style="margin: 0 0 8px 0; color: #666; font-size: 13px;"><strong>From:</strong> ${navStartPoint.name}</p>
+          <p style="margin: 0 0 8px 0; color: #666; font-size: 13px;"><strong>To:</strong> ${navEndPoint.name}</p>
+          <p style="margin: 0 0 15px 0; color: #666; font-size: 13px;"><strong>Distance:</strong> ${distance}m</p>
+          <button id="clearNav" style="width: 100%; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Clear Navigation</button>
+        `;
+        
+        const clearNavBtn = document.getElementById('clearNav');
+        if (clearNavBtn) {
+          clearNavBtn.addEventListener('click', () => {
+            mapView.Navigation.clear();
+            navStartPoint = null;
+            navEndPoint = null;
+            clearSelection();
+          });
+        }
       }
-    }).catch((err: any) => {
-      console.error('Directions error:', err);
-    });
+    }
   } catch (err) {
-    console.error('Get directions error:', err);
+    console.error('Navigation error:', err);
   }
 }
 
@@ -222,9 +284,6 @@ function clearSelection() {
     } catch (err) {}
     selectedPolygon = null;
   }
-  try {
-    mapView.Navigation.clear();
-  } catch (err) {}
   updateStoreList();
 }
 
@@ -301,7 +360,6 @@ function setupUI() {
   `;
 
   document.body.appendChild(panel);
-  console.log('UI panel created');
 
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
@@ -367,7 +425,7 @@ function updateStoreList() {
     
     const directionsBtn = document.getElementById('directionsBtn');
     if (directionsBtn) {
-      directionsBtn.addEventListener('click', () => getDirections(selectedStore));
+      directionsBtn.addEventListener('click', showStartSelection);
     }
     
     const clearBtn = document.getElementById('clearBtn');
