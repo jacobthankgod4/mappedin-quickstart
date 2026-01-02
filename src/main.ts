@@ -12,46 +12,58 @@ let stores: any[] = [];
 let searchResults: any[] = [];
 let selectedStore: any = null;
 let currentFloor: any = null;
+let debugLogs: string[] = [];
+
+function log(msg: string) {
+  console.log(msg);
+  debugLogs.push(msg);
+  const debugPanel = document.getElementById('debugPanel');
+  if (debugPanel) {
+    debugPanel.innerHTML = debugLogs.slice(-15).map(m => `<div>${m}</div>`).join('');
+  }
+}
 
 async function init() {
-  console.log('=== INIT START ===');
+  log('INIT START');
   const container = document.getElementById('mappedin-map')!;
-  console.log('Container:', container);
+  log('Container found: ' + !!container);
   container.style.position = 'relative';
 
   const mapData = await getMapData(options);
-  console.log('Map data loaded');
+  log('Map data loaded');
   mapView = await show3dMap(container, mapData);
-  console.log('show3dMap completed, mapView:', mapView);
+  log('show3dMap completed');
   
   setupStores(mapData);
-  console.log('setupStores done');
+  log('setupStores done');
   
   setupLabels();
-  console.log('setupLabels done');
+  log('setupLabels done');
   
   setupFloorIndicator(mapData);
-  console.log('setupFloorIndicator done');
+  log('setupFloorIndicator done');
   
   setupUI();
-  console.log('setupUI done');
-  console.log('=== INIT END ===');
+  log('setupUI done');
+  log('INIT END');
 }
 
 function setupStores(mapData: any) {
+  log('setupStores: checking locations');
+  log('locations type: ' + typeof mapData.locations);
+  log('locations length: ' + (mapData.locations ? mapData.locations.length : 'undefined'));
+  
   stores = mapData.locations || [];
   searchResults = stores;
-  console.log(`Found ${stores.length} stores:`, stores.map((s: any) => s.name));
-  console.log('Store details:', stores.map((s: any) => ({
-    name: s.name,
-    hasImages: !!s.images?.length,
-    hasDescription: !!s.description,
-    hasPhone: !!s.phone
-  })));
+  log('Found ' + stores.length + ' stores');
+  
+  if (stores.length > 0) {
+    log('First store: ' + stores[0].name);
+  }
 }
 
 function setupLabels() {
-  console.log('setupLabels: mapView.Labels exists?', !!mapView?.Labels);
+  log('setupLabels: mapView.Labels exists? ' + !!mapView?.Labels);
   try {
     mapView.Labels.labelAll({
       fontSize: 12,
@@ -60,9 +72,9 @@ function setupLabels() {
       borderRadius: 4,
       padding: 8
     });
-    console.log('Labels applied');
+    log('Labels applied');
   } catch (err) {
-    console.error('Labels error:', err);
+    log('Labels error: ' + err);
   }
 }
 
@@ -74,7 +86,7 @@ function setupFloorIndicator(mapData: any) {
   const indicator = document.createElement('div');
   indicator.id = 'floorIndicator';
   indicator.style.cssText = `
-    position: absolute;
+    position: fixed;
     bottom: 20px;
     right: 20px;
     background: rgba(0, 0, 0, 0.8);
@@ -82,11 +94,11 @@ function setupFloorIndicator(mapData: any) {
     padding: 10px 15px;
     border-radius: 20px;
     font-size: 14px;
-    z-index: 100;
+    z-index: 1000;
   `;
   indicator.textContent = `Floor: ${currentFloor?.name || 'Unknown'}`;
-  container.appendChild(indicator);
-  console.log('Floor indicator appended');
+  document.body.appendChild(indicator);
+  log('Floor indicator appended');
 
   mapView.on('floor-change', (event: any) => {
     currentFloor = event.floor;
@@ -95,6 +107,7 @@ function setupFloorIndicator(mapData: any) {
 }
 
 function searchStores(query: string) {
+  log('searchStores: query=' + query + ', total=' + stores.length);
   if (!query.trim()) {
     searchResults = stores;
   } else {
@@ -102,11 +115,13 @@ function searchStores(query: string) {
       store.name.toLowerCase().includes(query.toLowerCase())
     );
   }
+  log('search results: ' + searchResults.length);
   updateStoreList();
 }
 
 function selectStore(store: any) {
   selectedStore = store;
+  log('selectStore: ' + store.name);
   mapView.Camera.focusOn(store, {
     zoom: 1000,
     tilt: 30,
@@ -116,12 +131,33 @@ function selectStore(store: any) {
 }
 
 function setupUI() {
-  console.log('setupUI: creating panel');
+  log('setupUI: creating panel');
+  
+  const debugPanel = document.createElement('div');
+  debugPanel.id = 'debugPanel';
+  debugPanel.style.cssText = `
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.9);
+    color: #0f0;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    max-width: 200px;
+    max-height: 150px;
+    overflow-y: auto;
+    z-index: 2000;
+    font-family: monospace;
+  `;
+  document.body.appendChild(debugPanel);
+  log('Debug panel added');
+
   const container = document.getElementById('mappedin-map')!;
   
   const panel = document.createElement('div');
   panel.style.cssText = `
-    position: absolute;
+    position: fixed;
     top: 20px;
     left: 20px;
     background: white;
@@ -152,18 +188,23 @@ function setupUI() {
     <div id="storeList" style="max-height: 400px; overflow-y: auto;"></div>
   `;
 
-  container.appendChild(panel);
-  console.log('Panel appended to container');
+  document.body.appendChild(panel);
+  log('Panel appended to body');
 
-  document.getElementById('searchInput')?.addEventListener('input', (e) => {
-    searchStores((e.target as HTMLInputElement).value);
-  });
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchStores((e.target as HTMLInputElement).value);
+    });
+    log('Search listener attached');
+  }
 
   updateStoreList();
 }
 
 function updateStoreList() {
   const storeList = document.getElementById('storeList');
+  log('updateStoreList: storeList=' + !!storeList + ', results=' + searchResults.length);
   if (!storeList) return;
 
   storeList.innerHTML = searchResults
@@ -204,4 +245,5 @@ function updateStoreList() {
   });
 }
 
+log('Script loaded');
 init();
