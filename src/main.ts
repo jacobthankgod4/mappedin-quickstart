@@ -128,12 +128,13 @@ function selectStore(store: any) {
     
     if (store.enterpriseLocations && store.enterpriseLocations.length > 0) {
       const loc = store.enterpriseLocations[0];
-      debugLog('Loc name: ' + loc.name);
-      debugLog('Has gallery: ' + !!loc.gallery);
-      if (loc.gallery && loc.gallery.length > 0) {
-        debugLog('Gallery[0] keys: ' + Object.keys(loc.gallery[0]).join(','));
-        debugLog('Gallery[0]: ' + JSON.stringify(loc.gallery[0]).substring(0, 80));
-      }
+      debugLog('Loc: ' + loc.name);
+      debugLog('Loc keys: ' + Object.keys(loc).join('|'));
+      debugLog('gallery: ' + !!loc.gallery);
+      debugLog('picture: ' + !!loc.picture);
+      debugLog('images: ' + !!loc.images);
+      debugLog('logoImage: ' + !!loc.logoImage);
+      if (loc.images) debugLog('images.length: ' + loc.images.length);
     }
     
     mapView.Camera.focusOn(store, {
@@ -211,7 +212,9 @@ function updateStoreList() {
       
       html += `<h2 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 18px;">${location.name}</h2>`;
       
-      if (location.gallery && location.gallery.length > 0) {
+      if (location.images && location.images.length > 0) {
+        html += `<img src="${location.images[0].url}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`;
+      } else if (location.gallery && location.gallery.length > 0) {
         html += `<img src="${location.gallery[0].image}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`;
       } else if (location.picture) {
         html += `<img src="${location.picture}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`;
