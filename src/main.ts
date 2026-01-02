@@ -82,7 +82,6 @@ function setupFloorIndicator(mapData: any) {
   const floors = mapData.getByType('floor');
   currentFloor = floors[0];
 
-  const container = document.getElementById('mappedin-map')!;
   const indicator = document.createElement('div');
   indicator.id = 'floorIndicator';
   indicator.style.cssText = `
@@ -153,8 +152,6 @@ function setupUI() {
   document.body.appendChild(debugPanel);
   log('Debug panel added');
 
-  const container = document.getElementById('mappedin-map')!;
-  
   const panel = document.createElement('div');
   panel.style.cssText = `
     position: fixed;
