@@ -19,7 +19,8 @@ function debugLog(msg: string) {
   debugMessages.push(msg);
   const debugPanel = document.getElementById('debugPanel');
   if (debugPanel) {
-    debugPanel.innerHTML = debugMessages.slice(-10).map(m => `<div style="font-size: 10px; margin: 2px 0; word-break: break-all;">${m}</div>`).join('');
+    debugPanel.innerHTML += `<div style="font-size: 10px; margin: 2px 0; word-break: break-all;">${msg}</div>`;
+    debugPanel.scrollTop = debugPanel.scrollHeight;
   }
 }
 
