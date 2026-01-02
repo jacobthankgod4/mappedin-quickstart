@@ -193,7 +193,7 @@ function showDirections() {
     startDropdown.querySelectorAll('.dropdown-item').forEach(item => {
       item.addEventListener('click', () => {
         navStartPoint = stores.find(st => st.id === item.getAttribute('data-id'));
-        startInput.value = navStartPoint!.name;
+        (startInput as HTMLInputElement).value = navStartPoint!.name;
         startDropdown.style.display = 'none';
         startNavBtn.disabled = false;
       });
@@ -297,7 +297,7 @@ function setupUI() {
   const searchResultsDiv = document.getElementById('searchResults')!;
   
   searchInput.addEventListener('input', (e) => {
-    const query = (e.target as HTMLInputElement).value;
+    const query = ((e.target as HTMLInputElement).value);
     if (query.trim()) {
       const results = stores.filter(s => s.name.toLowerCase().includes(query.toLowerCase()));
       if (results.length > 0) {
@@ -310,7 +310,7 @@ function setupUI() {
             const store = stores.find(st => st.id === item.getAttribute('data-id'));
             if (store) {
               selectStore(store);
-              searchInput.value = '';
+              (searchInput as HTMLInputElement).value = '';
               searchResultsDiv.style.display = 'none';
             }
           });
