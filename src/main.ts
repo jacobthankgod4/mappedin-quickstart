@@ -172,34 +172,27 @@ function selectStore(store: any) {
   } catch (err) {}
 }
 
-function showNavModal() {
-  navEndPoint = selectedStore;
-  const modal = document.createElement('div');
-  modal.className = 'nav-modal';
-  modal.innerHTML = `
-    <div class="nav-card">
-      <div class="nav-header">Get Directions</div>
-      <div class="nav-subtitle">Navigate to ${selectedStore.name}</div>
-      <div class="location-select">
-        <label class="location-label">From</label>
-        <select id="startSelect" class="location-input">
-          <option value="">Select your location...</option>
-          ${stores.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
-        </select>
-      </div>
-      <button class="btn-primary" id="goBtn">Start Navigation</button>
-      <button class="btn-secondary" id="cancelBtn">Cancel</button>
+function showDirections() {
+  const content = document.getElementById('sheetContent')!;
+  content.innerHTML = `
+    <div class="directions-card">
+      <div style="font-size:18px;font-weight:500;color:#202124;margin-bottom:16px;">Choose starting point</div>
+      ${stores.map(store => `
+        <div class="store-card" data-id="${store.id}">
+          <div class="store-icon">📍</div>
+          <div class="store-info">
+            <div class="store-name">${store.name}</div>
+          </div>
+        </div>
+      `).join('')}
     </div>
   `;
-  document.body.appendChild(modal);
-  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-  modal.querySelector('#cancelBtn')!.addEventListener('click', () => modal.remove());
-  modal.querySelector('#goBtn')!.addEventListener('click', async () => {
-    const startId = (document.getElementById('startSelect') as HTMLSelectElement).value;
-    if (!startId) return;
-    navStartPoint = stores.find(s => s.id === startId);
-    modal.remove();
-    await drawNavigation();
+  content.querySelectorAll('.store-card').forEach(card => {
+    card.addEventListener('click', async () => {
+      navStartPoint = stores.find(s => s.id === card.getAttribute('data-id'));
+      navEndPoint = selectedStore;
+      await drawNavigation();
+    });
   });
 }
 
@@ -209,22 +202,36 @@ async function drawNavigation() {
     const directions = await mapView.getDirections(navStartPoint, navEndPoint);
     if (directions) {
       await mapView.Navigation.draw(directions, {
-        pathOptions: { color: '#667eea', nearRadius: 0.5, farRadius: 1.5, pulseColor: '#667eea' },
-        markerOptions: { departureColor: '#11998e', destinationColor: '#f5222d' },
+        pathOptions: { color: '#4285f4', nearRadius: 0.5, farRadius: 1.5, pulseColor: '#4285f4' },
+        markerOptions: { departureColor: '#34a853', destinationColor: '#ea4335' },
         setMapToDeparture: true,
         animatePathDrawing: true
       });
       mapView.Camera.focusOn({ nodes: directions.path });
       const content = document.getElementById('sheetContent')!;
       const distance = directions.distance ? directions.distance.toFixed(0) : 'N/A';
+      const time = directions.distance ? Math.ceil(directions.distance / 1.4 / 60) : 'N/A';
       content.innerHTML = `
-        <div class="nav-active">
-          <div class="nav-active-title">🧭 Navigation Active</div>
-          <div class="nav-route">From: ${navStartPoint.name}</div>
-          <div class="nav-route">To: ${navEndPoint.name}</div>
-          <div class="nav-distance">${distance}m</div>
+        <div class="directions-card">
+          <div class="directions-header">
+            <div class="directions-icon">🧭</div>
+            <div class="directions-info">
+              <div class="directions-time">${time} min</div>
+              <div class="directions-distance">${distance} m</div>
+            </div>
+          </div>
+          <div class="route-details">
+            <div class="route-point">
+              <div class="route-dot start"></div>
+              <div class="route-text">${navStartPoint.name}</div>
+            </div>
+            <div class="route-point">
+              <div class="route-dot end"></div>
+              <div class="route-text">${navEndPoint.name}</div>
+            </div>
+          </div>
+          <button class="btn-secondary" onclick="clearNavigation()">End route</button>
         </div>
-        <button class="btn-secondary" onclick="clearNavigation()">End Navigation</button>
       `;
     }
   } catch (err) {}
@@ -246,8 +253,15 @@ function clearNavigation() {
   clearSelection();
 }
 
+function hideSheet() {
+  const sheet = document.getElementById('bottomSheet')!;
+  sheet.classList.remove('visible', 'peek');
+}
+
 (window as any).clearSelection = clearSelection;
 (window as any).clearNavigation = clearNavigation;
+(window as any).hideSheet = hideSheet;
+(window as any).showDirections = showDirections;
 
 
 
@@ -255,23 +269,18 @@ function setupUI() {
   const uiContainer = document.createElement('div');
   uiContainer.innerHTML = `
     <div class="search-bar">
-      <input id="searchInput" class="search-input" type="text" placeholder="Search stores..." />
       <span class="search-icon">🔍</span>
+      <input id="searchInput" class="search-input" type="text" placeholder="Search here" />
     </div>
     <div id="bottomSheet" class="bottom-sheet">
-      <div class="sheet-handle"></div>
       <div class="sheet-header">
-        <div class="sheet-title">Stores</div>
+        <div class="sheet-title">Places</div>
+        <button class="close-btn" onclick="hideSheet()">×</button>
       </div>
       <div id="sheetContent" class="sheet-content"></div>
     </div>
-    <button id="navFab" class="fab" style="display:none;">📍</button>
   `;
   document.body.appendChild(uiContainer);
-
-  const sheet = document.getElementById('bottomSheet')!;
-  const handle = sheet.querySelector('.sheet-handle')!;
-  handle.addEventListener('click', () => sheet.classList.toggle('expanded'));
 
   document.getElementById('searchInput')!.addEventListener('input', (e) => {
     searchStores((e.target as HTMLInputElement).value);
@@ -282,24 +291,32 @@ function setupUI() {
 
 function updateStoreList() {
   const content = document.getElementById('sheetContent')!;
-  const fab = document.getElementById('navFab')!;
+  const sheet = document.getElementById('bottomSheet')!;
 
   if (selectedStore) {
-    fab.style.display = 'flex';
-    fab.onclick = showNavModal;
+    sheet.classList.add('visible');
     content.innerHTML = `
-      <div style="text-align:center;padding:20px 0;">
-        <div style="font-size:48px;margin-bottom:16px;">📍</div>
-        <h2 style="font-size:24px;font-weight:600;margin-bottom:8px;">${selectedStore.name}</h2>
-        <p style="color:#666;margin-bottom:24px;">Tap the button to navigate</p>
-        <button class="btn-secondary" onclick="clearSelection()">← Back to List</button>
+      <div class="directions-card">
+        <div class="directions-header">
+          <div class="directions-icon">📍</div>
+          <div class="directions-info">
+            <div style="font-size:18px;font-weight:500;color:#202124;">${selectedStore.name}</div>
+            <div style="font-size:14px;color:#5f6368;margin-top:4px;">Store</div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="showDirections()">Directions</button>
+        <button class="btn-secondary" style="margin-top:8px;" onclick="clearSelection()">Close</button>
       </div>
     `;
   } else {
-    fab.style.display = 'none';
+    sheet.classList.add('peek');
     content.innerHTML = searchResults.map(store => `
       <div class="store-card" data-id="${store.id}">
-        <div class="store-name">${store.name}</div>
+        <div class="store-icon">🏪</div>
+        <div class="store-info">
+          <div class="store-name">${store.name}</div>
+          <div class="store-type">Store</div>
+        </div>
       </div>
     `).join('');
     content.querySelectorAll('.store-card').forEach(card => {
