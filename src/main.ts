@@ -50,23 +50,21 @@ async function init() {
 
 function setupStores(mapData: any) {
   log('setupStores: checking data sources');
-  
-  // Try locations first
-  if (mapData.locations && mapData.locations.length > 0) {
-    stores = mapData.locations;
-    log('Using locations: ' + stores.length);
-  } else {
-    // Fall back to spaces
-    const spaces = mapData.getByType('space') || [];
-    stores = spaces.filter((s: any) => s.name);
-    log('Using spaces: ' + stores.length);
-  }
-  
-  searchResults = stores;
-  log('Found ' + stores.length + ' stores');
-  
-  if (stores.length > 0) {
-    log('First store: ' + stores[0].name);
+  try {
+    if (mapData.locations && mapData.locations.length > 0) {
+      stores = mapData.locations;
+      log('Using locations: ' + stores.length);
+    } else {
+      const spaces = mapData.getByType?.('space') || [];
+      stores = spaces.filter((s: any) => s && s.name);
+      log('Using spaces: ' + stores.length);
+    }
+    searchResults = stores;
+    log('Found ' + stores.length + ' stores');
+  } catch (err) {
+    log('setupStores error: ' + err);
+    stores = [];
+    searchResults = [];
   }
 }
 
@@ -127,14 +125,20 @@ function searchStores(query: string) {
 }
 
 function selectStore(store: any) {
-  selectedStore = store;
-  log('selectStore: ' + store.name);
-  mapView.Camera.focusOn(store, {
-    zoom: 1000,
-    tilt: 30,
-    duration: 1000
-  });
-  updateStoreList();
+  try {
+    selectedStore = store;
+    log('selectStore: ' + store.name);
+    if (mapView?.Camera?.focusOn) {
+      mapView.Camera.focusOn(store, {
+        zoom: 1000,
+        tilt: 30,
+        duration: 1000
+      });
+    }
+    updateStoreList();
+  } catch (err) {
+    log('selectStore error: ' + err);
+  }
 }
 
 function setupUI() {
