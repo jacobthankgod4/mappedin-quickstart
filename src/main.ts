@@ -211,9 +211,10 @@ function updateStoreList() {
       
       html += `<h2 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 18px;">${location.name}</h2>`;
       
-      if (location.images && location.images.length > 0) {
-        const imageUrl = location.images[0].url;
-        html += `<img src="${imageUrl}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; background: #f0f0f0;">`;
+      if (location.gallery && location.gallery.length > 0) {
+        html += `<img src="${location.gallery[0].image}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`;
+      } else if (location.picture) {
+        html += `<img src="${location.picture}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`;
       }
       
       if (location.description) {
