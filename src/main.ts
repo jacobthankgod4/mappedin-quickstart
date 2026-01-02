@@ -331,6 +331,7 @@ function setupUI() {
     }
   });
 
+  attachStoreListeners();
   updateStoreList();
 }
 
@@ -363,13 +364,21 @@ function updateStoreList() {
         </div>
       </div>
     `).join('');
-    content.querySelectorAll('.store-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const store = stores.find(s => s.id === card.getAttribute('data-id'));
-        if (store) selectStore(store);
-      });
-    });
   }
+}
+
+function attachStoreListeners() {
+  const content = document.getElementById('sheetContent');
+  if (!content) return;
+  
+  content.onclick = (e) => {
+    const card = (e.target as HTMLElement).closest('.store-card');
+    if (card) {
+      const storeId = card.getAttribute('data-id');
+      const store = stores.find(s => s.id === storeId);
+      if (store) selectStore(store);
+    }
+  };
 }
 
 init();
