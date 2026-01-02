@@ -17,15 +17,20 @@ let debugMessages: string[] = [];
 function debugLog(msg: string) {
   console.log(msg);
   debugMessages.push(msg);
-  const debugPanel = document.getElementById('debugPanel');
-  if (debugPanel) {
-    debugPanel.innerHTML += `<div style="font-size: 10px; margin: 2px 0; word-break: break-all;">${msg}</div>`;
-    debugPanel.scrollTop = debugPanel.scrollHeight;
-  }
 }
 
 async function init() {
-  // Create debug panel
+  const container = document.getElementById('mappedin-map')!;
+  container.style.position = 'relative';
+
+  const mapData = await getMapData(options);
+  mapView = await show3dMap(container, mapData);
+  
+  setupStores(mapData);
+  setupFloorIndicator(mapData);
+  setupUI();
+  
+  // Create debug panel after everything loads
   const debugPanel = document.createElement('div');
   debugPanel.id = 'debugPanel';
   debugPanel.style.cssText = `
@@ -42,19 +47,8 @@ async function init() {
     overflow-y: auto;
     z-index: 2000;
   `;
+  debugPanel.innerHTML = debugMessages.map(m => `<div style="font-size: 10px; margin: 2px 0;">${m}</div>`).join('');
   document.body.appendChild(debugPanel);
-  debugLog('Init start');
-
-  const container = document.getElementById('mappedin-map')!;
-  container.style.position = 'relative';
-
-  const mapData = await getMapData(options);
-  mapView = await show3dMap(container, mapData);
-  debugLog('Map loaded');
-  
-  setupStores(mapData);
-  setupFloorIndicator(mapData);
-  setupUI();
 }
 
 function setupStores(mapData: any) {
@@ -71,7 +65,7 @@ function setupStores(mapData: any) {
     stores = [];
     searchResults = [];
   }
-}
+}}
 
 function setupFloorIndicator(mapData: any) {
   const floors = mapData.getByType('floor');
