@@ -92,6 +92,14 @@ function searchStores(query: string) {
 function selectStore(store: any) {
   try {
     selectedStore = store;
+    console.log('Selected store:', store.name);
+    console.log('Enterprise locations:', store.enterpriseLocations);
+    if (store.enterpriseLocations && store.enterpriseLocations.length > 0) {
+      const loc = store.enterpriseLocations[0];
+      console.log('Location gallery:', loc.gallery);
+      console.log('Location name:', loc.name);
+      console.log('Location description:', loc.description);
+    }
     mapView.Camera.focusOn(store, {
       zoom: 1000,
       tilt: 30,
