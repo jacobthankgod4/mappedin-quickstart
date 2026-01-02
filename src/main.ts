@@ -1,5 +1,6 @@
 import { getMapData, show3dMap } from '@mappedin/mappedin-js';
 import '@mappedin/mappedin-js/lib/index.css';
+import './styles.css';
 
 const options = {
   key: 'mik_yeBk0Vf0nNJtpesfu560e07e5',
@@ -49,26 +50,13 @@ function setupStores(mapData: any) {
 function setupFloorIndicator(mapData: any) {
   const floors = mapData.getByType('floor');
   currentFloor = floors[0];
-
   const indicator = document.createElement('div');
-  indicator.id = 'floorIndicator';
-  indicator.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px 15px;
-    border-radius: 20px;
-    font-size: 14px;
-    z-index: 1000;
-  `;
-  indicator.textContent = `Floor: ${currentFloor?.name || 'Unknown'}`;
+  indicator.className = 'floor-indicator';
+  indicator.textContent = currentFloor?.name || 'Floor 1';
   document.body.appendChild(indicator);
-
   mapView.on('floor-change', (event: any) => {
     currentFloor = event.floor;
-    indicator.textContent = `Floor: ${currentFloor?.name || 'Unknown'}`;
+    indicator.textContent = currentFloor?.name || 'Floor 1';
   });
 }
 
@@ -184,281 +172,137 @@ function selectStore(store: any) {
   } catch (err) {}
 }
 
-async function showStartSelection() {
+function showNavModal() {
   navEndPoint = selectedStore;
-  const content = document.getElementById('content');
-  if (!content) return;
-  
-  content.innerHTML = `
-    <h3 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 16px;">Select Start Point</h3>
-    <p style="margin: 0 0 12px 0; color: #666; font-size: 13px;">Where are you now?</p>
-    <div id="startList" style="max-height: 400px; overflow-y: auto;"></div>
-    <button id="cancelNav" style="margin-top: 15px; width: 100%; padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Cancel</button>
-  `;
-  
-  const startList = document.getElementById('startList');
-  if (startList) {
-    startList.innerHTML = stores.map(store => `
-      <div class="start-item" data-store-id="${store.id}" style="padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 4px; cursor: pointer; font-size: 13px;">
-        ${store.name}
+  const modal = document.createElement('div');
+  modal.className = 'nav-modal';
+  modal.innerHTML = `
+    <div class="nav-card">
+      <div class="nav-header">Get Directions</div>
+      <div class="nav-subtitle">Navigate to ${selectedStore.name}</div>
+      <div class="location-select">
+        <label class="location-label">From</label>
+        <select id="startSelect" class="location-input">
+          <option value="">Select your location...</option>
+          ${stores.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+        </select>
       </div>
-    `).join('');
-    
-    document.querySelectorAll('.start-item').forEach(item => {
-      item.addEventListener('click', async () => {
-        const storeId = item.getAttribute('data-store-id');
-        const store = stores.find((s: any) => s.id === storeId);
-        if (store) {
-          navStartPoint = store;
-          await drawNavigation();
-        }
-      });
-    });
-  }
-  
-  const cancelBtn = document.getElementById('cancelNav');
-  if (cancelBtn) {
-    cancelBtn.addEventListener('click', () => {
-      navStartPoint = null;
-      navEndPoint = null;
-      updateStoreList();
-    });
-  }
+      <button class="btn-primary" id="goBtn">Start Navigation</button>
+      <button class="btn-secondary" id="cancelBtn">Cancel</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  modal.querySelector('#cancelBtn')!.addEventListener('click', () => modal.remove());
+  modal.querySelector('#goBtn')!.addEventListener('click', async () => {
+    const startId = (document.getElementById('startSelect') as HTMLSelectElement).value;
+    if (!startId) return;
+    navStartPoint = stores.find(s => s.id === startId);
+    modal.remove();
+    await drawNavigation();
+  });
 }
 
 async function drawNavigation() {
   if (!navStartPoint || !navEndPoint) return;
-  
   try {
     const directions = await mapView.getDirections(navStartPoint, navEndPoint);
     if (directions) {
       await mapView.Navigation.draw(directions, {
-        pathOptions: { 
-          color: '#1890FF', 
-          nearRadius: 0.5, 
-          farRadius: 1.5,
-          pulseColor: '#1890FF'
-        },
-        markerOptions: { 
-          departureColor: '#52c41a', 
-          destinationColor: '#f5222d' 
-        },
+        pathOptions: { color: '#667eea', nearRadius: 0.5, farRadius: 1.5, pulseColor: '#667eea' },
+        markerOptions: { departureColor: '#11998e', destinationColor: '#f5222d' },
         setMapToDeparture: true,
         animatePathDrawing: true
       });
-      
       mapView.Camera.focusOn({ nodes: directions.path });
-      
-      const content = document.getElementById('content');
-      if (content) {
-        const distance = directions.distance ? directions.distance.toFixed(1) : 'N/A';
-        content.innerHTML = `
-          <h3 style="margin: 0 0 12px 0; color: #27ae60; font-size: 16px;">✓ Navigation Active</h3>
-          <p style="margin: 0 0 8px 0; color: #666; font-size: 13px;"><strong>From:</strong> ${navStartPoint.name}</p>
-          <p style="margin: 0 0 8px 0; color: #666; font-size: 13px;"><strong>To:</strong> ${navEndPoint.name}</p>
-          <p style="margin: 0 0 15px 0; color: #666; font-size: 13px;"><strong>Distance:</strong> ${distance}m</p>
-          <button id="clearNav" style="width: 100%; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">Clear Navigation</button>
-        `;
-        
-        const clearNavBtn = document.getElementById('clearNav');
-        if (clearNavBtn) {
-          clearNavBtn.addEventListener('click', () => {
-            mapView.Navigation.clear();
-            navStartPoint = null;
-            navEndPoint = null;
-            clearSelection();
-          });
-        }
-      }
+      const content = document.getElementById('sheetContent')!;
+      const distance = directions.distance ? directions.distance.toFixed(0) : 'N/A';
+      content.innerHTML = `
+        <div class="nav-active">
+          <div class="nav-active-title">🧭 Navigation Active</div>
+          <div class="nav-route">From: ${navStartPoint.name}</div>
+          <div class="nav-route">To: ${navEndPoint.name}</div>
+          <div class="nav-distance">${distance}m</div>
+        </div>
+        <button class="btn-secondary" onclick="clearNavigation()">End Navigation</button>
+      `;
     }
-  } catch (err) {
-    console.error('Navigation error:', err);
-  }
+  } catch (err) {}
 }
 
 function clearSelection() {
   selectedStore = null;
   if (selectedPolygon) {
-    try {
-      mapView.Polygons.remove(selectedPolygon);
-    } catch (err) {}
+    try { mapView.Polygons.remove(selectedPolygon); } catch (err) {}
     selectedPolygon = null;
   }
   updateStoreList();
 }
 
-function filterByCategory(category: string) {
-  if (!category) {
-    searchResults = stores;
-  } else {
-    const keywords: any = {
-      'Fashion': ['fashion', 'clothing', 'apparel', 'shoes'],
-      'Electronics': ['electronics', 'tech', 'phone', 'computer'],
-      'Food': ['restaurant', 'cafe', 'food', 'dining'],
-      'Beauty': ['beauty', 'health', 'pharmacy', 'salon'],
-      'Home': ['home', 'furniture', 'garden'],
-      'Entertainment': ['cinema', 'games', 'entertainment'],
-      'Services': ['bank', 'service', 'repair']
-    };
-    
-    const categoryKeywords: string[] = keywords[category] || [];
-    searchResults = stores.filter(store =>
-      categoryKeywords.some((keyword: string) => 
-        store.name.toLowerCase().includes(keyword)
-      )
-    );
-  }
-  updateStoreList();
+function clearNavigation() {
+  mapView.Navigation.clear();
+  navStartPoint = null;
+  navEndPoint = null;
+  clearSelection();
 }
 
+(window as any).clearSelection = clearSelection;
+(window as any).clearNavigation = clearNavigation;
+
+
+
 function setupUI() {
-  const panel = document.createElement('div');
-  panel.style.cssText = `
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    width: 350px;
-    max-height: 80vh;
-    overflow-y: auto;
-    z-index: 100;
-  `;
-
-  panel.innerHTML = `
-    <h3 style="margin: 0 0 15px 0; color: #2c3e50; font-size: 16px;">🏬 Mall Directory</h3>
-    <input
-      id="searchInput"
-      type="text"
-      placeholder="Search..."
-      style="
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        margin-bottom: 15px;
-        box-sizing: border-box;
-        font-size: 14px;
-      "
-    />
-    <div style="margin-bottom: 15px;">
-      <label style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px;">Filter:</label>
-      <select id="categoryFilter" style="width: 100%; padding: 8px; border-radius: 4px; font-size: 13px;">
-        <option value="">All</option>
-        <option value="Fashion">Fashion</option>
-        <option value="Electronics">Electronics</option>
-        <option value="Food">Food</option>
-        <option value="Beauty">Beauty</option>
-        <option value="Home">Home</option>
-        <option value="Entertainment">Entertainment</option>
-        <option value="Services">Services</option>
-      </select>
+  document.body.innerHTML += `
+    <div class="search-bar">
+      <input id="searchInput" class="search-input" type="text" placeholder="Search stores..." />
+      <span class="search-icon">🔍</span>
     </div>
-    <div id="content" style="max-height: 400px; overflow-y: auto;"></div>
+    <div id="bottomSheet" class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div class="sheet-title">Stores</div>
+      </div>
+      <div id="sheetContent" class="sheet-content"></div>
+    </div>
+    <button id="navFab" class="fab" style="display:none;">📍</button>
   `;
 
-  document.body.appendChild(panel);
+  const sheet = document.getElementById('bottomSheet')!;
+  const handle = sheet.querySelector('.sheet-handle')!;
+  handle.addEventListener('click', () => sheet.classList.toggle('expanded'));
 
-  const searchInput = document.getElementById('searchInput');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      searchStores((e.target as HTMLInputElement).value);
-    });
-  }
-
-  const categoryFilter = document.getElementById('categoryFilter');
-  if (categoryFilter) {
-    categoryFilter.addEventListener('change', (e) => {
-      filterByCategory((e.target as HTMLSelectElement).value);
-    });
-  }
+  document.getElementById('searchInput')!.addEventListener('input', (e) => {
+    searchStores((e.target as HTMLInputElement).value);
+  });
 
   updateStoreList();
 }
 
 function updateStoreList() {
-  const content = document.getElementById('content');
-  if (!content) return;
+  const content = document.getElementById('sheetContent')!;
+  const fab = document.getElementById('navFab')!;
 
   if (selectedStore) {
-    let html = '';
-    
-    if (selectedStore.enterpriseLocations && selectedStore.enterpriseLocations.length > 0) {
-      const location = selectedStore.enterpriseLocations[0];
-      
-      html += `<h2 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 18px;">${location.name}</h2>`;
-      
-      if (location.images && location.images.length > 0) {
-        html += `<img src="${location.images[0].url}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`;
-      } else if (location.gallery && location.gallery.length > 0) {
-        html += `<img src="${location.gallery[0].image}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`;
-      } else if (location.picture) {
-        html += `<img src="${location.picture}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-bottom: 15px;">`;
-      }
-      
-      if (location.description) {
-        html += `<p style="margin: 0 0 12px 0; color: #555; font-size: 14px; line-height: 1.5;">${location.description}</p>`;
-      }
-      
-      if (location.amenity) {
-        html += `<p style="margin: 0 0 8px 0; color: #666; font-size: 13px;"><strong>Type:</strong> ${location.amenity}</p>`;
-      }
-      
-      if (location.extra) {
-        Object.entries(location.extra).forEach(([key, value]) => {
-          html += `<p style="margin: 0 0 6px 0; color: #666; font-size: 13px;"><strong>${key}:</strong> ${value}</p>`;
-        });
-      }
-    } else {
-      html += `<h2 style="margin: 0 0 12px 0; color: #2c3e50; font-size: 18px;">${selectedStore.name}</h2>`;
-      if (selectedStore.description) {
-        html += `<p style="margin: 0; color: #555; font-size: 14px;">${selectedStore.description}</p>`;
-      }
-    }
-    
-    html += `<button id="directionsBtn" style="margin-top: 15px; width: 100%; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin-bottom: 10px;">📍 Get Directions</button>`;
-    html += `<button id="clearBtn" style="width: 100%; padding: 10px; background: #95a5a6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;">← Back to List</button>`;
-    
-    content.innerHTML = html;
-    
-    const directionsBtn = document.getElementById('directionsBtn');
-    if (directionsBtn) {
-      directionsBtn.addEventListener('click', showStartSelection);
-    }
-    
-    const clearBtn = document.getElementById('clearBtn');
-    if (clearBtn) {
-      clearBtn.addEventListener('click', clearSelection);
-    }
+    fab.style.display = 'flex';
+    fab.onclick = showNavModal;
+    content.innerHTML = `
+      <div style="text-align:center;padding:20px 0;">
+        <div style="font-size:48px;margin-bottom:16px;">📍</div>
+        <h2 style="font-size:24px;font-weight:600;margin-bottom:8px;">${selectedStore.name}</h2>
+        <p style="color:#666;margin-bottom:24px;">Tap the button to navigate</p>
+        <button class="btn-secondary" onclick="clearSelection()">← Back to List</button>
+      </div>
+    `;
   } else {
-    content.innerHTML = searchResults
-      .map((store) => {
-        return `
-          <div 
-            class="store-item"
-            data-store-id="${store.id}"
-            style="
-              padding: 12px;
-              margin: 8px 0;
-              background: #f8f9fa;
-              color: #333;
-              border-radius: 6px;
-              cursor: pointer;
-              font-size: 14px;
-              transition: all 0.2s ease;
-            ">
-            ${store.name}
-          </div>
-        `;
-      })
-      .join('');
-
-    document.querySelectorAll('.store-item').forEach((item) => {
-      item.addEventListener('click', () => {
-        const storeId = item.getAttribute('data-store-id');
-        const store = stores.find((s) => s.id === storeId);
+    fab.style.display = 'none';
+    content.innerHTML = searchResults.map(store => `
+      <div class="store-card" data-id="${store.id}">
+        <div class="store-name">${store.name}</div>
+      </div>
+    `).join('');
+    content.querySelectorAll('.store-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const store = stores.find(s => s.id === card.getAttribute('data-id'));
         if (store) selectStore(store);
       });
     });
