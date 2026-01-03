@@ -293,7 +293,7 @@ async function drawNavigation() {
         return `Continue ${dist}m`;
       };
       
-      const instructionsHtml = directions.instructions.map((inst: any, i: number) => `
+      const instructionsHtml = directions.instructions.map((inst: any) => `
         <div style="display:flex;align-items:start;gap:12px;padding:12px;border-bottom:1px solid #e8eaed;">
           <div style="font-size:20px;flex-shrink:0;">${getInstructionIcon(inst.action.type, inst.action.bearing)}</div>
           <div style="flex:1;">
