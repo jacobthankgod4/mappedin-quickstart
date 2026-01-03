@@ -219,7 +219,7 @@ function showDirections() {
         </div>
       </div>
       
-      <button class="btn-primary" id="startNavBtn" disabled>Choose Starting Point</button>
+      <button class="btn-primary" id="startNavBtn" disabled>Start Navigation</button>
       <button class="btn-secondary" style="margin-top:8px;" onclick="updateStoreList()">Cancel</button>
     </div>
   `;
@@ -240,7 +240,6 @@ function showDirections() {
         (startInput as HTMLInputElement).value = navStartPoint!.name;
         startDropdown.style.display = 'none';
         startNavBtn.disabled = false;
-        startNavBtn.textContent = 'Preview Route';
         
         // Show overview when start point selected
         mapView.Camera.focusOn([navStartPoint, selectedStore]);
@@ -250,15 +249,7 @@ function showDirections() {
   
   startNavBtn.addEventListener('click', async () => {
     navEndPoint = selectedStore;
-    
-    // Show overview of start and end points
-    mapView.Camera.focusOn([navStartPoint, navEndPoint]);
-    
-    // Update button to show user can start
-    startNavBtn.textContent = 'Start Navigation';
-    startNavBtn.onclick = async () => {
-      await drawNavigation();
-    };
+    await drawNavigation();
   });
 }
 
