@@ -603,6 +603,7 @@ function hideSheet() {
 (window as any).nextInstruction = nextInstruction;
 (window as any).prevInstruction = prevInstruction;
 (window as any).toggleSheet = toggleSheet;
+(window as any).updateStoreList = updateStoreList;
 
 
 
