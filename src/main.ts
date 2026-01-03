@@ -201,7 +201,7 @@ function selectStore(store: any) {
 function showDirections() {
   const content = document.getElementById('sheetContent')!;
   content.innerHTML = `
-    <div class="directions-card">
+    <div class="directions-card" style="display:flex;flex-direction:column;height:100%;">
       <div style="font-size:18px;font-weight:500;color:#202124;margin-bottom:16px;">Get Directions</div>
       
       <div style="margin-bottom:16px;">
@@ -219,8 +219,10 @@ function showDirections() {
         </div>
       </div>
       
-      <button class="btn-primary" id="startNavBtn" disabled>Start Navigation</button>
-      <button class="btn-secondary" style="margin-top:8px;" onclick="updateStoreList()">Cancel</button>
+      <div style="margin-top:auto;">
+        <button class="btn-primary" id="startNavBtn" disabled>Start Navigation</button>
+        <button class="btn-secondary" style="margin-top:8px;" onclick="updateStoreList()">Cancel</button>
+      </div>
     </div>
   `;
   
