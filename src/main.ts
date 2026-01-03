@@ -161,20 +161,21 @@ function selectStore(store: any) {
   try {
     (window as any).debugLog(`\n🎯 SELECT: ${store.name}`);
     
-    selectedStore = store;
-    
-    // Clear previous highlight
-    if (selectedPolygon) {
+    // Clear previous highlight BEFORE setting new one
+    if (selectedPolygon && selectedPolygon !== store) {
       try {
         mapView.updateState(selectedPolygon, { color: null });
+        (window as any).debugLog('✓ Cleared old highlight');
       } catch (err) {
-        (window as any).debugLog(`❌ Clear highlight: ${err}`);
+        (window as any).debugLog(`❌ Clear old: ${err}`);
       }
     }
     
+    selectedStore = store;
+    selectedPolygon = store;
+    
     // Highlight selected space
     try {
-      selectedPolygon = store;
       mapView.updateState(store, { color: '#3498db' });
       (window as any).debugLog('✓ Highlighted');
     } catch (err) {
@@ -289,10 +290,14 @@ async function drawNavigation() {
 }
 
 function clearSelection() {
+  (window as any).debugLog('\n🧹 CLEAR SELECTION');
   if (selectedPolygon) {
     try { 
-      mapView.updateState(selectedPolygon, { color: null }); 
-    } catch (err) {}
+      mapView.updateState(selectedPolygon, { color: null });
+      (window as any).debugLog('✓ Unhighlighted');
+    } catch (err) {
+      (window as any).debugLog(`❌ Unhighlight: ${err}`);
+    }
     selectedPolygon = null;
   }
   selectedStore = null;
@@ -300,6 +305,7 @@ function clearSelection() {
 }
 
 function clearNavigation() {
+  (window as any).debugLog('\n🛑 END ROUTE');
   mapView.Navigation.clear();
   navStartPoint = null;
   navEndPoint = null;
