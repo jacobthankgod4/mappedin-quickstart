@@ -452,6 +452,8 @@ function prevInstruction() {
   }
   
   try {
+    const vh = window.innerHeight / 100;
+    mapView.Camera.setScreenOffsets({ bottom: 30 * vh, type: 'pixel' });
     mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 20, pitch: 45, bearing });
     (window as any).debugLog(`✓ Camera moved to step ${currentInstructionIndex}`);
   } catch (err) {
@@ -502,6 +504,8 @@ function nextInstruction() {
   }
   
   try {
+    const vh = window.innerHeight / 100;
+    mapView.Camera.setScreenOffsets({ bottom: 30 * vh, type: 'pixel' });
     mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 20, pitch: 45, bearing });
     (window as any).debugLog(`✓ Camera moved to step ${currentInstructionIndex}`);
   } catch (err) {
