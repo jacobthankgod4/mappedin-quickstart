@@ -348,34 +348,34 @@ async function drawNavigation() {
     `).join('');
     
     content.innerHTML = `
-      <div class="directions-card" style="display:flex;flex-direction:column;height:100%;padding:12px;">
-        <div id="currentInstruction" style="padding:12px;background:#e8f0fe;border-radius:8px;margin-bottom:10px;cursor:pointer;" onclick="toggleSheet()">
+      <div class="directions-card">
+        <div id="currentInstruction" style="padding:16px;background:#e8f0fe;border-radius:8px;margin-bottom:12px;cursor:pointer;" onclick="toggleSheet()">
           <div style="display:flex;align-items:center;gap:12px;">
             <div style="color:#1a73e8;" id="currentIcon">${icons.walk}</div>
             <div style="flex:1;">
-              <div style="font-weight:500;font-size:14px;color:#202124;" id="currentText">Start at ${navStartPoint.name}</div>
-              <div style="font-size:11px;color:#5f6368;margin-top:2px;">${time} min • ${distance}m</div>
+              <div style="font-weight:500;font-size:16px;color:#202124;" id="currentText">Start at ${navStartPoint.name}</div>
+              <div style="font-size:12px;color:#5f6368;margin-top:4px;">${time} min • ${distance}m</div>
             </div>
-            <div style="font-size:18px;color:#5f6368;" id="expandIcon">▲</div>
+            <div style="font-size:20px;color:#5f6368;" id="expandIcon">▲</div>
           </div>
         </div>
-        <div style="display:flex;gap:8px;margin-bottom:10px;">
-          <button class="btn-secondary" onclick="prevInstruction()" id="prevBtn" style="flex:1;padding:8px;font-size:13px;">Previous</button>
-          <button class="btn-primary" onclick="nextInstruction()" id="nextBtn" style="flex:1;padding:8px;font-size:13px;">Next Step</button>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <button class="btn-secondary" onclick="prevInstruction()" id="prevBtn" style="flex:1;">Previous</button>
+          <button class="btn-primary" onclick="nextInstruction()" id="nextBtn" style="flex:1;">Next Step</button>
         </div>
-        <div id="allSteps" style="display:none;margin:12px 0;">
+        <div id="allSteps" style="display:none;margin:16px 0;">
           <div style="font-size:14px;font-weight:500;color:#202124;margin-bottom:8px;">All Steps</div>
           <div style="max-height:200px;overflow-y:auto;border:1px solid #e8eaed;border-radius:8px;">
             ${instructionsHtml}
           </div>
         </div>
-        <button class="btn-secondary" onclick="clearNavigation()" style="margin-top:auto;padding:8px;font-size:13px;">End route</button>
+        <button class="btn-secondary" onclick="clearNavigation()">End route</button>
       </div>
     `;
     updateCurrentInstruction();
     document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'none';
     const sheet = document.getElementById('bottomSheet')!;
-    sheet.style.maxHeight = '30vh';
+    sheet.style.maxHeight = '35vh';
   } catch (err) {}
 }
 
@@ -469,7 +469,7 @@ function prevInstruction() {
   
   try {
     const vh = window.innerHeight / 100;
-    mapView.Camera.setScreenOffsets({ bottom: 30 * vh, type: 'pixel' });
+    mapView.Camera.setScreenOffsets({ bottom: 35 * vh, type: 'pixel' });
     mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 20, pitch: 45, bearing });
     (window as any).debugLog(`✓ Camera moved to step ${currentInstructionIndex}`);
   } catch (err) {
@@ -523,7 +523,7 @@ function nextInstruction() {
   
   try {
     const vh = window.innerHeight / 100;
-    mapView.Camera.setScreenOffsets({ bottom: 30 * vh, type: 'pixel' });
+    mapView.Camera.setScreenOffsets({ bottom: 35 * vh, type: 'pixel' });
     mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 20, pitch: 45, bearing });
     (window as any).debugLog(`✓ Camera moved to step ${currentInstructionIndex}`);
   } catch (err) {
@@ -663,7 +663,7 @@ function setupUI() {
     const currentHeightVh = sheet.offsetHeight / vh;
     
     if (currentHeightVh < 40) {
-      sheet.style.maxHeight = '30vh';
+      sheet.style.maxHeight = '35vh';
       if (sheet.classList.contains('expanded')) {
         sheet.classList.remove('expanded');
         const expandIcon = document.getElementById('expandIcon');
