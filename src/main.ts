@@ -2,6 +2,22 @@ import { getMapData, show3dMap } from '@mappedin/mappedin-js';
 import '@mappedin/mappedin-js/lib/index.css';
 import './styles.css';
 
+// SVG Icon Helper
+const icons = {
+  search: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>',
+  store: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2"/><path d="M9 22V12h6v10"/></svg>',
+  location: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+  target: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  walk: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="4" r="2"/><path d="m9 20 3-6 2 2 2-2"/><path d="M12 10v4"/><path d="m7 16 2-4 2 2"/></svg>',
+  arrowUp: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+  arrowDown: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>',
+  arrowRight: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>',
+  arrowLeft: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>',
+  arrowUpRight: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg>',
+  arrowUpLeft: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 17L7 7M17 7H7v10"/></svg>',
+  straight: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7-7-7 7"/></svg>'
+};
+
 const options = {
   key: 'mik_yeBk0Vf0nNJtpesfu560e07e5',
   secret: 'mis_2g9ST8ZcSFb5R9fPnsvYhrX3RyRwPtDGbMGweCYKEq385431022',
@@ -294,15 +310,15 @@ async function drawNavigation() {
     const time = activeDirections.distance ? Math.ceil(activeDirections.distance / 1.4 / 60) : 'N/A';
     
     const getInstructionIcon = (type: string, bearing?: string) => {
-      if (type === 'Departure') return '🚶';
-      if (type === 'Arrival') return '🎯';
-      if (type === 'TakeConnection') return '🔼';
-      if (type === 'ExitConnection') return '🔽';
-      if (bearing === 'Right') return '➡️';
-      if (bearing === 'Left') return '⬅️';
-      if (bearing === 'SlightRight') return '↗️';
-      if (bearing === 'SlightLeft') return '↖️';
-      return '⬆️';
+      if (type === 'Departure') return icons.walk;
+      if (type === 'Arrival') return icons.target;
+      if (type === 'TakeConnection') return icons.arrowUp;
+      if (type === 'ExitConnection') return icons.arrowDown;
+      if (bearing === 'Right') return icons.arrowRight;
+      if (bearing === 'Left') return icons.arrowLeft;
+      if (bearing === 'SlightRight') return icons.arrowUpRight;
+      if (bearing === 'SlightLeft') return icons.arrowUpLeft;
+      return icons.straight;
     };
     
     const getInstructionText = (inst: any) => {
@@ -323,7 +339,7 @@ async function drawNavigation() {
     
     const instructionsHtml = activeDirections.instructions.map((inst: any, idx: number) => `
       <div id="inst-${idx}" style="display:flex;align-items:start;gap:12px;padding:12px;border-bottom:1px solid #e8eaed;opacity:0.5;">
-        <div style="font-size:20px;flex-shrink:0;">${getInstructionIcon(inst.action.type, inst.action.bearing)}</div>
+        <div style="flex-shrink:0;color:#5f6368;">${getInstructionIcon(inst.action.type, inst.action.bearing)}</div>
         <div style="flex:1;">
           <div style="font-size:14px;color:#202124;font-weight:500;">${getInstructionText(inst)}</div>
           ${inst.action.fromFloor && inst.action.toFloor ? `<div style="font-size:12px;color:#5f6368;margin-top:4px;">Floor ${inst.action.fromFloor.name} → ${inst.action.toFloor.name}</div>` : ''}
@@ -335,7 +351,7 @@ async function drawNavigation() {
       <div class="directions-card">
         <div id="currentInstruction" style="padding:16px;background:#e8f0fe;border-radius:8px;margin-bottom:12px;cursor:pointer;" onclick="toggleSheet()">
           <div style="display:flex;align-items:center;gap:12px;">
-            <div style="font-size:24px;" id="currentIcon">🚶</div>
+            <div style="color:#1a73e8;" id="currentIcon">${icons.walk}</div>
             <div style="flex:1;">
               <div style="font-weight:500;font-size:16px;color:#202124;" id="currentText">Start at ${navStartPoint.name}</div>
               <div style="font-size:12px;color:#5f6368;margin-top:4px;">${time} min • ${distance}m</div>
@@ -470,7 +486,7 @@ function nextInstruction() {
     const content = document.getElementById('sheetContent')!;
     content.innerHTML = `
       <div class="directions-card" style="text-align:center;padding:32px;">
-        <div style="font-size:48px;margin-bottom:16px;">🎯</div>
+        <div style="color:#34a853;margin-bottom:16px;">${icons.target}</div>
         <div style="font-size:20px;font-weight:500;color:#202124;margin-bottom:8px;">You've Arrived!</div>
         <div style="color:#5f6368;margin-bottom:24px;">${navEndPoint.name}</div>
         <button class="btn-primary" onclick="clearNavigation()">Done</button>
@@ -520,15 +536,15 @@ function updateCurrentInstruction() {
   
   const inst = activeDirections.instructions[currentInstructionIndex];
   const getInstructionIcon = (type: string, bearing?: string) => {
-    if (type === 'Departure') return '🚶';
-    if (type === 'Arrival') return '🎯';
-    if (type === 'TakeConnection') return '🔼';
-    if (type === 'ExitConnection') return '🔽';
-    if (bearing === 'Right') return '➡️';
-    if (bearing === 'Left') return '⬅️';
-    if (bearing === 'SlightRight') return '↗️';
-    if (bearing === 'SlightLeft') return '↖️';
-    return '⬆️';
+    if (type === 'Departure') return icons.walk;
+    if (type === 'Arrival') return icons.target;
+    if (type === 'TakeConnection') return icons.arrowUp;
+    if (type === 'ExitConnection') return icons.arrowDown;
+    if (bearing === 'Right') return icons.arrowRight;
+    if (bearing === 'Left') return icons.arrowLeft;
+    if (bearing === 'SlightRight') return icons.arrowUpRight;
+    if (bearing === 'SlightLeft') return icons.arrowUpLeft;
+    return icons.straight;
   };
   
   const getInstructionText = (inst: any) => {
@@ -550,7 +566,7 @@ function updateCurrentInstruction() {
   const icon = getInstructionIcon(inst.action.type, inst.action.bearing);
   const text = getInstructionText(inst);
   
-  document.getElementById('currentIcon')!.textContent = icon;
+  document.getElementById('currentIcon')!.innerHTML = icon;
   document.getElementById('currentText')!.textContent = text;
   
   activeDirections.instructions.forEach((_: any, idx: number) => {
@@ -599,7 +615,7 @@ function setupUI() {
       </div>
       <div style="padding:16px;border-bottom:1px solid #e8eaed;">
         <div style="position:relative;">
-          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:18px;color:#5f6368;">🔍</span>
+          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#5f6368;">${icons.search}</span>
           <input id="searchInput" style="width:100%;padding:10px 10px 10px 40px;border:1px solid #dadce0;border-radius:4px;font-size:14px;outline:none;" type="text" placeholder="Search stores..." />
           <div id="searchResults" class="search-results" style="display:none;"></div>
         </div>
@@ -728,7 +744,7 @@ function updateStoreList() {
     
     html += `
       <div class="directions-header">
-        <div class="directions-icon">📍</div>
+        <div class="directions-icon" style="background:#1a73e8;">${icons.location}</div>
         <div class="directions-info">
           <div style="font-size:20px;font-weight:500;color:#202124;">${selectedStore.name}</div>
           <div style="font-size:14px;color:#5f6368;margin-top:4px;">${location?.amenity || 'Store'}</div>
@@ -766,7 +782,7 @@ function updateStoreList() {
     sheet.style.maxHeight = '60vh';
     content.innerHTML = searchResults.map(store => `
       <div class="store-card" data-id="${store.id}">
-        <div class="store-icon">🏪</div>
+        <div class="store-icon">${icons.store}</div>
         <div class="store-info">
           <div class="store-name">${store.name}</div>
           <div class="store-type">Store</div>
