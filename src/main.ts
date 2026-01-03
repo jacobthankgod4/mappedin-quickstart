@@ -552,6 +552,7 @@ function updateStoreList() {
 
   if (selectedStore) {
     (window as any).debugLog(`\n📄 DETAILS: ${selectedStore.name}`);
+    sheet.style.maxHeight = '20vh';
     
     const location = selectedStore.enterpriseLocations?.[0];
     const hasData = location && (location.images?.length || location.description || location.website || location.phone);
@@ -599,7 +600,6 @@ function updateStoreList() {
     </div>`;
     
     content.innerHTML = html;
-    sheet.style.maxHeight = '80vh';
   } else {
     sheet.style.maxHeight = '60vh';
     content.innerHTML = searchResults.map(store => `
