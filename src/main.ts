@@ -164,7 +164,7 @@ function selectStore(store: any) {
     // Clear previous highlight BEFORE setting new one
     if (selectedPolygon && selectedPolygon !== store) {
       try {
-        mapView.updateState(selectedPolygon, { color: null });
+        mapView.updateState(selectedPolygon, { color: 'initial' });
         (window as any).debugLog('✓ Cleared old highlight');
       } catch (err) {
         (window as any).debugLog(`❌ Clear old: ${err}`);
@@ -293,7 +293,7 @@ function clearSelection() {
   (window as any).debugLog('\n🧹 CLEAR SELECTION');
   if (selectedPolygon) {
     try { 
-      mapView.updateState(selectedPolygon, { color: null });
+      mapView.updateState(selectedPolygon, { color: 'initial' });
       (window as any).debugLog('✓ Unhighlighted');
     } catch (err) {
       (window as any).debugLog(`❌ Unhighlight: ${err}`);
