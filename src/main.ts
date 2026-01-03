@@ -160,37 +160,30 @@ function addDirectoryKiosks(mapData: any) {
 function selectStore(store: any) {
   try {
     (window as any).debugLog(`\n🎯 SELECT: ${store.name}`);
-    (window as any).debugLog(`Has polygon: ${!!store.polygon}`);
-    (window as any).debugLog(`Has enterprise: ${!!store.enterpriseLocations}`);
     
     selectedStore = store;
     
+    // Clear previous highlight
     if (selectedPolygon) {
       try {
-        mapView.Polygons.remove(selectedPolygon);
+        mapView.updateState(selectedPolygon, { color: null });
       } catch (err) {
-        (window as any).debugLog(`❌ Remove polygon: ${err}`);
+        (window as any).debugLog(`❌ Clear highlight: ${err}`);
       }
     }
     
+    // Highlight selected space
     try {
-      selectedPolygon = mapView.Polygons.add(store, {
-        color: '#3498db',
-        opacity: 0.3,
-        strokeColor: '#2980b9',
-        strokeWidth: 2
-      });
-      (window as any).debugLog('✓ Polygon added');
+      selectedPolygon = store;
+      mapView.updateState(store, { color: '#3498db' });
+      (window as any).debugLog('✓ Highlighted');
     } catch (err) {
-      (window as any).debugLog(`❌ Add polygon: ${err}`);
+      (window as any).debugLog(`❌ Highlight: ${err}`);
     }
     
+    // Focus camera
     try {
-      mapView.Camera.focusOn(store, {
-        zoom: 1000,
-        tilt: 30,
-        duration: 1000
-      });
+      mapView.Camera.focusOn(store);
       (window as any).debugLog('✓ Camera focused');
     } catch (err) {
       (window as any).debugLog(`❌ Camera: ${err}`);
@@ -296,11 +289,13 @@ async function drawNavigation() {
 }
 
 function clearSelection() {
-  selectedStore = null;
   if (selectedPolygon) {
-    try { mapView.Polygons.remove(selectedPolygon); } catch (err) {}
+    try { 
+      mapView.updateState(selectedPolygon, { color: null }); 
+    } catch (err) {}
     selectedPolygon = null;
   }
+  selectedStore = null;
   updateStoreList();
 }
 
@@ -391,14 +386,13 @@ function updateStoreList() {
     (window as any).debugLog(`\n📄 DETAILS: ${selectedStore.name}`);
     
     const location = selectedStore.enterpriseLocations?.[0];
+    const hasData = location && (location.images?.length || location.description || location.website || location.phone);
     
     let html = `<div class="directions-card">`;
     
     if (location?.images?.[0]?.url) {
       html += `<img src="${location.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" />`;
       (window as any).debugLog('✓ Image');
-    } else {
-      (window as any).debugLog('✗ No image');
     }
     
     html += `
@@ -414,22 +408,21 @@ function updateStoreList() {
     if (location?.description) {
       html += `<p style="color:#5f6368;font-size:14px;line-height:1.5;margin:16px 0;">${location.description}</p>`;
       (window as any).debugLog('✓ Description');
-    } else {
-      (window as any).debugLog('✗ No description');
     }
     
     if (location?.website) {
       html += `<a href="${location.website}" target="_blank" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">🔗 Visit Website</a>`;
       (window as any).debugLog('✓ Website');
-    } else {
-      (window as any).debugLog('✗ No website');
     }
     
     if (location?.phone) {
       html += `<a href="tel:${location.phone}" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">📞 ${location.phone}</a>`;
       (window as any).debugLog('✓ Phone');
-    } else {
-      (window as any).debugLog('✗ No phone');
+    }
+    
+    if (!hasData) {
+      html += `<p style="color:#9aa0a6;font-size:14px;margin:16px 0;font-style:italic;">No additional details available</p>`;
+      (window as any).debugLog('ℹ️ No enterprise data');
     }
     
     html += `
