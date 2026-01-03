@@ -201,27 +201,27 @@ function selectStore(store: any) {
 function showDirections() {
   const content = document.getElementById('sheetContent')!;
   content.innerHTML = `
-    <div class="directions-card" style="display:flex;flex-direction:column;height:100%;">
-      <div style="font-size:18px;font-weight:500;color:#202124;margin-bottom:16px;">Get Directions</div>
+    <div class="directions-card" style="display:flex;flex-direction:column;height:100%;padding:12px;">
+      <div style="font-size:16px;font-weight:500;color:#202124;margin-bottom:12px;">Get Directions</div>
       
-      <div style="margin-bottom:16px;">
-        <label style="display:block;font-size:12px;color:#5f6368;margin-bottom:8px;">FROM</label>
+      <div style="margin-bottom:10px;">
+        <label style="display:block;font-size:11px;color:#5f6368;margin-bottom:6px;">FROM</label>
         <div style="position:relative;">
-          <input id="startInput" class="location-input" type="text" placeholder="Choose starting point" readonly />
+          <input id="startInput" class="location-input" style="padding:8px 12px;font-size:13px;" type="text" placeholder="Choose starting point" readonly />
           <div id="startDropdown" class="location-dropdown" style="display:none;"></div>
         </div>
       </div>
       
-      <div style="margin-bottom:16px;">
-        <label style="display:block;font-size:12px;color:#5f6368;margin-bottom:8px;">TO</label>
+      <div style="margin-bottom:10px;">
+        <label style="display:block;font-size:11px;color:#5f6368;margin-bottom:6px;">TO</label>
         <div style="position:relative;">
-          <input id="endInput" class="location-input" type="text" value="${selectedStore.name}" readonly />
+          <input id="endInput" class="location-input" style="padding:8px 12px;font-size:13px;" type="text" value="${selectedStore.name}" readonly />
         </div>
       </div>
       
       <div style="margin-top:auto;">
-        <button class="btn-primary" id="startNavBtn" disabled>Start Navigation</button>
-        <button class="btn-secondary" style="margin-top:8px;" onclick="updateStoreList()">Cancel</button>
+        <button class="btn-primary" id="startNavBtn" style="padding:10px;font-size:13px;" disabled>Start Navigation</button>
+        <button class="btn-secondary" style="margin-top:6px;padding:10px;font-size:13px;" onclick="updateStoreList()">Cancel</button>
       </div>
     </div>
   `;
@@ -255,14 +255,14 @@ function showDirections() {
               animatePathDrawing: true
             });
             
-            // Set camera padding to account for 25vh sheet
+            // Set camera padding to account for 40vh sheet
             const vh = window.innerHeight / 100;
-            mapView.Camera.setScreenOffsets({ bottom: 25 * vh, type: 'pixel' });
+            mapView.Camera.setScreenOffsets({ bottom: 40 * vh, type: 'pixel' });
             await mapView.Camera.focusOn(directions.path, { maxZoomLevel: 18 });
             
-            // Reduce sheet to 25vh to show route
+            // Reduce sheet to 40vh to show route
             const sheet = document.getElementById('bottomSheet')!;
-            sheet.style.maxHeight = '25vh';
+            sheet.style.maxHeight = '40vh';
           }
         })();
       });
