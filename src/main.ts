@@ -245,6 +245,7 @@ function showDirections() {
         (async () => {
           const directions = await mapView.getDirections(navStartPoint, selectedStore);
           if (directions) {
+            activeDirections = directions;
             await mapView.Navigation.draw(directions, {
               pathOptions: { color: '#4285f4', nearRadius: 0.5, farRadius: 1.5, pulseColor: '#4285f4' },
               markerOptions: { departureColor: '#34a853', destinationColor: '#ea4335' },
@@ -273,95 +274,81 @@ function showDirections() {
 }
 
 async function drawNavigation() {
-  if (!navStartPoint || !navEndPoint) return;
+  if (!navStartPoint || !navEndPoint || !activeDirections) return;
   try {
-    const directions = await mapView.getDirections(navStartPoint, navEndPoint);
-    if (directions) {
-      // Show overview first
-      mapView.Camera.focusOn([navStartPoint, navEndPoint]);
+    currentInstructionIndex = 0;
+    
+    const content = document.getElementById('sheetContent')!;
+    const distance = activeDirections.distance ? activeDirections.distance.toFixed(0) : 'N/A';
+    const time = activeDirections.distance ? Math.ceil(activeDirections.distance / 1.4 / 60) : 'N/A';
+    
+    const getInstructionIcon = (type: string, bearing?: string) => {
+      if (type === 'Departure') return '🚶';
+      if (type === 'Arrival') return '🎯';
+      if (type === 'TakeConnection') return '🔼';
+      if (type === 'ExitConnection') return '🔽';
+      if (bearing === 'Right') return '➡️';
+      if (bearing === 'Left') return '⬅️';
+      if (bearing === 'SlightRight') return '↗️';
+      if (bearing === 'SlightLeft') return '↖️';
+      return '⬆️';
+    };
+    
+    const getInstructionText = (inst: any) => {
+      const type = inst.action.type;
+      const bearing = inst.action.bearing;
+      const dist = inst.distance.toFixed(0);
       
-      await mapView.Navigation.draw(directions, {
-        pathOptions: { color: '#4285f4', nearRadius: 0.5, farRadius: 1.5, pulseColor: '#4285f4' },
-        markerOptions: { departureColor: '#34a853', destinationColor: '#ea4335' },
-        setMapToDeparture: true,
-        animatePathDrawing: true
-      });
-      
-      activeDirections = directions;
-      currentInstructionIndex = 0;
-      
-      const content = document.getElementById('sheetContent')!;
-      const distance = directions.distance ? directions.distance.toFixed(0) : 'N/A';
-      const time = directions.distance ? Math.ceil(directions.distance / 1.4 / 60) : 'N/A';
-      
-      const getInstructionIcon = (type: string, bearing?: string) => {
-        if (type === 'Departure') return '🚶';
-        if (type === 'Arrival') return '🎯';
-        if (type === 'TakeConnection') return '🔼';
-        if (type === 'ExitConnection') return '🔽';
-        if (bearing === 'Right') return '➡️';
-        if (bearing === 'Left') return '⬅️';
-        if (bearing === 'SlightRight') return '↗️';
-        if (bearing === 'SlightLeft') return '↖️';
-        return '⬆️';
-      };
-      
-      const getInstructionText = (inst: any) => {
-        const type = inst.action.type;
-        const bearing = inst.action.bearing;
-        const dist = inst.distance.toFixed(0);
-        
-        if (type === 'Departure') return `Start at ${navStartPoint.name}`;
-        if (type === 'Arrival') return `Arrive at ${navEndPoint.name}`;
-        if (type === 'TakeConnection') {
-          const conn = inst.action.connection?.type || 'connection';
-          return `Take ${conn} ${inst.action.direction || ''}`;
-        }
-        if (type === 'ExitConnection') return `Exit and continue`;
-        if (type === 'Turn') return `Turn ${bearing?.toLowerCase() || 'ahead'} (${dist}m)`;
-        return `Continue ${dist}m`;
-      };
-      
-      const instructionsHtml = directions.instructions.map((inst: any, idx: number) => `
-        <div id="inst-${idx}" style="display:flex;align-items:start;gap:12px;padding:12px;border-bottom:1px solid #e8eaed;opacity:0.5;">
-          <div style="font-size:20px;flex-shrink:0;">${getInstructionIcon(inst.action.type, inst.action.bearing)}</div>
-          <div style="flex:1;">
-            <div style="font-size:14px;color:#202124;font-weight:500;">${getInstructionText(inst)}</div>
-            ${inst.action.fromFloor && inst.action.toFloor ? `<div style="font-size:12px;color:#5f6368;margin-top:4px;">Floor ${inst.action.fromFloor.name} → ${inst.action.toFloor.name}</div>` : ''}
+      if (type === 'Departure') return `Start at ${navStartPoint.name}`;
+      if (type === 'Arrival') return `Arrive at ${navEndPoint.name}`;
+      if (type === 'TakeConnection') {
+        const conn = inst.action.connection?.type || 'connection';
+        return `Take ${conn} ${inst.action.direction || ''}`;
+      }
+      if (type === 'ExitConnection') return `Exit and continue`;
+      if (type === 'Turn') return `Turn ${bearing?.toLowerCase() || 'ahead'} (${dist}m)`;
+      return `Continue ${dist}m`;
+    };
+    
+    const instructionsHtml = activeDirections.instructions.map((inst: any, idx: number) => `
+      <div id="inst-${idx}" style="display:flex;align-items:start;gap:12px;padding:12px;border-bottom:1px solid #e8eaed;opacity:0.5;">
+        <div style="font-size:20px;flex-shrink:0;">${getInstructionIcon(inst.action.type, inst.action.bearing)}</div>
+        <div style="flex:1;">
+          <div style="font-size:14px;color:#202124;font-weight:500;">${getInstructionText(inst)}</div>
+          ${inst.action.fromFloor && inst.action.toFloor ? `<div style="font-size:12px;color:#5f6368;margin-top:4px;">Floor ${inst.action.fromFloor.name} → ${inst.action.toFloor.name}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+    
+    content.innerHTML = `
+      <div class="directions-card">
+        <div id="currentInstruction" style="padding:16px;background:#e8f0fe;border-radius:8px;margin-bottom:12px;cursor:pointer;" onclick="toggleSheet()">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="font-size:24px;" id="currentIcon">🚶</div>
+            <div style="flex:1;">
+              <div style="font-weight:500;font-size:16px;color:#202124;" id="currentText">Start at ${navStartPoint.name}</div>
+              <div style="font-size:12px;color:#5f6368;margin-top:4px;">${time} min • ${distance}m</div>
+            </div>
+            <div style="font-size:20px;color:#5f6368;" id="expandIcon">▲</div>
           </div>
         </div>
-      `).join('');
-      
-      content.innerHTML = `
-        <div class="directions-card">
-          <div id="currentInstruction" style="padding:16px;background:#e8f0fe;border-radius:8px;margin-bottom:12px;cursor:pointer;" onclick="toggleSheet()">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <div style="font-size:24px;" id="currentIcon">🚶</div>
-              <div style="flex:1;">
-                <div style="font-weight:500;font-size:16px;color:#202124;" id="currentText">Start at ${navStartPoint.name}</div>
-                <div style="font-size:12px;color:#5f6368;margin-top:4px;">${time} min • ${distance}m</div>
-              </div>
-              <div style="font-size:20px;color:#5f6368;" id="expandIcon">▲</div>
-            </div>
-          </div>
-          <div style="display:flex;gap:8px;margin-bottom:12px;">
-            <button class="btn-secondary" onclick="prevInstruction()" id="prevBtn" style="flex:1;">Previous</button>
-            <button class="btn-primary" onclick="nextInstruction()" id="nextBtn" style="flex:1;">Next Step</button>
-          </div>
-          <div id="allSteps" style="display:none;margin:16px 0;">
-            <div style="font-size:14px;font-weight:500;color:#202124;margin-bottom:8px;">All Steps</div>
-            <div style="max-height:200px;overflow-y:auto;border:1px solid #e8eaed;border-radius:8px;">
-              ${instructionsHtml}
-            </div>
-          </div>
-          <button class="btn-secondary" onclick="clearNavigation()">End route</button>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <button class="btn-secondary" onclick="prevInstruction()" id="prevBtn" style="flex:1;">Previous</button>
+          <button class="btn-primary" onclick="nextInstruction()" id="nextBtn" style="flex:1;">Next Step</button>
         </div>
-      `;
-      updateCurrentInstruction();
-      document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'none';
-      const sheet = document.getElementById('bottomSheet')!;
-      sheet.style.maxHeight = '30vh';
-    }
+        <div id="allSteps" style="display:none;margin:16px 0;">
+          <div style="font-size:14px;font-weight:500;color:#202124;margin-bottom:8px;">All Steps</div>
+          <div style="max-height:200px;overflow-y:auto;border:1px solid #e8eaed;border-radius:8px;">
+            ${instructionsHtml}
+          </div>
+        </div>
+        <button class="btn-secondary" onclick="clearNavigation()">End route</button>
+      </div>
+    `;
+    updateCurrentInstruction();
+    document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'none';
+    const sheet = document.getElementById('bottomSheet')!;
+    sheet.style.maxHeight = '30vh';
   } catch (err) {}
 }
 
