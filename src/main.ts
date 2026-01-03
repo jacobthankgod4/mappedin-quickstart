@@ -624,6 +624,10 @@ function setupUI() {
     
     if (newHeight >= 20 * vh && newHeight <= 60 * vh) {
       sheet.style.maxHeight = `${newHeight}px`;
+      // Update camera offset as sheet is dragged
+      if (selectedStore) {
+        mapView.Camera.setScreenOffsets({ bottom: newHeight, type: 'pixel' });
+      }
     }
   }, { passive: false });
   
