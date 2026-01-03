@@ -514,13 +514,18 @@ function setupUI() {
   const header = document.getElementById('sheetHeader')!;
   let startY = 0;
   let currentHeight = 0;
+  let isDragging = false;
   
   header.addEventListener('touchstart', (e) => {
     startY = e.touches[0].clientY;
     currentHeight = sheet.offsetHeight;
+    isDragging = true;
+    sheet.style.transition = 'none';
   });
   
   header.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
     const deltaY = e.touches[0].clientY - startY;
     const newHeight = currentHeight - deltaY;
     const vh = window.innerHeight / 100;
@@ -528,9 +533,13 @@ function setupUI() {
     if (newHeight >= 20 * vh && newHeight <= 60 * vh) {
       sheet.style.maxHeight = `${newHeight}px`;
     }
-  });
+  }, { passive: false });
   
   header.addEventListener('touchend', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    sheet.style.transition = 'max-height 0.3s ease';
+    
     const vh = window.innerHeight / 100;
     const currentHeightVh = sheet.offsetHeight / vh;
     
