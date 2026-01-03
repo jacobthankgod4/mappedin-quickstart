@@ -617,10 +617,10 @@ function setupUI() {
         </div>
         <div class="sheet-title">Stores</div>
       </div>
-      <div style="padding:16px;border-bottom:1px solid #e8eaed;">
+      <div style="padding:16px;background:#f8f9fa;">
         <div style="position:relative;">
           <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#5f6368;">${icons.search}</span>
-          <input id="searchInput" style="width:100%;padding:10px 10px 10px 40px;border:1px solid #dadce0;border-radius:4px;font-size:14px;outline:none;" type="text" placeholder="Search stores..." />
+          <input id="searchInput" style="width:100%;padding:10px 10px 10px 40px;border:1px solid #dadce0;border-radius:12px;font-size:14px;outline:none;" type="text" placeholder="Search stores..." />
           <div id="searchResults" class="search-results" style="display:none;"></div>
         </div>
       </div>

@@ -51,8 +51,9 @@
   background: white;
   z-index: 999;
   overflow: hidden;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 -2px 16px rgba(0,0,0,0.1);
   transition: max-height 0.3s ease;
+  border-radius: 16px 16px 0 0;
 }
 
 .bottom-sheet.expanded {
@@ -61,7 +62,8 @@
 
 .sheet-header {
   padding: 8px 16px 16px;
-  border-bottom: 1px solid #e8eaed;
+  border-bottom: none;
+  background: #f8f9fa;
   display: flex;
   flex-direction: column;
   cursor: grab;
@@ -105,7 +107,10 @@
 
 .store-card {
   padding: 16px;
-  border-bottom: 1px solid #e8eaed;
+  margin: 8px 16px;
+  border-radius: 16px;
+  background: #f8f9fa;
+  border: none;
   cursor: pointer;
   transition: background 0.2s;
   display: flex;
@@ -114,11 +119,11 @@
 }
 
 .store-card:hover {
-  background: #f1f3f4;
+  background: #e8eaed;
 }
 
 .store-card:active {
-  background: #e8eaed;
+  background: #dadce0;
 }
 
 .store-icon {
@@ -155,11 +160,12 @@
 
 .btn-primary {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
+  min-height: 48px;
   background: #1a73e8;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -177,11 +183,12 @@
 
 .btn-secondary {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
+  min-height: 48px;
   background: white;
   color: #1a73e8;
   border: 1px solid #dadce0;
-  border-radius: 4px;
+  border-radius: 12px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -326,7 +333,7 @@
   width: 100%;
   padding: 12px 16px;
   border: 1px solid #dadce0;
-  border-radius: 4px;
+  border-radius: 12px;
   font-size: 14px;
   outline: none;
   cursor: pointer;
@@ -344,7 +351,7 @@
   right: 0;
   background: white;
   border: 1px solid #dadce0;
-  border-radius: 4px;
+  border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   max-height: 200px;
   overflow-y: auto;
