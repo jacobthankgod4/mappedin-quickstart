@@ -407,7 +407,6 @@ function clearSelection() {
     </div>
   `;
 }
-}
 
 function clearNavigation() {
   (window as any).debugLog('\n🛑 END ROUTE');
