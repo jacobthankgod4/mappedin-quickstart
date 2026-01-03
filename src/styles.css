@@ -202,6 +202,12 @@
 .directions-card {
   padding: 16px;
   background: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.directions-card > *:last-child {
+  margin-top: auto;
 }
 
 .directions-header {
