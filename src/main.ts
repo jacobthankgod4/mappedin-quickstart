@@ -34,14 +34,27 @@ async function init() {
 
 function setupStores(mapData: any) {
   try {
+    console.log('=== SETUP STORES AUDIT ===');
+    console.log('mapData.locations:', mapData.locations?.length);
+    console.log('mapData spaces:', mapData.getByType?.('space')?.length);
+    
     if (mapData.locations && mapData.locations.length > 0) {
       stores = mapData.locations;
+      console.log('Using locations. First item:', stores[0]);
     } else {
       const spaces = mapData.getByType?.('space') || [];
       stores = spaces.filter((s: any) => s && s.name);
+      console.log('Using spaces. First item:', stores[0]);
     }
+    
+    console.log('Total stores:', stores.length);
+    console.log('First store has enterpriseLocations:', !!stores[0]?.enterpriseLocations);
+    console.log('First store has polygon:', !!stores[0]?.polygon);
+    console.log('First store properties:', Object.keys(stores[0] || {}));
+    
     searchResults = stores;
   } catch (err) {
+    console.error('Setup stores error:', err);
     stores = [];
     searchResults = [];
   }
@@ -130,26 +143,43 @@ function addDirectoryKiosks(mapData: any) {
 
 function selectStore(store: any) {
   try {
+    console.log('=== SELECT STORE AUDIT ===');
+    console.log('Store:', store.name);
+    console.log('Store has polygon:', !!store.polygon);
+    console.log('Store has enterpriseLocations:', !!store.enterpriseLocations);
+    
     selectedStore = store;
     
     if (selectedPolygon) {
       try {
         mapView.Polygons.remove(selectedPolygon);
-      } catch (err) {}
+      } catch (err) {
+        console.error('Remove polygon error:', err);
+      }
     }
     
-    selectedPolygon = mapView.Polygons.add(store, {
-      color: '#3498db',
-      opacity: 0.3,
-      strokeColor: '#2980b9',
-      strokeWidth: 2
-    });
+    try {
+      selectedPolygon = mapView.Polygons.add(store, {
+        color: '#3498db',
+        opacity: 0.3,
+        strokeColor: '#2980b9',
+        strokeWidth: 2
+      });
+      console.log('Polygon added successfully');
+    } catch (err) {
+      console.error('Add polygon error:', err);
+    }
     
-    mapView.Camera.focusOn(store, {
-      zoom: 1000,
-      tilt: 30,
-      duration: 1000
-    });
+    try {
+      mapView.Camera.focusOn(store, {
+        zoom: 1000,
+        tilt: 30,
+        duration: 1000
+      });
+      console.log('Camera focused successfully');
+    } catch (err) {
+      console.error('Camera focus error:', err);
+    }
     
     updateStoreList();
   } catch (err) {
@@ -343,11 +373,19 @@ function updateStoreList() {
   sheet.style.display = 'block';
 
   if (selectedStore) {
+    console.log('=== UPDATE STORE LIST (SELECTED) ===');
+    console.log('Selected store:', selectedStore.name);
+    
     const location = selectedStore.enterpriseLocations?.[0];
+    console.log('Enterprise location:', location);
+    
     let html = `<div class="directions-card">`;
     
     if (location?.images?.[0]?.url) {
       html += `<img src="${location.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" />`;
+      console.log('Image added');
+    } else {
+      console.log('No image found');
     }
     
     html += `
@@ -362,14 +400,23 @@ function updateStoreList() {
     
     if (location?.description) {
       html += `<p style="color:#5f6368;font-size:14px;line-height:1.5;margin:16px 0;">${location.description}</p>`;
+      console.log('Description added');
+    } else {
+      console.log('No description');
     }
     
     if (location?.website) {
       html += `<a href="${location.website}" target="_blank" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">🔗 Visit Website</a>`;
+      console.log('Website added');
+    } else {
+      console.log('No website');
     }
     
     if (location?.phone) {
       html += `<a href="tel:${location.phone}" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">📞 ${location.phone}</a>`;
+      console.log('Phone added');
+    } else {
+      console.log('No phone');
     }
     
     html += `
@@ -380,6 +427,8 @@ function updateStoreList() {
     content.innerHTML = html;
     sheet.style.maxHeight = '80vh';
   } else {
+    console.log('=== UPDATE STORE LIST (LIST VIEW) ===');
+    console.log('Rendering', searchResults.length, 'stores');
     sheet.style.maxHeight = '60vh';
     content.innerHTML = searchResults.map(store => `
       <div class="store-card" data-id="${store.id}">
@@ -397,11 +446,17 @@ function attachStoreListeners() {
   const content = document.getElementById('sheetContent');
   if (!content) return;
   
+  console.log('=== ATTACH STORE LISTENERS ===');
+  console.log('Content element exists:', !!content);
+  
   content.onclick = (e) => {
     const card = (e.target as HTMLElement).closest('.store-card');
     if (card) {
+      console.log('Card clicked');
       const storeId = card.getAttribute('data-id');
+      console.log('Store ID:', storeId);
       const store = stores.find(s => s.id === storeId);
+      console.log('Store found:', !!store);
       if (store) selectStore(store);
     }
   };
