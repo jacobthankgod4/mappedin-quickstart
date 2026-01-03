@@ -280,15 +280,17 @@ function hideSheet() {
 function setupUI() {
   const uiContainer = document.createElement('div');
   uiContainer.innerHTML = `
-    <div class="search-bar">
-      <span class="search-icon">🔍</span>
-      <input id="searchInput" class="search-input" type="text" placeholder="Search here" />
-      <div id="searchResults" class="search-results" style="display:none;"></div>
-    </div>
     <div id="bottomSheet" class="bottom-sheet">
       <div class="sheet-header">
         <div class="sheet-title">Stores</div>
         <button class="close-btn" onclick="hideSheet()">×</button>
+      </div>
+      <div style="padding:16px;border-bottom:1px solid #e8eaed;">
+        <div style="position:relative;">
+          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:18px;color:#5f6368;">🔍</span>
+          <input id="searchInput" style="width:100%;padding:10px 10px 10px 40px;border:1px solid #dadce0;border-radius:4px;font-size:14px;outline:none;" type="text" placeholder="Search stores..." />
+          <div id="searchResults" class="search-results" style="display:none;"></div>
+        </div>
       </div>
       <div id="sheetContent" class="sheet-content"></div>
     </div>
