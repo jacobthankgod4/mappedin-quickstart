@@ -246,7 +246,17 @@ function showDirections() {
   
   startNavBtn.addEventListener('click', async () => {
     navEndPoint = selectedStore;
-    await drawNavigation();
+    
+    // Show overview of route before starting navigation
+    const directions = await mapView.getDirections(navStartPoint, navEndPoint);
+    if (directions) {
+      mapView.Camera.focusOn([navStartPoint, navEndPoint]);
+      
+      // Wait 2 seconds to show overview, then start navigation
+      setTimeout(async () => {
+        await drawNavigation();
+      }, 2000);
+    }
   });
 }
 
@@ -261,7 +271,9 @@ async function drawNavigation() {
         setMapToDeparture: true,
         animatePathDrawing: true
       });
-      mapView.Camera.focusOn({ nodes: directions.path });
+      
+      // Focus on first instruction (departure point)
+      mapView.Camera.focusOn(directions.instructions[0].coordinate);
       
       activeDirections = directions;
       currentInstructionIndex = 0;
