@@ -396,6 +396,9 @@ function clearSelection() {
   selectedStore = null;
   sheet.style.maxHeight = '30vh';
   
+  // Show search bar
+  document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'block';
+  
   const content = document.getElementById('sheetContent')!;
   content.innerHTML = `
     <div style="padding:16px;text-align:center;">
@@ -403,6 +406,7 @@ function clearSelection() {
       <button class="btn-primary" onclick="updateStoreList()">Show Stores</button>
     </div>
   `;
+}
 }
 
 function clearNavigation() {
