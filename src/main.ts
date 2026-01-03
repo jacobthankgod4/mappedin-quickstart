@@ -530,7 +530,7 @@ function setupUI() {
     }
   });
   
-  header.addEventListener('touchend', (e) => {
+  header.addEventListener('touchend', () => {
     const vh = window.innerHeight / 100;
     const currentHeightVh = sheet.offsetHeight / vh;
     
