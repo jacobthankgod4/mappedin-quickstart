@@ -16,6 +16,8 @@ let currentFloor: any = null;
 let selectedPolygon: any = null;
 let navStartPoint: any = null;
 let navEndPoint: any = null;
+let activeDirections: any = null;
+let currentInstructionIndex: number = 0;
 
 async function init() {
   const container = document.getElementById('mappedin-map')!;
@@ -261,6 +263,9 @@ async function drawNavigation() {
       });
       mapView.Camera.focusOn({ nodes: directions.path });
       
+      activeDirections = directions;
+      currentInstructionIndex = 0;
+      
       const content = document.getElementById('sheetContent')!;
       const distance = directions.distance ? directions.distance.toFixed(0) : 'N/A';
       const time = directions.distance ? Math.ceil(directions.distance / 1.4 / 60) : 'N/A';
@@ -293,8 +298,8 @@ async function drawNavigation() {
         return `Continue ${dist}m`;
       };
       
-      const instructionsHtml = directions.instructions.map((inst: any) => `
-        <div style="display:flex;align-items:start;gap:12px;padding:12px;border-bottom:1px solid #e8eaed;">
+      const instructionsHtml = directions.instructions.map((inst: any, idx: number) => `
+        <div id="inst-${idx}" style="display:flex;align-items:start;gap:12px;padding:12px;border-bottom:1px solid #e8eaed;opacity:0.5;">
           <div style="font-size:20px;flex-shrink:0;">${getInstructionIcon(inst.action.type, inst.action.bearing)}</div>
           <div style="flex:1;">
             <div style="font-size:14px;color:#202124;font-weight:500;">${getInstructionText(inst)}</div>
@@ -312,15 +317,22 @@ async function drawNavigation() {
               <div class="directions-distance">${distance} m</div>
             </div>
           </div>
+          <div id="currentInstruction" style="padding:16px;background:#e8f0fe;border-radius:8px;margin:16px 0;">
+            <div style="font-size:24px;margin-bottom:8px;" id="currentIcon">🚶</div>
+            <div style="font-weight:500;font-size:16px;color:#202124;" id="currentText">Start at ${navStartPoint.name}</div>
+            <div style="font-size:12px;color:#5f6368;margin-top:4px;" id="currentDistance"></div>
+          </div>
+          <button class="btn-primary" onclick="nextInstruction()" id="nextBtn" style="width:100%;margin-bottom:12px;">Next Step</button>
           <div style="margin:16px 0;">
-            <div style="font-size:14px;font-weight:500;color:#202124;margin-bottom:8px;">Turn-by-turn directions</div>
-            <div style="max-height:300px;overflow-y:auto;border:1px solid #e8eaed;border-radius:8px;">
+            <div style="font-size:14px;font-weight:500;color:#202124;margin-bottom:8px;">All Steps</div>
+            <div style="max-height:200px;overflow-y:auto;border:1px solid #e8eaed;border-radius:8px;">
               ${instructionsHtml}
             </div>
           </div>
           <button class="btn-secondary" onclick="clearNavigation()">End route</button>
         </div>
       `;
+      updateCurrentInstruction();
     }
   } catch (err) {}
 }
@@ -343,9 +355,106 @@ function clearSelection() {
 function clearNavigation() {
   (window as any).debugLog('\n🛑 END ROUTE');
   mapView.Navigation.clear();
+  mapView.Navigation.clearHighlightedPathSection();
+  activeDirections = null;
+  currentInstructionIndex = 0;
   navStartPoint = null;
   navEndPoint = null;
   clearSelection();
+}
+
+function nextInstruction() {
+  if (!activeDirections) return;
+  
+  currentInstructionIndex++;
+  
+  if (currentInstructionIndex >= activeDirections.instructions.length) {
+    const content = document.getElementById('sheetContent')!;
+    content.innerHTML = `
+      <div class="directions-card" style="text-align:center;padding:32px;">
+        <div style="font-size:48px;margin-bottom:16px;">🎯</div>
+        <div style="font-size:20px;font-weight:500;color:#202124;margin-bottom:8px;">You've Arrived!</div>
+        <div style="color:#5f6368;margin-bottom:24px;">${navEndPoint.name}</div>
+        <button class="btn-primary" onclick="clearNavigation()">Done</button>
+      </div>
+    `;
+    return;
+  }
+  
+  updateCurrentInstruction();
+  
+  const currentInst = activeDirections.instructions[currentInstructionIndex];
+  const startCoord = activeDirections.instructions[0].coordinate;
+  
+  try {
+    mapView.Navigation.highlightPathSection(startCoord, currentInst.coordinate, {
+      color: '#34a853',
+      nearRadius: 0.6,
+      farRadius: 1.8
+    });
+  } catch (err) {
+    (window as any).debugLog(`❌ Highlight: ${err}`);
+  }
+  
+  try {
+    mapView.Camera.focusOn({ coordinate: currentInst.coordinate });
+  } catch (err) {
+    (window as any).debugLog(`❌ Camera: ${err}`);
+  }
+}
+
+function updateCurrentInstruction() {
+  if (!activeDirections) return;
+  
+  const inst = activeDirections.instructions[currentInstructionIndex];
+  const getInstructionIcon = (type: string, bearing?: string) => {
+    if (type === 'Departure') return '🚶';
+    if (type === 'Arrival') return '🎯';
+    if (type === 'TakeConnection') return '🔼';
+    if (type === 'ExitConnection') return '🔽';
+    if (bearing === 'Right') return '➡️';
+    if (bearing === 'Left') return '⬅️';
+    if (bearing === 'SlightRight') return '↗️';
+    if (bearing === 'SlightLeft') return '↖️';
+    return '⬆️';
+  };
+  
+  const getInstructionText = (inst: any) => {
+    const type = inst.action.type;
+    const bearing = inst.action.bearing;
+    const dist = inst.distance.toFixed(0);
+    
+    if (type === 'Departure') return `Start at ${navStartPoint.name}`;
+    if (type === 'Arrival') return `Arrive at ${navEndPoint.name}`;
+    if (type === 'TakeConnection') {
+      const conn = inst.action.connection?.type || 'connection';
+      return `Take ${conn} ${inst.action.direction || ''}`;
+    }
+    if (type === 'ExitConnection') return `Exit and continue`;
+    if (type === 'Turn') return `Turn ${bearing?.toLowerCase() || 'ahead'} (${dist}m)`;
+    return `Continue ${dist}m`;
+  };
+  
+  const icon = getInstructionIcon(inst.action.type, inst.action.bearing);
+  const text = getInstructionText(inst);
+  const dist = inst.distance.toFixed(0);
+  
+  document.getElementById('currentIcon')!.textContent = icon;
+  document.getElementById('currentText')!.textContent = text;
+  document.getElementById('currentDistance')!.textContent = `${dist}m`;
+  
+  activeDirections.instructions.forEach((_: any, idx: number) => {
+    const elem = document.getElementById(`inst-${idx}`);
+    if (elem) {
+      elem.style.opacity = idx <= currentInstructionIndex ? '1' : '0.5';
+      elem.style.background = idx === currentInstructionIndex ? '#e8f0fe' : 'transparent';
+    }
+  });
+  
+  const nextBtn = document.getElementById('nextBtn') as HTMLButtonElement;
+  if (currentInstructionIndex === activeDirections.instructions.length - 1) {
+    nextBtn.textContent = 'Arrive';
+  }
 }
 
 function hideSheet() {
@@ -356,6 +465,7 @@ function hideSheet() {
 (window as any).clearNavigation = clearNavigation;
 (window as any).hideSheet = hideSheet;
 (window as any).showDirections = showDirections;
+(window as any).nextInstruction = nextInstruction;
 
 
 
