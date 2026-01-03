@@ -283,8 +283,9 @@ async function drawNavigation() {
   try {
     currentInstructionIndex = 0;
     
-    // Focus camera on start location
-    await mapView.Camera.focusOn(navStartPoint);
+    // Clear camera offset and focus on start location
+    mapView.Camera.setScreenOffsets({ bottom: 0, type: 'pixel' });
+    await mapView.Camera.focusOn(activeDirections.instructions[0].coordinate);
     
     const content = document.getElementById('sheetContent')!;
     const distance = activeDirections.distance ? activeDirections.distance.toFixed(0) : 'N/A';
