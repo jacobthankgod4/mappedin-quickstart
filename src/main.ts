@@ -260,9 +260,49 @@ async function drawNavigation() {
         animatePathDrawing: true
       });
       mapView.Camera.focusOn({ nodes: directions.path });
+      
       const content = document.getElementById('sheetContent')!;
       const distance = directions.distance ? directions.distance.toFixed(0) : 'N/A';
       const time = directions.distance ? Math.ceil(directions.distance / 1.4 / 60) : 'N/A';
+      
+      const getInstructionIcon = (type: string, bearing?: string) => {
+        if (type === 'Departure') return '🚶';
+        if (type === 'Arrival') return '🎯';
+        if (type === 'TakeConnection') return '🔼';
+        if (type === 'ExitConnection') return '🔽';
+        if (bearing === 'Right') return '➡️';
+        if (bearing === 'Left') return '⬅️';
+        if (bearing === 'SlightRight') return '↗️';
+        if (bearing === 'SlightLeft') return '↖️';
+        return '⬆️';
+      };
+      
+      const getInstructionText = (inst: any) => {
+        const type = inst.action.type;
+        const bearing = inst.action.bearing;
+        const dist = inst.distance.toFixed(0);
+        
+        if (type === 'Departure') return `Start at ${navStartPoint.name}`;
+        if (type === 'Arrival') return `Arrive at ${navEndPoint.name}`;
+        if (type === 'TakeConnection') {
+          const conn = inst.action.connection?.type || 'connection';
+          return `Take ${conn} ${inst.action.direction || ''}`;
+        }
+        if (type === 'ExitConnection') return `Exit and continue`;
+        if (type === 'Turn') return `Turn ${bearing?.toLowerCase() || 'ahead'} (${dist}m)`;
+        return `Continue ${dist}m`;
+      };
+      
+      const instructionsHtml = directions.instructions.map((inst: any, i: number) => `
+        <div style="display:flex;align-items:start;gap:12px;padding:12px;border-bottom:1px solid #e8eaed;">
+          <div style="font-size:20px;flex-shrink:0;">${getInstructionIcon(inst.action.type, inst.action.bearing)}</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;color:#202124;font-weight:500;">${getInstructionText(inst)}</div>
+            ${inst.action.fromFloor && inst.action.toFloor ? `<div style="font-size:12px;color:#5f6368;margin-top:4px;">Floor ${inst.action.fromFloor.name} → ${inst.action.toFloor.name}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+      
       content.innerHTML = `
         <div class="directions-card">
           <div class="directions-header">
@@ -272,14 +312,10 @@ async function drawNavigation() {
               <div class="directions-distance">${distance} m</div>
             </div>
           </div>
-          <div class="route-details">
-            <div class="route-point">
-              <div class="route-dot start"></div>
-              <div class="route-text">${navStartPoint.name}</div>
-            </div>
-            <div class="route-point">
-              <div class="route-dot end"></div>
-              <div class="route-text">${navEndPoint.name}</div>
+          <div style="margin:16px 0;">
+            <div style="font-size:14px;font-weight:500;color:#202124;margin-bottom:8px;">Turn-by-turn directions</div>
+            <div style="max-height:300px;overflow-y:auto;border:1px solid #e8eaed;border-radius:8px;">
+              ${instructionsHtml}
             </div>
           </div>
           <button class="btn-secondary" onclick="clearNavigation()">End route</button>
