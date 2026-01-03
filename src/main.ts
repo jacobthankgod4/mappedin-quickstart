@@ -454,7 +454,6 @@ function updateCurrentInstruction() {
   
   const icon = getInstructionIcon(inst.action.type, inst.action.bearing);
   const text = getInstructionText(inst);
-  const dist = inst.distance.toFixed(0);
   
   document.getElementById('currentIcon')!.textContent = icon;
   document.getElementById('currentText')!.textContent = text;
