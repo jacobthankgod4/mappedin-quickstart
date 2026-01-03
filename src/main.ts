@@ -200,6 +200,9 @@ function selectStore(store: any) {
 
 function showDirections() {
   const content = document.getElementById('sheetContent')!;
+  const searchBar = document.getElementById('searchInput')!.parentElement!.parentElement!;
+  searchBar.style.display = 'none';
+  
   content.innerHTML = `
     <div class="directions-card" style="display:flex;flex-direction:column;height:100%;padding:12px;">
       <div style="font-size:16px;font-weight:500;color:#202124;margin-bottom:12px;">Get Directions</div>
