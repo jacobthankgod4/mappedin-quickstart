@@ -397,7 +397,7 @@ function nextInstruction() {
   }
   
   try {
-    await mapView.Camera.focusOn(currentInst.coordinate);
+    mapView.Camera.focusOn(currentInst.coordinate);
     (window as any).debugLog(`✓ Camera moved to step ${currentInstructionIndex}`);
   } catch (err) {
     (window as any).debugLog(`❌ Camera: ${err}`);
