@@ -789,6 +789,7 @@ function updateStoreList() {
         </div>
       </div>
     `).join('');
+    attachStoreListeners();
   }
 }
 
