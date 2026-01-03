@@ -440,8 +440,17 @@ function prevInstruction() {
     }
   }
   
+  // Calculate bearing to next instruction for camera direction
+  let bearing = 0;
+  if (currentInstructionIndex < activeDirections.instructions.length - 1) {
+    const nextInst = activeDirections.instructions[currentInstructionIndex + 1];
+    const dx = nextInst.coordinate.longitude - currentInst.coordinate.longitude;
+    const dy = nextInst.coordinate.latitude - currentInst.coordinate.latitude;
+    bearing = Math.atan2(dx, dy) * (180 / Math.PI);
+  }
+  
   try {
-    mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 18.5, pitch: 60 });
+    mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 19, pitch: 45, bearing });
     (window as any).debugLog(`✓ Camera moved to step ${currentInstructionIndex}`);
   } catch (err) {
     (window as any).debugLog(`❌ Camera: ${err}`);
@@ -481,8 +490,17 @@ function nextInstruction() {
     (window as any).debugLog(`❌ Highlight: ${err}`);
   }
   
+  // Calculate bearing to next instruction for camera direction
+  let bearing = 0;
+  if (currentInstructionIndex < activeDirections.instructions.length - 1) {
+    const nextInst = activeDirections.instructions[currentInstructionIndex + 1];
+    const dx = nextInst.coordinate.longitude - currentInst.coordinate.longitude;
+    const dy = nextInst.coordinate.latitude - currentInst.coordinate.latitude;
+    bearing = Math.atan2(dx, dy) * (180 / Math.PI);
+  }
+  
   try {
-    mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 18.5, pitch: 60 });
+    mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 19, pitch: 45, bearing });
     (window as any).debugLog(`✓ Camera moved to step ${currentInstructionIndex}`);
   } catch (err) {
     (window as any).debugLog(`❌ Camera: ${err}`);
