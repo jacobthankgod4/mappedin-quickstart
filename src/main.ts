@@ -241,8 +241,23 @@ function showDirections() {
         startDropdown.style.display = 'none';
         startNavBtn.disabled = false;
         
-        // Show overview when start point selected
-        mapView.Camera.focusOn([navStartPoint, selectedStore]);
+        // Draw path and show overview
+        (async () => {
+          const directions = await mapView.getDirections(navStartPoint, selectedStore);
+          if (directions) {
+            await mapView.Navigation.draw(directions, {
+              pathOptions: { color: '#4285f4', nearRadius: 0.5, farRadius: 1.5, pulseColor: '#4285f4' },
+              markerOptions: { departureColor: '#34a853', destinationColor: '#ea4335' },
+              setMapToDeparture: false,
+              animatePathDrawing: true
+            });
+            mapView.Camera.focusOn({ nodes: directions.path });
+            
+            // Reduce sheet to 25vh to show route
+            const sheet = document.getElementById('bottomSheet')!;
+            sheet.style.maxHeight = '25vh';
+          }
+        })();
       });
     });
   });
