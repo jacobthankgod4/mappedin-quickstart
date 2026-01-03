@@ -592,9 +592,13 @@ function setupUI() {
   uiContainer.innerHTML = `
     <div id="bottomSheet" class="bottom-sheet">
       <div class="sheet-header" id="sheetHeader">
-        <div style="width:40px;height:4px;background:#dadce0;border-radius:2px;margin:0 auto 12px;"></div>
-        <div class="sheet-title">Stores</div>
-        <button class="close-btn" onclick="hideSheet()">×</button>
+        <div style="width:100%;display:flex;justify-content:center;margin-bottom:12px;">
+          <div style="width:40px;height:4px;background:#dadce0;border-radius:2px;"></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+          <div class="sheet-title">Stores</div>
+          <button class="close-btn" onclick="hideSheet()">×</button>
+        </div>
       </div>
       <div style="padding:16px;border-bottom:1px solid #e8eaed;">
         <div style="position:relative;">
