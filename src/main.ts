@@ -219,7 +219,7 @@ function showDirections() {
         </div>
       </div>
       
-      <button class="btn-primary" id="startNavBtn" disabled>Start Navigation</button>
+      <button class="btn-primary" id="startNavBtn" disabled>Choose Starting Point</button>
       <button class="btn-secondary" style="margin-top:8px;" onclick="updateStoreList()">Cancel</button>
     </div>
   `;
@@ -240,6 +240,10 @@ function showDirections() {
         (startInput as HTMLInputElement).value = navStartPoint!.name;
         startDropdown.style.display = 'none';
         startNavBtn.disabled = false;
+        startNavBtn.textContent = 'Preview Route';
+        
+        // Show overview when start point selected
+        mapView.Camera.focusOn([navStartPoint, selectedStore]);
       });
     });
   });
@@ -247,16 +251,14 @@ function showDirections() {
   startNavBtn.addEventListener('click', async () => {
     navEndPoint = selectedStore;
     
-    // Show overview of route before starting navigation
-    const directions = await mapView.getDirections(navStartPoint, navEndPoint);
-    if (directions) {
-      mapView.Camera.focusOn([navStartPoint, navEndPoint]);
-      
-      // Wait 2 seconds to show overview, then start navigation
-      setTimeout(async () => {
-        await drawNavigation();
-      }, 2000);
-    }
+    // Show overview of start and end points
+    mapView.Camera.focusOn([navStartPoint, navEndPoint]);
+    
+    // Update button to show user can start
+    startNavBtn.textContent = 'Start Navigation';
+    startNavBtn.onclick = async () => {
+      await drawNavigation();
+    };
   });
 }
 
@@ -265,15 +267,15 @@ async function drawNavigation() {
   try {
     const directions = await mapView.getDirections(navStartPoint, navEndPoint);
     if (directions) {
+      // Show overview first
+      mapView.Camera.focusOn([navStartPoint, navEndPoint]);
+      
       await mapView.Navigation.draw(directions, {
         pathOptions: { color: '#4285f4', nearRadius: 0.5, farRadius: 1.5, pulseColor: '#4285f4' },
         markerOptions: { departureColor: '#34a853', destinationColor: '#ea4335' },
         setMapToDeparture: true,
         animatePathDrawing: true
       });
-      
-      // Focus on first instruction (departure point)
-      mapView.Camera.focusOn(directions.instructions[0].coordinate);
       
       activeDirections = directions;
       currentInstructionIndex = 0;
