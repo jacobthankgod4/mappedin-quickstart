@@ -256,7 +256,7 @@ function showDirections() {
             // Set camera padding to account for 25vh sheet
             const vh = window.innerHeight / 100;
             mapView.Camera.setScreenOffsets({ bottom: 25 * vh, type: 'pixel' });
-            mapView.Camera.focusOn({ nodes: directions.path });
+            await mapView.Camera.focusOn(directions.path, { maxZoomLevel: 18 });
             
             // Reduce sheet to 25vh to show route
             const sheet = document.getElementById('bottomSheet')!;
