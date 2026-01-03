@@ -450,7 +450,7 @@ function prevInstruction() {
   }
   
   try {
-    mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 22, pitch: 45, bearing });
+    mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 20, pitch: 45, bearing });
     (window as any).debugLog(`✓ Camera moved to step ${currentInstructionIndex}`);
   } catch (err) {
     (window as any).debugLog(`❌ Camera: ${err}`);
@@ -500,7 +500,7 @@ function nextInstruction() {
   }
   
   try {
-    mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 22, pitch: 45, bearing });
+    mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 20, pitch: 45, bearing });
     (window as any).debugLog(`✓ Camera moved to step ${currentInstructionIndex}`);
   } catch (err) {
     (window as any).debugLog(`❌ Camera: ${err}`);
