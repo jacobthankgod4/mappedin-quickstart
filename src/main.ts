@@ -332,6 +332,8 @@ async function drawNavigation() {
       `;
       updateCurrentInstruction();
       document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'none';
+      const sheet = document.getElementById('bottomSheet')!;
+      sheet.style.maxHeight = '20vh';
     }
   } catch (err) {}
 }
