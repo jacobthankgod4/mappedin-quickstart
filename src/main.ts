@@ -184,8 +184,10 @@ function selectStore(store: any) {
       (window as any).debugLog(`❌ Highlight: ${err}`);
     }
     
-    // Focus camera
+    // Focus camera with offset for 60vh sheet
     try {
+      const vh = window.innerHeight / 100;
+      mapView.Camera.setScreenOffsets({ bottom: 60 * vh, type: 'pixel' });
       mapView.Camera.focusOn(store);
       (window as any).debugLog('✓ Camera focused');
     } catch (err) {
