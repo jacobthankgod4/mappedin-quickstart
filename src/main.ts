@@ -340,6 +340,8 @@ async function drawNavigation() {
 
 function clearSelection() {
   (window as any).debugLog('\n🧹 CLEAR SELECTION');
+  const sheet = document.getElementById('bottomSheet')!;
+  
   if (selectedPolygon) {
     try { 
       mapView.updateState(selectedPolygon, { color: 'initial' });
@@ -349,8 +351,17 @@ function clearSelection() {
     }
     selectedPolygon = null;
   }
+  
   selectedStore = null;
-  updateStoreList();
+  sheet.style.maxHeight = '20vh';
+  
+  const content = document.getElementById('sheetContent')!;
+  content.innerHTML = `
+    <div style="padding:16px;text-align:center;">
+      <div style="font-size:14px;color:#5f6368;margin-bottom:12px;">Tap to view stores</div>
+      <button class="btn-primary" onclick="updateStoreList()">Show Stores</button>
+    </div>
+  `;
 }
 
 function clearNavigation() {
