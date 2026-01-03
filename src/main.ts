@@ -476,6 +476,8 @@ function nextInstruction() {
         <button class="btn-primary" onclick="clearNavigation()">Done</button>
       </div>
     `;
+    const sheet = document.getElementById('bottomSheet')!;
+    sheet.style.maxHeight = '40vh';
     return;
   }
   
