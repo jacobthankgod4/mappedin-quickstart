@@ -320,7 +320,10 @@ async function drawNavigation() {
               <div style="font-size:20px;color:#5f6368;" id="expandIcon">▲</div>
             </div>
           </div>
-          <button class="btn-primary" onclick="nextInstruction()" id="nextBtn" style="width:100%;margin-bottom:12px;">Next Step</button>
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <button class="btn-secondary" onclick="prevInstruction()" id="prevBtn" style="flex:1;">Previous</button>
+            <button class="btn-primary" onclick="nextInstruction()" id="nextBtn" style="flex:1;">Next Step</button>
+          </div>
           <div id="allSteps" style="display:none;margin:16px 0;">
             <div style="font-size:14px;font-weight:500;color:#202124;margin-bottom:8px;">All Steps</div>
             <div style="max-height:200px;overflow-y:auto;border:1px solid #e8eaed;border-radius:8px;">
@@ -391,6 +394,37 @@ function toggleSheet() {
     sheet.style.maxHeight = '60vh';
     expandIcon.textContent = '▼';
     allSteps.style.display = 'block';
+  }
+}
+
+function prevInstruction() {
+  if (!activeDirections || currentInstructionIndex <= 0) return;
+  
+  currentInstructionIndex--;
+  updateCurrentInstruction();
+  
+  const currentInst = activeDirections.instructions[currentInstructionIndex];
+  const startCoord = activeDirections.instructions[0].coordinate;
+  
+  if (currentInstructionIndex === 0) {
+    mapView.Navigation.clearHighlightedPathSection();
+  } else {
+    try {
+      mapView.Navigation.highlightPathSection(startCoord, currentInst.coordinate, {
+        color: '#34a853',
+        nearRadius: 0.6,
+        farRadius: 1.8
+      });
+    } catch (err) {
+      (window as any).debugLog(`❌ Highlight: ${err}`);
+    }
+  }
+  
+  try {
+    mapView.Camera.focusOn(currentInst.coordinate);
+    (window as any).debugLog(`✓ Camera moved to step ${currentInstructionIndex}`);
+  } catch (err) {
+    (window as any).debugLog(`❌ Camera: ${err}`);
   }
 }
 
@@ -482,8 +516,14 @@ function updateCurrentInstruction() {
   });
   
   const nextBtn = document.getElementById('nextBtn') as HTMLButtonElement;
+  const prevBtn = document.getElementById('prevBtn') as HTMLButtonElement;
+  
+  if (prevBtn) prevBtn.disabled = currentInstructionIndex === 0;
+  
   if (currentInstructionIndex === activeDirections.instructions.length - 1) {
     nextBtn.textContent = 'Arrive';
+  } else {
+    nextBtn.textContent = 'Next Step';
   }
 }
 
@@ -496,6 +536,7 @@ function hideSheet() {
 (window as any).hideSheet = hideSheet;
 (window as any).showDirections = showDirections;
 (window as any).nextInstruction = nextInstruction;
+(window as any).prevInstruction = prevInstruction;
 (window as any).toggleSheet = toggleSheet;
 
 
