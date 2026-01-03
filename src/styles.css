@@ -50,9 +50,14 @@
   right: 0;
   background: white;
   z-index: 999;
-  max-height: 60vh;
+  max-height: 20vh;
   overflow: hidden;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.15);
+  transition: max-height 0.3s ease;
+}
+
+.bottom-sheet.expanded {
+  max-height: 60vh;
 }
 
 .sheet-header {
@@ -86,6 +91,10 @@
 .sheet-content {
   padding: 0;
   overflow-y: auto;
+  max-height: calc(20vh - 60px);
+}
+
+.bottom-sheet.expanded .sheet-content {
   max-height: calc(60vh - 60px);
 }
 

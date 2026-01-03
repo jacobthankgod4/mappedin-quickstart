@@ -310,20 +310,18 @@ async function drawNavigation() {
       
       content.innerHTML = `
         <div class="directions-card">
-          <div class="directions-header">
-            <div class="directions-icon">🧭</div>
-            <div class="directions-info">
-              <div class="directions-time">${time} min</div>
-              <div class="directions-distance">${distance} m</div>
+          <div id="currentInstruction" style="padding:16px;background:#e8f0fe;border-radius:8px;margin-bottom:12px;cursor:pointer;" onclick="toggleSheet()">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="font-size:24px;" id="currentIcon">🚶</div>
+              <div style="flex:1;">
+                <div style="font-weight:500;font-size:16px;color:#202124;" id="currentText">Start at ${navStartPoint.name}</div>
+                <div style="font-size:12px;color:#5f6368;margin-top:4px;">${time} min • ${distance}m</div>
+              </div>
+              <div style="font-size:20px;color:#5f6368;" id="expandIcon">▲</div>
             </div>
           </div>
-          <div id="currentInstruction" style="padding:16px;background:#e8f0fe;border-radius:8px;margin:16px 0;">
-            <div style="font-size:24px;margin-bottom:8px;" id="currentIcon">🚶</div>
-            <div style="font-weight:500;font-size:16px;color:#202124;" id="currentText">Start at ${navStartPoint.name}</div>
-            <div style="font-size:12px;color:#5f6368;margin-top:4px;" id="currentDistance"></div>
-          </div>
           <button class="btn-primary" onclick="nextInstruction()" id="nextBtn" style="width:100%;margin-bottom:12px;">Next Step</button>
-          <div style="margin:16px 0;">
+          <div id="allSteps" style="display:none;margin:16px 0;">
             <div style="font-size:14px;font-weight:500;color:#202124;margin-bottom:8px;">All Steps</div>
             <div style="max-height:200px;overflow-y:auto;border:1px solid #e8eaed;border-radius:8px;">
               ${instructionsHtml}
@@ -333,6 +331,7 @@ async function drawNavigation() {
         </div>
       `;
       updateCurrentInstruction();
+      document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'none';
     }
   } catch (err) {}
 }
@@ -360,7 +359,24 @@ function clearNavigation() {
   currentInstructionIndex = 0;
   navStartPoint = null;
   navEndPoint = null;
+  document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'block';
   clearSelection();
+}
+
+function toggleSheet() {
+  const sheet = document.getElementById('bottomSheet')!;
+  const expandIcon = document.getElementById('expandIcon')!;
+  const allSteps = document.getElementById('allSteps')!;
+  
+  if (sheet.classList.contains('expanded')) {
+    sheet.classList.remove('expanded');
+    expandIcon.textContent = '▲';
+    allSteps.style.display = 'none';
+  } else {
+    sheet.classList.add('expanded');
+    expandIcon.textContent = '▼';
+    allSteps.style.display = 'block';
+  }
 }
 
 function nextInstruction() {
@@ -442,7 +458,6 @@ function updateCurrentInstruction() {
   
   document.getElementById('currentIcon')!.textContent = icon;
   document.getElementById('currentText')!.textContent = text;
-  document.getElementById('currentDistance')!.textContent = `${dist}m`;
   
   activeDirections.instructions.forEach((_: any, idx: number) => {
     const elem = document.getElementById(`inst-${idx}`);
@@ -467,6 +482,7 @@ function hideSheet() {
 (window as any).hideSheet = hideSheet;
 (window as any).showDirections = showDirections;
 (window as any).nextInstruction = nextInstruction;
+(window as any).toggleSheet = toggleSheet;
 
 
 
