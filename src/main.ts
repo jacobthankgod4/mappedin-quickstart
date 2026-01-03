@@ -493,7 +493,8 @@ function setupUI() {
   const uiContainer = document.createElement('div');
   uiContainer.innerHTML = `
     <div id="bottomSheet" class="bottom-sheet">
-      <div class="sheet-header">
+      <div class="sheet-header" id="sheetHeader">
+        <div style="width:40px;height:4px;background:#dadce0;border-radius:2px;margin:0 auto 12px;"></div>
         <div class="sheet-title">Stores</div>
         <button class="close-btn" onclick="hideSheet()">×</button>
       </div>
@@ -508,6 +509,51 @@ function setupUI() {
     </div>
   `;
   document.body.appendChild(uiContainer);
+
+  const sheet = document.getElementById('bottomSheet')!;
+  const header = document.getElementById('sheetHeader')!;
+  let startY = 0;
+  let currentHeight = 0;
+  
+  header.addEventListener('touchstart', (e) => {
+    startY = e.touches[0].clientY;
+    currentHeight = sheet.offsetHeight;
+  });
+  
+  header.addEventListener('touchmove', (e) => {
+    const deltaY = e.touches[0].clientY - startY;
+    const newHeight = currentHeight - deltaY;
+    const vh = window.innerHeight / 100;
+    
+    if (newHeight >= 20 * vh && newHeight <= 60 * vh) {
+      sheet.style.maxHeight = `${newHeight}px`;
+    }
+  });
+  
+  header.addEventListener('touchend', (e) => {
+    const vh = window.innerHeight / 100;
+    const currentHeightVh = sheet.offsetHeight / vh;
+    
+    if (currentHeightVh < 40) {
+      sheet.style.maxHeight = '30vh';
+      if (sheet.classList.contains('expanded')) {
+        sheet.classList.remove('expanded');
+        const expandIcon = document.getElementById('expandIcon');
+        const allSteps = document.getElementById('allSteps');
+        if (expandIcon) expandIcon.textContent = '▲';
+        if (allSteps) allSteps.style.display = 'none';
+      }
+    } else {
+      sheet.style.maxHeight = '60vh';
+      if (!sheet.classList.contains('expanded') && document.getElementById('expandIcon')) {
+        sheet.classList.add('expanded');
+        const expandIcon = document.getElementById('expandIcon');
+        const allSteps = document.getElementById('allSteps');
+        if (expandIcon) expandIcon.textContent = '▼';
+        if (allSteps) allSteps.style.display = 'block';
+      }
+    }
+  });
 
   const searchInput = document.getElementById('searchInput')!;
   const searchResultsDiv = document.getElementById('searchResults')!;
