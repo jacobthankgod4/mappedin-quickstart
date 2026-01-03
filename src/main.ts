@@ -333,7 +333,7 @@ async function drawNavigation() {
       updateCurrentInstruction();
       document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'none';
       const sheet = document.getElementById('bottomSheet')!;
-      sheet.style.maxHeight = '20vh';
+      sheet.style.maxHeight = '30vh';
     }
   } catch (err) {}
 }
@@ -372,10 +372,12 @@ function toggleSheet() {
   
   if (sheet.classList.contains('expanded')) {
     sheet.classList.remove('expanded');
+    sheet.style.maxHeight = '30vh';
     expandIcon.textContent = '▲';
     allSteps.style.display = 'none';
   } else {
     sheet.classList.add('expanded');
+    sheet.style.maxHeight = '60vh';
     expandIcon.textContent = '▼';
     allSteps.style.display = 'block';
   }
