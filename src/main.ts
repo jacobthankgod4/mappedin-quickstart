@@ -378,7 +378,7 @@ function clearSelection() {
   }
   
   selectedStore = null;
-  sheet.style.maxHeight = '15vh';
+  sheet.style.maxHeight = '25vh';
   
   const content = document.getElementById('sheetContent')!;
   content.innerHTML = `
