@@ -251,6 +251,10 @@ function showDirections() {
               setMapToDeparture: false,
               animatePathDrawing: true
             });
+            
+            // Set camera padding to account for 25vh sheet
+            const vh = window.innerHeight / 100;
+            mapView.Camera.setScreenOffsets({ bottom: 25 * vh, type: 'pixel' });
             mapView.Camera.focusOn({ nodes: directions.path });
             
             // Reduce sheet to 25vh to show route
