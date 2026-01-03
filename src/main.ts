@@ -343,20 +343,44 @@ function updateStoreList() {
   sheet.style.display = 'block';
 
   if (selectedStore) {
-    content.innerHTML = `
-      <div class="directions-card">
-        <div class="directions-header">
-          <div class="directions-icon">📍</div>
-          <div class="directions-info">
-            <div style="font-size:18px;font-weight:500;color:#202124;">${selectedStore.name}</div>
-            <div style="font-size:14px;color:#5f6368;margin-top:4px;">Store</div>
-          </div>
+    const location = selectedStore.enterpriseLocations?.[0];
+    let html = `<div class="directions-card">`;
+    
+    if (location?.images?.[0]?.url) {
+      html += `<img src="${location.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" />`;
+    }
+    
+    html += `
+      <div class="directions-header">
+        <div class="directions-icon">📍</div>
+        <div class="directions-info">
+          <div style="font-size:20px;font-weight:500;color:#202124;">${selectedStore.name}</div>
+          <div style="font-size:14px;color:#5f6368;margin-top:4px;">${location?.amenity || 'Store'}</div>
         </div>
-        <button class="btn-primary" onclick="showDirections()">Directions</button>
-        <button class="btn-secondary" style="margin-top:8px;" onclick="clearSelection()">Close</button>
       </div>
     `;
+    
+    if (location?.description) {
+      html += `<p style="color:#5f6368;font-size:14px;line-height:1.5;margin:16px 0;">${location.description}</p>`;
+    }
+    
+    if (location?.website) {
+      html += `<a href="${location.website}" target="_blank" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">🔗 Visit Website</a>`;
+    }
+    
+    if (location?.phone) {
+      html += `<a href="tel:${location.phone}" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">📞 ${location.phone}</a>`;
+    }
+    
+    html += `
+      <button class="btn-primary" onclick="showDirections()">Directions</button>
+      <button class="btn-secondary" style="margin-top:8px;" onclick="clearSelection()">Close</button>
+    </div>`;
+    
+    content.innerHTML = html;
+    sheet.style.maxHeight = '80vh';
   } else {
+    sheet.style.maxHeight = '60vh';
     content.innerHTML = searchResults.map(store => `
       <div class="store-card" data-id="${store.id}">
         <div class="store-icon">🏪</div>
