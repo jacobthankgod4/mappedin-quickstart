@@ -21,8 +21,24 @@ async function init() {
   const container = document.getElementById('mappedin-map')!;
   container.style.position = 'relative';
 
+  // Create debug overlay
+  const debugDiv = document.createElement('div');
+  debugDiv.id = 'debug-overlay';
+  debugDiv.style.cssText = 'position:fixed;top:80px;right:10px;background:rgba(0,0,0,0.9);color:#0f0;padding:10px;border-radius:8px;font-family:monospace;font-size:11px;max-width:300px;max-height:400px;overflow-y:auto;z-index:9999;';
+  document.body.appendChild(debugDiv);
+  (window as any).debugLog = (msg: string) => {
+    const line = document.createElement('div');
+    line.textContent = msg;
+    line.style.marginBottom = '4px';
+    debugDiv.appendChild(line);
+    debugDiv.scrollTop = debugDiv.scrollHeight;
+  };
+
+  (window as any).debugLog('🚀 Initializing...');
   const mapData = await getMapData(options);
+  (window as any).debugLog('✓ Map data loaded');
   mapView = await show3dMap(container, mapData);
+  (window as any).debugLog('✓ Map view created');
   
   setupStores(mapData);
   setupFloorIndicator(mapData);
@@ -30,31 +46,31 @@ async function init() {
   addPromotionalMarkers();
   addDirectoryKiosks(mapData);
   setupUI();
+  (window as any).debugLog('✓ Init complete');
 }
 
 function setupStores(mapData: any) {
   try {
-    console.log('=== SETUP STORES AUDIT ===');
-    console.log('mapData.locations:', mapData.locations?.length);
-    console.log('mapData spaces:', mapData.getByType?.('space')?.length);
+    (window as any).debugLog('\n📦 SETUP STORES:');
+    (window as any).debugLog(`Locations: ${mapData.locations?.length || 0}`);
+    (window as any).debugLog(`Spaces: ${mapData.getByType?.('space')?.length || 0}`);
     
     if (mapData.locations && mapData.locations.length > 0) {
       stores = mapData.locations;
-      console.log('Using locations. First item:', stores[0]);
+      (window as any).debugLog('Using: locations');
     } else {
       const spaces = mapData.getByType?.('space') || [];
       stores = spaces.filter((s: any) => s && s.name);
-      console.log('Using spaces. First item:', stores[0]);
+      (window as any).debugLog('Using: spaces');
     }
     
-    console.log('Total stores:', stores.length);
-    console.log('First store has enterpriseLocations:', !!stores[0]?.enterpriseLocations);
-    console.log('First store has polygon:', !!stores[0]?.polygon);
-    console.log('First store properties:', Object.keys(stores[0] || {}));
+    (window as any).debugLog(`Total stores: ${stores.length}`);
+    (window as any).debugLog(`Has enterprise: ${!!stores[0]?.enterpriseLocations}`);
+    (window as any).debugLog(`Has polygon: ${!!stores[0]?.polygon}`);
     
     searchResults = stores;
   } catch (err) {
-    console.error('Setup stores error:', err);
+    (window as any).debugLog(`❌ Error: ${err}`);
     stores = [];
     searchResults = [];
   }
@@ -143,10 +159,9 @@ function addDirectoryKiosks(mapData: any) {
 
 function selectStore(store: any) {
   try {
-    console.log('=== SELECT STORE AUDIT ===');
-    console.log('Store:', store.name);
-    console.log('Store has polygon:', !!store.polygon);
-    console.log('Store has enterpriseLocations:', !!store.enterpriseLocations);
+    (window as any).debugLog(`\n🎯 SELECT: ${store.name}`);
+    (window as any).debugLog(`Has polygon: ${!!store.polygon}`);
+    (window as any).debugLog(`Has enterprise: ${!!store.enterpriseLocations}`);
     
     selectedStore = store;
     
@@ -154,7 +169,7 @@ function selectStore(store: any) {
       try {
         mapView.Polygons.remove(selectedPolygon);
       } catch (err) {
-        console.error('Remove polygon error:', err);
+        (window as any).debugLog(`❌ Remove polygon: ${err}`);
       }
     }
     
@@ -165,9 +180,9 @@ function selectStore(store: any) {
         strokeColor: '#2980b9',
         strokeWidth: 2
       });
-      console.log('Polygon added successfully');
+      (window as any).debugLog('✓ Polygon added');
     } catch (err) {
-      console.error('Add polygon error:', err);
+      (window as any).debugLog(`❌ Add polygon: ${err}`);
     }
     
     try {
@@ -176,14 +191,14 @@ function selectStore(store: any) {
         tilt: 30,
         duration: 1000
       });
-      console.log('Camera focused successfully');
+      (window as any).debugLog('✓ Camera focused');
     } catch (err) {
-      console.error('Camera focus error:', err);
+      (window as any).debugLog(`❌ Camera: ${err}`);
     }
     
     updateStoreList();
   } catch (err) {
-    console.error('Select store error:', err);
+    (window as any).debugLog(`❌ Select error: ${err}`);
   }
 }
 
@@ -373,19 +388,17 @@ function updateStoreList() {
   sheet.style.display = 'block';
 
   if (selectedStore) {
-    console.log('=== UPDATE STORE LIST (SELECTED) ===');
-    console.log('Selected store:', selectedStore.name);
+    (window as any).debugLog(`\n📄 DETAILS: ${selectedStore.name}`);
     
     const location = selectedStore.enterpriseLocations?.[0];
-    console.log('Enterprise location:', location);
     
     let html = `<div class="directions-card">`;
     
     if (location?.images?.[0]?.url) {
       html += `<img src="${location.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" />`;
-      console.log('Image added');
+      (window as any).debugLog('✓ Image');
     } else {
-      console.log('No image found');
+      (window as any).debugLog('✗ No image');
     }
     
     html += `
@@ -400,23 +413,23 @@ function updateStoreList() {
     
     if (location?.description) {
       html += `<p style="color:#5f6368;font-size:14px;line-height:1.5;margin:16px 0;">${location.description}</p>`;
-      console.log('Description added');
+      (window as any).debugLog('✓ Description');
     } else {
-      console.log('No description');
+      (window as any).debugLog('✗ No description');
     }
     
     if (location?.website) {
       html += `<a href="${location.website}" target="_blank" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">🔗 Visit Website</a>`;
-      console.log('Website added');
+      (window as any).debugLog('✓ Website');
     } else {
-      console.log('No website');
+      (window as any).debugLog('✗ No website');
     }
     
     if (location?.phone) {
       html += `<a href="tel:${location.phone}" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">📞 ${location.phone}</a>`;
-      console.log('Phone added');
+      (window as any).debugLog('✓ Phone');
     } else {
-      console.log('No phone');
+      (window as any).debugLog('✗ No phone');
     }
     
     html += `
@@ -427,8 +440,6 @@ function updateStoreList() {
     content.innerHTML = html;
     sheet.style.maxHeight = '80vh';
   } else {
-    console.log('=== UPDATE STORE LIST (LIST VIEW) ===');
-    console.log('Rendering', searchResults.length, 'stores');
     sheet.style.maxHeight = '60vh';
     content.innerHTML = searchResults.map(store => `
       <div class="store-card" data-id="${store.id}">
@@ -446,17 +457,14 @@ function attachStoreListeners() {
   const content = document.getElementById('sheetContent');
   if (!content) return;
   
-  console.log('=== ATTACH STORE LISTENERS ===');
-  console.log('Content element exists:', !!content);
+  (window as any).debugLog('\n👂 Listeners attached');
   
   content.onclick = (e) => {
     const card = (e.target as HTMLElement).closest('.store-card');
     if (card) {
-      console.log('Card clicked');
+      (window as any).debugLog('\n🖱️ CLICK detected');
       const storeId = card.getAttribute('data-id');
-      console.log('Store ID:', storeId);
       const store = stores.find(s => s.id === storeId);
-      console.log('Store found:', !!store);
       if (store) selectStore(store);
     }
   };
