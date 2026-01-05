@@ -695,12 +695,12 @@ function setupUI() {
   uiContainer.innerHTML = `
     <div id="bottomSheet" class="bottom-sheet">
       <div class="sheet-header" id="sheetHeader">
-        <div style="width:100%;display:flex;justify-content:center;margin-bottom:8px;">
+        <div style="width:100%;display:flex;justify-content:center;margin-bottom:4px;">
           <div style="width:40px;height:4px;background:#dadce0;border-radius:2px;"></div>
         </div>
         <div class="sheet-title">Stores</div>
       </div>
-      <div style="padding:12px 16px;background:#f8f9fa;border-bottom:1px solid #e8eaed;">
+      <div style="padding:8px 16px;background:#f8f9fa;border-bottom:1px solid #e8eaed;">
         <div style="position:relative;">
           <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#5f6368;">${icons.search}</span>
           <input id="searchInput" style="width:100%;padding:10px 40px 10px 40px;border:1px solid #dadce0;border-radius:12px;font-size:14px;outline:none;" type="text" placeholder="Search stores..." />
