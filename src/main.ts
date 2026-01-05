@@ -871,7 +871,18 @@ function updateStoreList() {
 
   if (selectedStore) {
     (window as any).debugLog(`\n📄 DETAILS: ${selectedStore.name}`);
-    sheet.style.maxHeight = '60vh';
+    sheet.style.maxHeight = '85vh';
+    
+    // Hide search/category/cards sections when showing store details
+    const searchSection = document.getElementById('searchInput')?.parentElement?.parentElement;
+    const categorySection = document.getElementById('categoryPills')?.parentElement;
+    const cardsSection = document.getElementById('storeCardsRow')?.parentElement;
+    if (searchSection) searchSection.style.display = 'none';
+    if (categorySection) categorySection.style.display = 'none';
+    if (cardsSection) cardsSection.style.display = 'none';
+    
+    // Give full height to content
+    content.classList.add('full-height');
     
     const hasCategories = selectedStore.categories && selectedStore.categories.length > 0;
     const hasHours = selectedStore.operationHours;
@@ -955,6 +966,17 @@ function updateStoreList() {
     
     content.innerHTML = html;
   } else {
+    // Show search/category/cards sections when showing store list
+    const searchSection = document.getElementById('searchInput')?.parentElement?.parentElement;
+    const categorySection = document.getElementById('categoryPills')?.parentElement;
+    const cardsSection = document.getElementById('storeCardsRow')?.parentElement;
+    if (searchSection) searchSection.style.display = 'block';
+    if (categorySection) categorySection.style.display = 'block';
+    if (cardsSection) cardsSection.style.display = 'block';
+    
+    // Remove full height from content
+    content.classList.remove('full-height');
+    
     sheet.style.maxHeight = '70vh';
     content.innerHTML = searchResults.map(store => `
       <div class="store-card" data-id="${store.id}">
