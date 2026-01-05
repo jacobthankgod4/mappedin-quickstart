@@ -49,24 +49,8 @@ async function init() {
   const container = document.getElementById('mappedin-map')!;
   container.style.position = 'relative';
 
-  const debugDiv = document.createElement('div');
-  debugDiv.id = 'debug-overlay';
-  debugDiv.style.cssText = 'position:fixed;top:80px;right:10px;background:rgba(0,0,0,0.9);color:#0f0;padding:10px;border-radius:8px;font-family:monospace;font-size:11px;max-width:300px;max-height:400px;overflow-y:auto;z-index:9999;';
-  document.body.appendChild(debugDiv);
-  (window as any).debugLog = (msg: string) => {
-    const line = document.createElement('div');
-    line.textContent = msg;
-    line.style.marginBottom = '4px';
-    debugDiv.appendChild(line);
-    debugDiv.scrollTop = debugDiv.scrollHeight;
-  };
-
-  (window as any).debugLog('🚀 Initializing...');
   mapData = await getMapData(options);
-  (window as any).debugLog('✓ Map data loaded');
   mapView = await show3dMap(container, mapData);
-  (window as any).debugLog('✓ Map view created');
-  
   setupStores(mapData);
   setupFloors(mapData);
   setupCategories();
@@ -76,25 +60,19 @@ async function init() {
   addDirectoryKiosks(mapData);
   setupMapControls();
   setupUI();
-  (window as any).debugLog('✓ Init complete');
 }
 
 function setupStores(mapData: any) {
   try {
-    (window as any).debugLog('\n📦 SETUP STORES:');
-    
     if (mapData.locations && mapData.locations.length > 0) {
       stores = mapData.locations;
-      (window as any).debugLog(`✓ Using locations: ${stores.length}`);
     } else {
       const spaces = mapData.getByType?.('space') || [];
       stores = spaces.filter((s: any) => s && s.name);
-      (window as any).debugLog(`⚠️ Using spaces: ${stores.length}`);
     }
     
     searchResults = stores;
   } catch (err) {
-    (window as any).debugLog(`❌ Error: ${err}`);
     stores = [];
     searchResults = [];
   }
@@ -102,7 +80,6 @@ function setupStores(mapData: any) {
 
 function setupFloors(data: any) {
   floors = data.getByType?.('floor') || [];
-  (window as any).debugLog(`✓ Floors: ${floors.length}`);
 }
 
 function setupCategories() {
@@ -113,7 +90,6 @@ function setupCategories() {
     }
   });
   allCategories = Array.from(categorySet);
-  (window as any).debugLog(`✓ Categories: ${allCategories.length}`);
 }
 
 function setupFloorIndicator(mapData: any) {
@@ -260,43 +236,27 @@ function setupMapControls() {
 
 function selectStore(store: any) {
   try {
-    (window as any).debugLog(`\n🎯 SELECT: ${store.name}`);
-    
-    // Clear previous highlight BEFORE setting new one
     if (selectedPolygon && selectedPolygon !== store) {
       try {
         mapView.updateState(selectedPolygon, { color: 'initial' });
-        (window as any).debugLog('✓ Cleared old highlight');
-      } catch (err) {
-        (window as any).debugLog(`❌ Clear old: ${err}`);
-      }
+      } catch (err) {}
     }
     
     selectedStore = store;
     selectedPolygon = store;
     
-    // Highlight selected space
     try {
       mapView.updateState(store, { color: '#3498db' });
-      (window as any).debugLog('✓ Highlighted');
-    } catch (err) {
-      (window as any).debugLog(`❌ Highlight: ${err}`);
-    }
+    } catch (err) {}
     
-    // Focus camera with offset for 60vh sheet
     try {
       const vh = window.innerHeight / 100;
       mapView.Camera.setScreenOffsets({ bottom: 60 * vh, type: 'pixel' });
       mapView.Camera.focusOn(store);
-      (window as any).debugLog('✓ Camera focused');
-    } catch (err) {
-      (window as any).debugLog(`❌ Camera: ${err}`);
-    }
+    } catch (err) {}
     
     updateStoreList();
-  } catch (err) {
-    (window as any).debugLog(`❌ Select error: ${err}`);
-  }
+  } catch (err) {}
 }
 
 function showDirections() {
@@ -463,16 +423,12 @@ async function drawNavigation() {
 }
 
 function clearSelection() {
-  (window as any).debugLog('\n🧹 CLEAR SELECTION');
   const sheet = document.getElementById('bottomSheet')!;
   
   if (selectedPolygon) {
     try { 
       mapView.updateState(selectedPolygon, { color: 'initial' });
-      (window as any).debugLog('✓ Unhighlighted');
-    } catch (err) {
-      (window as any).debugLog(`❌ Unhighlight: ${err}`);
-    }
+    } catch (err) {}
     selectedPolygon = null;
   }
   
@@ -492,7 +448,6 @@ function clearSelection() {
 }
 
 function clearNavigation() {
-  (window as any).debugLog('\n🛑 END ROUTE');
   mapView.Navigation.clear();
   mapView.Navigation.clearHighlightedPathSection();
   activeDirections = null;
@@ -539,9 +494,7 @@ function prevInstruction() {
         nearRadius: 0.6,
         farRadius: 1.8
       });
-    } catch (err) {
-      (window as any).debugLog(`❌ Highlight: ${err}`);
-    }
+    } catch (err) {}
   }
   
   // Calculate bearing to next instruction for camera direction
@@ -557,10 +510,7 @@ function prevInstruction() {
     const vh = window.innerHeight / 100;
     mapView.Camera.setScreenOffsets({ bottom: 35 * vh, type: 'pixel' });
     mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 20, pitch: 45, bearing });
-    (window as any).debugLog(`✓ Camera moved to step ${currentInstructionIndex}`);
-  } catch (err) {
-    (window as any).debugLog(`❌ Camera: ${err}`);
-  }
+  } catch (err) {}
 }
 
 function nextInstruction() {
@@ -594,9 +544,7 @@ function nextInstruction() {
       nearRadius: 0.6,
       farRadius: 1.8
     });
-  } catch (err) {
-    (window as any).debugLog(`❌ Highlight: ${err}`);
-  }
+  } catch (err) {}
   
   // Calculate bearing to next instruction for camera direction
   let bearing = 0;
@@ -611,10 +559,7 @@ function nextInstruction() {
     const vh = window.innerHeight / 100;
     mapView.Camera.setScreenOffsets({ bottom: 35 * vh, type: 'pixel' });
     mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 20, pitch: 45, bearing });
-    (window as any).debugLog(`✓ Camera moved to step ${currentInstructionIndex}`);
-  } catch (err) {
-    (window as any).debugLog(`❌ Camera: ${err}`);
-  }
+  } catch (err) {}
 }
 
 function updateCurrentInstruction() {
@@ -869,7 +814,6 @@ function updateStoreList() {
   sheet.style.display = 'block';
 
   if (selectedStore) {
-    (window as any).debugLog(`\n📄 DETAILS: ${selectedStore.name}`);
     sheet.style.maxHeight = '85vh';
     
     // Hide search/category/cards sections when showing store details
@@ -1015,12 +959,9 @@ function attachStoreListeners() {
   const content = document.getElementById('sheetContent');
   if (!content) return;
   
-  (window as any).debugLog('\n👂 Listeners attached');
-  
   content.onclick = (e) => {
     const card = (e.target as HTMLElement).closest('.store-card');
     if (card) {
-      (window as any).debugLog('\n🖱️ CLICK detected');
       const storeId = card.getAttribute('data-id');
       const store = stores.find(s => s.id === storeId);
       if (store) selectStore(store);
