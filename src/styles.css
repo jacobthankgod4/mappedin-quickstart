@@ -431,8 +431,8 @@
 }
 
 .store-card-horizontal {
-  min-width: 120px;
-  padding: 12px;
+  min-width: 100px;
+  padding: 10px;
   background: white;
   border-radius: 12px;
   text-align: center;

@@ -1065,15 +1065,15 @@ function renderStoreCards() {
   const container = document.getElementById('storeCardsRow');
   if (!container) return;
   
-  const featured = searchResults.slice(0, 10);
+  const featured = searchResults.slice(0, 5);
   
   container.innerHTML = featured.map(store => {
     const logo = store.logoImage?.url || store.images?.[0]?.url || '';
     return `
       <div class="store-card-horizontal" data-id="${store.id}">
-        ${logo ? `<img src="${logo}" alt="${store.name}" style="width:60px;height:60px;object-fit:contain;border-radius:8px;margin-bottom:8px;" />` : `<div style="width:60px;height:60px;background:#f1f3f4;border-radius:8px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;color:#5f6368;">${icons.store}</div>`}
-        <div style="font-weight:500;font-size:14px;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${store.name}</div>
-        <div style="font-size:12px;color:#5f6368;">${store.floor?.name || store.floor?.shortName || 'Level 1'}</div>
+        ${logo ? `<img src="${logo}" alt="${store.name}" style="width:50px;height:50px;object-fit:contain;border-radius:8px;margin-bottom:6px;" />` : `<div style="width:50px;height:50px;background:#f1f3f4;border-radius:8px;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;color:#5f6368;font-size:20px;">${icons.store}</div>`}
+        <div style="font-weight:500;font-size:12px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${store.name}</div>
+        <div style="font-size:11px;color:#5f6368;">${store.floor?.name || store.floor?.shortName || 'L1'}</div>
       </div>
     `;
   }).join('');
