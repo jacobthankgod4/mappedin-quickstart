@@ -98,11 +98,11 @@
 .sheet-content {
   padding: 0;
   overflow-y: auto;
-  max-height: calc(60vh - 120px);
+  max-height: calc(60vh - 260px);
 }
 
 .bottom-sheet.expanded .sheet-content {
-  max-height: calc(60vh - 60px);
+  max-height: calc(60vh - 260px);
 }
 
 .store-card {

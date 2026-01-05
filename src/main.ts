@@ -700,15 +700,23 @@ function setupUI() {
         </div>
         <div class="sheet-title">Stores</div>
       </div>
-      <div style="padding:16px;background:#f8f9fa;">
-        <div style="position:relative;margin-bottom:12px;">
+      <div style="padding:16px;background:#f8f9fa;border-bottom:1px solid #e8eaed;">
+        <div style="position:relative;">
           <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#5f6368;">${icons.search}</span>
           <input id="searchInput" style="width:100%;padding:10px 40px 10px 40px;border:1px solid #dadce0;border-radius:12px;font-size:14px;outline:none;" type="text" placeholder="Search stores..." />
           <button id="filterBtn" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#5f6368;cursor:pointer;padding:4px;">${icons.filter}</button>
           <div id="searchResults" class="search-results" style="display:none;"></div>
         </div>
-        <div id="categoryPills" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;"></div>
-        <div id="storeCardsRow" style="display:flex;gap:12px;overflow-x:auto;padding:8px 0;-webkit-overflow-scrolling:touch;"></div>
+      </div>
+      <div style="padding:12px 16px;background:#f8f9fa;border-bottom:1px solid #e8eaed;">
+        <div id="categoryPills" style="display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+          <style>#categoryPills::-webkit-scrollbar{display:none;}</style>
+        </div>
+      </div>
+      <div style="padding:12px 16px;background:#f8f9fa;border-bottom:1px solid #e8eaed;">
+        <div id="storeCardsRow" style="display:flex;gap:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;">
+          <style>#storeCardsRow::-webkit-scrollbar{display:none;}</style>
+        </div>
       </div>
       <div id="sheetContent" class="sheet-content"></div>
     </div>
