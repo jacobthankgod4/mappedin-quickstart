@@ -477,7 +477,7 @@ function clearSelection() {
   }
   
   selectedStore = null;
-  sheet.style.maxHeight = '30vh';
+  sheet.style.maxHeight = '70vh';
   
   // Show search bar
   document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'block';
@@ -510,12 +510,12 @@ function toggleSheet() {
   
   if (sheet.classList.contains('expanded')) {
     sheet.classList.remove('expanded');
-    sheet.style.maxHeight = '30vh';
+    sheet.style.maxHeight = '70vh';
     expandIcon.textContent = '▲';
     allSteps.style.display = 'none';
   } else {
     sheet.classList.add('expanded');
-    sheet.style.maxHeight = '60vh';
+    sheet.style.maxHeight = '85vh';
     expandIcon.textContent = '▼';
     allSteps.style.display = 'block';
   }
@@ -761,7 +761,7 @@ function setupUI() {
     const currentHeightVh = sheet.offsetHeight / vh;
     
     if (currentHeightVh < 40) {
-      sheet.style.maxHeight = '35vh';
+      sheet.style.maxHeight = '70vh';
       if (sheet.classList.contains('expanded')) {
         sheet.classList.remove('expanded');
         const expandIcon = document.getElementById('expandIcon');
@@ -770,7 +770,7 @@ function setupUI() {
         if (allSteps) allSteps.style.display = 'none';
       }
     } else {
-      sheet.style.maxHeight = '60vh';
+      sheet.style.maxHeight = '85vh';
       if (!sheet.classList.contains('expanded') && document.getElementById('expandIcon')) {
         sheet.classList.add('expanded');
         const expandIcon = document.getElementById('expandIcon');
@@ -955,7 +955,7 @@ function updateStoreList() {
     
     content.innerHTML = html;
   } else {
-    sheet.style.maxHeight = '60vh';
+    sheet.style.maxHeight = '70vh';
     content.innerHTML = searchResults.map(store => `
       <div class="store-card" data-id="${store.id}">
         <div class="store-icon">${icons.store}</div>
