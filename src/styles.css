@@ -374,3 +374,69 @@
 .dropdown-item:last-child {
   border-bottom: none;
 }
+
+.map-control-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  background: white;
+  border: 1px solid #dadce0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #5f6368;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+}
+
+.map-control-btn:hover {
+  background: #f1f3f4;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.map-control-btn:active {
+  background: #e8eaed;
+}
+
+.category-pill {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #dadce0;
+  background: white;
+  color: #202124;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-pill.active {
+  background: #1a73e8;
+  color: white;
+  border-color: #1a73e8;
+}
+
+.category-pill:hover {
+  background: #f1f3f4;
+}
+
+.category-pill.active:hover {
+  background: #1765cc;
+}
+
+.store-card-horizontal {
+  min-width: 120px;
+  padding: 12px;
+  background: white;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid #e8eaed;
+  transition: all 0.2s;
+}
+
+.store-card-horizontal:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}

@@ -5,6 +5,7 @@ import './styles.css';
 // SVG Icon Helper
 const icons = {
   search: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>',
+  filter: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="8" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg>',
   store: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/><path d="M3 9V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2"/><path d="M9 22V12h6v10"/></svg>',
   location: '<svg width="24" height="24" viewBox="0 0 100 100" fill="currentColor"><path d="M47.782 55.36c5.513.635 10.687-1.049 14.638-4.763c4.012-3.771 5.817-7.914 5.817-13.354c0-5.508-1.823-9.633-5.955-13.478c-1.826-1.7-4.227-3.095-6.844-3.978c-2.14-.723-6.883-.903-9.427-.358c-2.833.606-6.203 2.365-8.336 4.349c-3.99 3.712-5.901 8.075-5.901 13.465c0 3.231.472 5.255 1.915 8.206c1.05 2.147 1.444 2.682 3.406 4.633c1.708 1.699 2.645 2.425 4.074 3.159c2.355 1.208 4.406 1.865 6.613 2.12zm1.036 44.214c-.388-.236-2.127-1.926-3.865-3.756C31.64 81.798 22.345 68.161 17.3 55.241c-1.518-3.887-2.08-5.85-2.675-9.33c-1.823-10.67.36-21.094 6.272-29.96c2.25-3.375 6.816-7.95 10.075-10.098c11.891-7.835 26.22-7.802 38.166.087c3.1 2.048 7.711 6.702 9.906 10c4.018 6.039 6.16 12.237 6.81 19.715c.531 6.102-.383 12.06-2.862 18.694c-4.826 12.902-13.598 25.78-28.706 42.144c-3.373 3.653-3.971 3.99-5.468 3.08z"/></svg>',
   target: '<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
@@ -15,7 +16,12 @@ const icons = {
   arrowLeft: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>',
   arrowUpRight: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M7 7h10v10"/></svg>',
   arrowUpLeft: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 17L7 7M17 7H7v10"/></svg>',
-  straight: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7-7-7 7"/></svg>'
+  straight: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M19 12l-7-7-7 7"/></svg>',
+  zoomIn: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>',
+  zoomOut: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="8" y1="11" x2="14" y2="11"/></svg>',
+  fullscreen: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>',
+  refresh: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>',
+  share: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>'
 };
 
 const options = {
@@ -25,6 +31,7 @@ const options = {
 };
 
 let mapView: any = null;
+let mapData: any = null;
 let stores: any[] = [];
 let searchResults: any[] = [];
 let selectedStore: any = null;
@@ -34,12 +41,14 @@ let navStartPoint: any = null;
 let navEndPoint: any = null;
 let activeDirections: any = null;
 let currentInstructionIndex: number = 0;
+let activeCategory: string = 'all';
+let allCategories: string[] = [];
+let floors: any[] = [];
 
 async function init() {
   const container = document.getElementById('mappedin-map')!;
   container.style.position = 'relative';
 
-  // Create debug overlay
   const debugDiv = document.createElement('div');
   debugDiv.id = 'debug-overlay';
   debugDiv.style.cssText = 'position:fixed;top:80px;right:10px;background:rgba(0,0,0,0.9);color:#0f0;padding:10px;border-radius:8px;font-family:monospace;font-size:11px;max-width:300px;max-height:400px;overflow-y:auto;z-index:9999;';
@@ -53,16 +62,19 @@ async function init() {
   };
 
   (window as any).debugLog('🚀 Initializing...');
-  const mapData = await getMapData(options);
+  mapData = await getMapData(options);
   (window as any).debugLog('✓ Map data loaded');
   mapView = await show3dMap(container, mapData);
   (window as any).debugLog('✓ Map view created');
   
   setupStores(mapData);
+  setupFloors(mapData);
+  setupCategories();
   setupFloorIndicator(mapData);
   addLabels();
   addPromotionalMarkers();
   addDirectoryKiosks(mapData);
+  setupMapControls();
   setupUI();
   (window as any).debugLog('✓ Init complete');
 }
@@ -70,21 +82,15 @@ async function init() {
 function setupStores(mapData: any) {
   try {
     (window as any).debugLog('\n📦 SETUP STORES:');
-    (window as any).debugLog(`Locations: ${mapData.locations?.length || 0}`);
-    (window as any).debugLog(`Spaces: ${mapData.getByType?.('space')?.length || 0}`);
     
     if (mapData.locations && mapData.locations.length > 0) {
       stores = mapData.locations;
-      (window as any).debugLog('Using: locations');
+      (window as any).debugLog(`✓ Using locations: ${stores.length}`);
     } else {
       const spaces = mapData.getByType?.('space') || [];
       stores = spaces.filter((s: any) => s && s.name);
-      (window as any).debugLog('Using: spaces');
+      (window as any).debugLog(`⚠️ Using spaces: ${stores.length}`);
     }
-    
-    (window as any).debugLog(`Total stores: ${stores.length}`);
-    (window as any).debugLog(`Has enterprise: ${!!stores[0]?.enterpriseLocations}`);
-    (window as any).debugLog(`Has polygon: ${!!stores[0]?.polygon}`);
     
     searchResults = stores;
   } catch (err) {
@@ -92,6 +98,22 @@ function setupStores(mapData: any) {
     stores = [];
     searchResults = [];
   }
+}
+
+function setupFloors(data: any) {
+  floors = data.getByType?.('floor') || [];
+  (window as any).debugLog(`✓ Floors: ${floors.length}`);
+}
+
+function setupCategories() {
+  const categorySet = new Set<string>();
+  stores.forEach((store: any) => {
+    if (store.categories) {
+      store.categories.forEach((cat: any) => categorySet.add(cat.name));
+    }
+  });
+  allCategories = Array.from(categorySet);
+  (window as any).debugLog(`✓ Categories: ${allCategories.length}`);
 }
 
 function setupFloorIndicator(mapData: any) {
@@ -171,6 +193,67 @@ function addDirectoryKiosks(mapData: any) {
       `, { rank: 3 });
     });
   } catch (err) {}
+}
+
+function setupMapControls() {
+  const controls = document.createElement('div');
+  controls.style.cssText = 'position:fixed;right:16px;top:20%;z-index:1000;display:flex;flex-direction:column;gap:8px;';
+  
+  controls.innerHTML = `
+    <button id="fullscreenBtn" class="map-control-btn" title="Fullscreen">${icons.fullscreen}</button>
+    <button id="zoomInBtn" class="map-control-btn" title="Zoom In">${icons.zoomIn}</button>
+    <button id="zoomOutBtn" class="map-control-btn" title="Zoom Out">${icons.zoomOut}</button>
+  `;
+  
+  document.body.appendChild(controls);
+  
+  document.getElementById('fullscreenBtn')!.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  });
+  
+  document.getElementById('zoomInBtn')!.addEventListener('click', () => {
+    const currentZoom = mapView.Camera.zoom;
+    mapView.Camera.zoom = currentZoom * 1.2;
+  });
+  
+  document.getElementById('zoomOutBtn')!.addEventListener('click', () => {
+    const currentZoom = mapView.Camera.zoom;
+    mapView.Camera.zoom = currentZoom * 0.8;
+  });
+  
+  if (floors.length > 1) {
+    const floorSelector = document.createElement('div');
+    floorSelector.style.cssText = 'position:fixed;right:16px;top:calc(20% + 140px);z-index:1000;display:flex;flex-direction:column;gap:8px;';
+    
+    floorSelector.innerHTML = floors.map(floor => `
+      <button class="floor-btn" data-floor-id="${floor.id}" 
+              style="width:48px;height:48px;border-radius:24px;background:white;border:1px solid #dadce0;font-weight:500;font-size:14px;cursor:pointer;">
+        ${floor.shortName || floor.name}
+      </button>
+    `).join('');
+    
+    document.body.appendChild(floorSelector);
+    
+    floorSelector.querySelectorAll('.floor-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const floorId = btn.getAttribute('data-floor-id');
+        const floor = floors.find((f: any) => f.id === floorId);
+        if (floor) {
+          mapView.setFloor(floor);
+          floorSelector.querySelectorAll('.floor-btn').forEach(b => {
+            (b as HTMLElement).style.background = 'white';
+            (b as HTMLElement).style.color = '#202124';
+          });
+          (btn as HTMLElement).style.background = '#1a73e8';
+          (btn as HTMLElement).style.color = 'white';
+        }
+      });
+    });
+  }
 }
 
 
@@ -618,11 +701,14 @@ function setupUI() {
         <div class="sheet-title">Stores</div>
       </div>
       <div style="padding:16px;background:#f8f9fa;">
-        <div style="position:relative;">
+        <div style="position:relative;margin-bottom:12px;">
           <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#5f6368;">${icons.search}</span>
-          <input id="searchInput" style="width:100%;padding:10px 10px 10px 40px;border:1px solid #dadce0;border-radius:12px;font-size:14px;outline:none;" type="text" placeholder="Search stores..." />
+          <input id="searchInput" style="width:100%;padding:10px 40px 10px 40px;border:1px solid #dadce0;border-radius:12px;font-size:14px;outline:none;" type="text" placeholder="Search stores..." />
+          <button id="filterBtn" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#5f6368;cursor:pointer;padding:4px;">${icons.filter}</button>
           <div id="searchResults" class="search-results" style="display:none;"></div>
         </div>
+        <div id="categoryPills" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;"></div>
+        <div id="storeCardsRow" style="display:flex;gap:12px;overflow-x:auto;padding:8px 0;-webkit-overflow-scrolling:touch;"></div>
       </div>
       <div id="sheetContent" class="sheet-content"></div>
     </div>
@@ -690,6 +776,49 @@ function setupUI() {
   const searchInput = document.getElementById('searchInput')!;
   const searchResultsDiv = document.getElementById('searchResults')!;
   
+  const filterBtn = document.getElementById('filterBtn')!;
+  filterBtn.addEventListener('click', () => {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;';
+    modal.innerHTML = `
+      <div style="background:white;border-radius:16px;padding:24px;max-width:400px;width:90%;max-height:80vh;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <h3 style="margin:0;font-size:18px;">Filter & Sort</h3>
+          <button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#5f6368;">&times;</button>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-weight:500;margin-bottom:8px;font-size:14px;">Categories</label>
+          ${allCategories.map(cat => `
+            <label style="display:flex;align-items:center;gap:8px;padding:8px;cursor:pointer;">
+              <input type="checkbox" class="category-filter" value="${cat}" />
+              <span style="font-size:14px;">${cat}</span>
+            </label>
+          `).join('')}
+        </div>
+        <button onclick="applyFilters();this.closest('div[style*=fixed]').remove()" class="btn-primary">Apply Filters</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  });
+  
+  (window as any).applyFilters = () => {
+    const checked = Array.from(document.querySelectorAll('.category-filter:checked')).map((el: any) => el.value);
+    if (checked.length === 0) {
+      searchResults = stores;
+      activeCategory = 'all';
+    } else {
+      searchResults = stores.filter((s: any) => 
+        s.categories?.some((c: any) => checked.includes(c.name))
+      );
+    }
+    renderCategoryPills();
+    renderStoreCards();
+    updateStoreList();
+  };
+  
+  renderCategoryPills();
+  renderStoreCards();
+  
   searchInput.addEventListener('input', (e) => {
     const query = ((e.target as HTMLInputElement).value);
     if (query.trim()) {
@@ -736,14 +865,20 @@ function updateStoreList() {
     (window as any).debugLog(`\n📄 DETAILS: ${selectedStore.name}`);
     sheet.style.maxHeight = '60vh';
     
-    const location = selectedStore.enterpriseLocations?.[0];
-    const hasData = location && (location.images?.length || location.description || location.website || location.phone);
+    const hasCategories = selectedStore.categories && selectedStore.categories.length > 0;
+    const hasHours = selectedStore.operationHours;
+    const hasImages = selectedStore.images && selectedStore.images.length > 0;
+    const hasLogo = selectedStore.logoImage?.url;
+    const hasDescription = selectedStore.description;
+    const hasPhone = selectedStore.phone;
+    const hasWebsite = selectedStore.website?.href;
     
     let html = `<div class="directions-card">`;
     
-    if (location?.images?.[0]?.url) {
-      html += `<img src="${location.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" />`;
-      (window as any).debugLog('✓ Image');
+    if (hasImages) {
+      html += `<img src="${selectedStore.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" />`;
+    } else if (hasLogo) {
+      html += `<img src="${hasLogo}" style="width:100%;height:200px;object-fit:contain;border-radius:8px;margin-bottom:16px;background:#f8f9fa;padding:20px;" />`;
     }
     
     html += `
@@ -751,33 +886,62 @@ function updateStoreList() {
         <div class="directions-icon" style="background:#1a73e8;">${icons.location}</div>
         <div class="directions-info">
           <div style="font-size:20px;font-weight:500;color:#202124;">${selectedStore.name}</div>
-          <div style="font-size:14px;color:#5f6368;margin-top:4px;">${location?.amenity || 'Store'}</div>
+          <div style="font-size:14px;color:#5f6368;margin-top:4px;">${selectedStore.floor?.name || 'Store'}</div>
         </div>
       </div>
     `;
     
-    if (location?.description) {
-      html += `<p style="color:#5f6368;font-size:14px;line-height:1.5;margin:16px 0;">${location.description}</p>`;
-      (window as any).debugLog('✓ Description');
+    if (hasHours) {
+      const now = new Date();
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const today = days[now.getDay()];
+      const todayHours = selectedStore.operationHours[today];
+      
+      if (todayHours) {
+        html += `
+          <div style="margin:16px 0;">
+            <div style="font-weight:500;margin-bottom:8px;font-size:14px;">Hours</div>
+            <div style="font-size:14px;color:#202124;">${todayHours.open} - ${todayHours.close}</div>
+          </div>
+        `;
+      }
     }
     
-    if (location?.website) {
-      html += `<a href="${location.website}" target="_blank" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">🔗 Visit Website</a>`;
-      (window as any).debugLog('✓ Website');
+    if (hasCategories) {
+      html += `
+        <div style="margin:16px 0;">
+          <div style="font-weight:500;margin-bottom:8px;font-size:14px;">Categories</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${selectedStore.categories.map((cat: any) => `
+              <span style="background:#f1f3f4;color:#202124;padding:6px 12px;border-radius:16px;font-size:13px;">${cat.name}</span>
+            `).join('')}
+          </div>
+        </div>
+      `;
     }
     
-    if (location?.phone) {
-      html += `<a href="tel:${location.phone}" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">📞 ${location.phone}</a>`;
-      (window as any).debugLog('✓ Phone');
+    if (hasDescription) {
+      html += `<p style="color:#5f6368;font-size:14px;line-height:1.5;margin:16px 0;">${hasDescription}</p>`;
     }
     
-    if (!hasData) {
-      html += `<p style="color:#9aa0a6;font-size:14px;margin:16px 0;font-style:italic;">No additional details available</p>`;
-      (window as any).debugLog('ℹ️ No enterprise data');
+    if (hasWebsite) {
+      html += `<a href="${hasWebsite}" target="_blank" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:12px;text-decoration:none;">🔗 Visit Website</a>`;
+    }
+    
+    if (hasPhone) {
+      html += `<a href="tel:${hasPhone}" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">📞 ${hasPhone}</a>`;
     }
     
     html += `
-      <button class="btn-primary" onclick="showDirections()">Directions</button>
+      <div style="display:flex;gap:12px;margin-top:16px;">
+        <button onclick="refreshStore()" style="flex:1;padding:10px;background:#f1f3f4;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          ${icons.refresh}
+        </button>
+        <button onclick="shareStore()" style="flex:1;padding:10px;background:#f1f3f4;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+          ${icons.share}
+        </button>
+      </div>
+      <button class="btn-primary" onclick="showDirections()" style="margin-top:12px;">Directions</button>
       <button class="btn-secondary" style="margin-top:8px;" onclick="clearSelection()">Close</button>
     </div>`;
     
@@ -789,13 +953,34 @@ function updateStoreList() {
         <div class="store-icon">${icons.store}</div>
         <div class="store-info">
           <div class="store-name">${store.name}</div>
-          <div class="store-type">Store</div>
+          <div class="store-type">${store.floor?.name || 'Store'}</div>
         </div>
       </div>
     `).join('');
     attachStoreListeners();
   }
 }
+
+(window as any).refreshStore = () => {
+  if (selectedStore) {
+    updateStoreList();
+  }
+};
+
+(window as any).shareStore = () => {
+  if (selectedStore && navigator.share) {
+    navigator.share({
+      title: selectedStore.name,
+      text: `Check out ${selectedStore.name}`,
+      url: window.location.href
+    }).catch(() => {});
+  } else if (selectedStore) {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      alert('Link copied to clipboard!');
+    });
+  }
+};
 
 function attachStoreListeners() {
   const content = document.getElementById('sheetContent');
@@ -812,6 +997,64 @@ function attachStoreListeners() {
       if (store) selectStore(store);
     }
   };
+}
+
+function renderCategoryPills() {
+  const container = document.getElementById('categoryPills');
+  if (!container) return;
+  
+  const categories = ['all', ...allCategories.slice(0, 5)];
+  
+  container.innerHTML = categories.map(cat => `
+    <button class="category-pill ${cat === activeCategory ? 'active' : ''}" data-category="${cat}">
+      ${cat === 'all' ? 'All' : cat}
+    </button>
+  `).join('');
+  
+  container.querySelectorAll('.category-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const category = btn.getAttribute('data-category')!;
+      activeCategory = category;
+      
+      if (category === 'all') {
+        searchResults = stores;
+      } else {
+        searchResults = stores.filter((s: any) => 
+          s.categories?.some((c: any) => c.name === category)
+        );
+      }
+      
+      renderCategoryPills();
+      renderStoreCards();
+      updateStoreList();
+    });
+  });
+}
+
+function renderStoreCards() {
+  const container = document.getElementById('storeCardsRow');
+  if (!container) return;
+  
+  const featured = searchResults.slice(0, 10);
+  
+  container.innerHTML = featured.map(store => {
+    const logo = store.logoImage?.url || store.images?.[0]?.url || '';
+    return `
+      <div class="store-card-horizontal" data-id="${store.id}">
+        ${logo ? `<img src="${logo}" alt="${store.name}" style="width:60px;height:60px;object-fit:contain;border-radius:8px;margin-bottom:8px;" />` : `<div style="width:60px;height:60px;background:#f1f3f4;border-radius:8px;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;color:#5f6368;">${icons.store}</div>`}
+        <div style="font-weight:500;font-size:14px;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${store.name}</div>
+        <div style="font-size:12px;color:#5f6368;">${store.floor?.name || store.floor?.shortName || 'Level 1'}</div>
+      </div>
+    `;
+  }).join('');
+  
+  container.querySelectorAll('.store-card-horizontal').forEach(card => {
+    card.addEventListener('click', () => {
+      const storeId = card.getAttribute('data-id');
+      const store = stores.find((s: any) => s.id === storeId);
+      if (store) selectStore(store);
+    });
+  });
 }
 
 init();
