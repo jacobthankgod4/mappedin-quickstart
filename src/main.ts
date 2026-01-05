@@ -1071,7 +1071,7 @@ function renderStoreCards() {
     const logo = store.logoImage?.url || store.images?.[0]?.url || '';
     return `
       <div class="store-card-horizontal" data-id="${store.id}">
-        ${logo ? `<img src="${logo}" alt="${store.name}" style="width:50px;height:50px;object-fit:contain;border-radius:8px;margin-bottom:6px;" />` : `<div style="width:50px;height:50px;background:#f1f3f4;border-radius:8px;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;color:#5f6368;font-size:20px;">${icons.store}</div>`}
+        ${logo ? `<img src="${logo}" alt="${store.name}" style="width:50px;height:50px;object-fit:contain;border-radius:8px;margin-bottom:4px;" />` : `<div style="width:50px;height:50px;background:#f1f3f4;border-radius:8px;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;color:#5f6368;font-size:20px;">${icons.store}</div>`}
         <div style="font-weight:500;font-size:12px;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${store.name}</div>
         <div style="font-size:11px;color:#5f6368;">${store.floor?.name || store.floor?.shortName || 'L1'}</div>
       </div>
