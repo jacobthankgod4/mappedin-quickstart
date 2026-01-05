@@ -173,7 +173,7 @@ function addDirectoryKiosks(mapData: any) {
 
 function setupMapControls() {
   const controls = document.createElement('div');
-  controls.style.cssText = 'position:fixed;right:16px;top:20%;z-index:1000;display:flex;flex-direction:column;gap:8px;';
+  controls.style.cssText = 'position:fixed;right:16px;top:20%;z-index:50;display:flex;flex-direction:column;gap:8px;';
   
   controls.innerHTML = `
     <button id="fullscreenBtn" class="map-control-btn" title="Fullscreen">${icons.fullscreen}</button>
@@ -203,7 +203,7 @@ function setupMapControls() {
   
   if (floors.length > 1) {
     const floorSelector = document.createElement('div');
-    floorSelector.style.cssText = 'position:fixed;right:16px;top:calc(20% + 140px);z-index:1000;display:flex;flex-direction:column;gap:8px;';
+    floorSelector.style.cssText = 'position:fixed;right:16px;top:calc(20% + 140px);z-index:50;display:flex;flex-direction:column;gap:8px;';
     
     floorSelector.innerHTML = floors.map(floor => `
       <button class="floor-btn" data-floor-id="${floor.id}" 
