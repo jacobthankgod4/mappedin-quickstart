@@ -319,7 +319,14 @@ function setupMapControls() {
 
 
 
+let isSelectStoreRunning = false;
 function selectStore(store: any) {
+  if (isSelectStoreRunning) {
+    console.warn('[WARN] selectStore already running, preventing cascade');
+    return;
+  }
+  isSelectStoreRunning = true;
+  
   try {
     if (selectedPolygon && selectedPolygon !== store) {
       try {
@@ -351,7 +358,9 @@ function selectStore(store: any) {
         }
       }
     } catch (err) {}
-  } catch (err) {}
+  } finally {
+    isSelectStoreRunning = false;
+  }
 }
 
 function showDirections() {
@@ -858,7 +867,14 @@ function toggleUIMode() {
   }
 }
 
+let isWireTopSearchInitialized = false;
 function wireTopSearch() {
+  if (isWireTopSearchInitialized) {
+    console.warn('[WARN] wireTopSearch already initialized, skipping');
+    return;
+  }
+  isWireTopSearchInitialized = true;
+  
   const input = document.getElementById('topSearchInput') as HTMLInputElement;
   const dropdown = document.getElementById('topSearchDropdown')!;
   if (!input) return;
@@ -907,6 +923,7 @@ function wireTopSearch() {
 
 function showSearchDropdown() {
   const dropdown = document.getElementById('topSearchDropdown')!;
+  const MAX_RESULTS = 50;
   
   if (searchResults.length === 0) {
     dropdown.innerHTML = '<div style="padding:16px;text-align:center;color:#5f6368;">No stores found</div>';
@@ -914,7 +931,9 @@ function showSearchDropdown() {
     return;
   }
   
-  dropdown.innerHTML = searchResults.map(store => `
+  const limitedResults = searchResults.slice(0, MAX_RESULTS);
+  
+  dropdown.innerHTML = limitedResults.map(store => `
     <div class="search-dropdown-item" data-id="${store.id}" style="
       padding: 12px 16px;
       cursor: pointer;
@@ -924,6 +943,12 @@ function showSearchDropdown() {
       <div style="font-size: 12px; color: #5f6368;">${store.floor?.name || 'Floor G'}</div>
     </div>
   `).join('');
+  
+  if (searchResults.length > MAX_RESULTS) {
+    dropdown.innerHTML += `<div style="padding:12px;text-align:center;color:#5f6368;font-size:12px;">
+      Showing ${MAX_RESULTS} of ${searchResults.length} results
+    </div>`;
+  }
   
   dropdown.style.display = 'block';
 }
@@ -979,6 +1004,10 @@ function showStoreListOverlay() {
 
 function showStoreDetailInCard(store: any) {
   const card = document.getElementById('storeDetailCard')!;
+  
+  // Hide first to prevent reflows
+  card.style.display = 'none';
+  
   card.innerHTML = `
     <button onclick="closeStoreDetail()" style="
       position: absolute;
@@ -995,6 +1024,11 @@ function showStoreDetailInCard(store: any) {
       Directions
     </button>
   `;
+  
+  // Show after DOM update complete
+  requestAnimationFrame(() => {
+    card.style.display = 'block';
+  });
   
   selectStore(store);
 }
