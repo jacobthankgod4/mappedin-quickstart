@@ -751,7 +751,9 @@ function setupUI() {
     const vh = window.innerHeight / 100;
     const currentHeightVh = sheet.offsetHeight / vh;
     
-    if (currentHeightVh < 40) {
+    if (currentHeightVh < 30) {
+      sheet.style.maxHeight = '20vh';
+    } else if (currentHeightVh < 50) {
       sheet.style.maxHeight = '70vh';
       if (sheet.classList.contains('expanded')) {
         sheet.classList.remove('expanded');
