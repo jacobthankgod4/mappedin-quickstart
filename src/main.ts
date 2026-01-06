@@ -339,10 +339,16 @@ function selectStore(store: any) {
         mapView.Camera.focusOn(store);
         renderDesktopStoreDetail(store);
       } else {
-        const vh = window.innerHeight / 100;
-        mapView.Camera.setScreenOffsets({ bottom: 60 * vh, type: 'pixel' });
-        mapView.Camera.focusOn(store);
-        updateStoreList();
+        if (uiMode === 'new') {
+          mapView.Camera.setScreenOffsets({ bottom: 80, type: 'pixel' });
+          mapView.Camera.focusOn(store);
+          showStoreDetailInCard(store);
+        } else {
+          const vh = window.innerHeight / 100;
+          mapView.Camera.setScreenOffsets({ bottom: 60 * vh, type: 'pixel' });
+          mapView.Camera.focusOn(store);
+          updateStoreList();
+        }
       }
     } catch (err) {}
   } catch (err) {}
@@ -840,6 +846,8 @@ function toggleUIMode() {
     document.getElementById('bottomSheet')!.style.display = 'none';
     document.getElementById('topBar')!.style.display = 'flex';
     document.getElementById('bottomTabBar')!.style.display = 'flex';
+    searchResults = stores;
+    showStoreListOverlay();
   } else {
     document.getElementById('bottomSheet')!.style.display = 'block';
     document.getElementById('topBar')!.style.display = 'none';
@@ -859,7 +867,8 @@ function wireTopSearch() {
       );
       showStoreListOverlay();
     } else {
-      document.getElementById('storeDetailCard')!.style.display = 'none';
+      searchResults = stores;
+      showStoreListOverlay();
     }
   });
 }
@@ -887,6 +896,12 @@ function wireBottomTabs() {
 function showStoreListOverlay() {
   const card = document.getElementById('storeDetailCard')!;
   card.style.display = 'block';
+  
+  if (searchResults.length === 0) {
+    card.innerHTML = '<div style="padding:32px;text-align:center;color:#5f6368;">No stores found</div>';
+    return;
+  }
+  
   card.innerHTML = searchResults.map(store => `
     <div class="store-item" data-id="${store.id}" style="
       padding: 12px;
@@ -938,6 +953,9 @@ function closeStoreDetail() {
     selectedPolygon = null;
   }
   selectedStore = null;
+  mapView.Camera.setScreenOffsets({ bottom: 0, type: 'pixel' });
+  searchResults = stores;
+  showStoreListOverlay();
 }
 
 (window as any).closeStoreDetail = closeStoreDetail;
