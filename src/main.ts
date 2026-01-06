@@ -203,11 +203,11 @@ function setupMapControls() {
   
   if (floors.length > 1) {
     const floorSelector = document.createElement('div');
-    floorSelector.style.cssText = 'position:fixed;right:16px;top:calc(20% + 140px);z-index:50;display:flex;flex-direction:column;gap:8px;';
+    floorSelector.style.cssText = 'position:fixed;right:16px;top:calc(20% - 120px);z-index:50;display:flex;flex-direction:column;gap:8px;';
     
-    floorSelector.innerHTML = floors.map(floor => `
+    floorSelector.innerHTML = floors.map((floor, index) => `
       <button class="floor-btn" data-floor-id="${floor.id}" 
-              style="width:48px;height:48px;border-radius:24px;background:white;border:1px solid #dadce0;font-weight:500;font-size:14px;cursor:pointer;">
+              style="width:48px;height:48px;border-radius:24px;background:${index === 0 ? '#1a73e8' : 'white'};color:${index === 0 ? 'white' : '#202124'};border:1px solid #dadce0;font-weight:500;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
         ${floor.shortName || floor.name}
       </button>
     `).join('');
