@@ -910,6 +910,20 @@ function updateStoreList() {
       </div>
     `;
     
+    // Make header draggable
+    setTimeout(() => {
+      const detailHeader = content.querySelector('.directions-header') as HTMLElement;
+      if (detailHeader) {
+        detailHeader.style.cursor = 'grab';
+        detailHeader.addEventListener('touchstart', (e) => {
+          startY = e.touches[0].clientY;
+          currentHeight = sheet.offsetHeight;
+          isDragging = true;
+          sheet.style.transition = 'none';
+        });
+      }
+    }, 0);
+    
     if (hasHours) {
       const now = new Date();
       const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
