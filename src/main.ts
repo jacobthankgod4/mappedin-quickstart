@@ -1183,6 +1183,28 @@ function showDirectionsInNewUIMode(storeId: string) {
     navEndPoint = store;
     await startNavigationNewUIMode();
   });
+  
+  document.getElementById('fromSelectNewUI')!.addEventListener('change', async (e) => {
+    const fromId = (e.target as HTMLSelectElement).value;
+    if (!fromId) return;
+    
+    navStartPoint = stores.find(s => s.id === fromId);
+    navEndPoint = store;
+    
+    const directions = await mapView.getDirections(navStartPoint, navEndPoint);
+    if (directions) {
+      activeDirections = directions;
+      await mapView.Navigation.draw(directions, {
+        pathOptions: { color: '#4285f4', nearRadius: 0.5, farRadius: 1.5, pulseColor: '#4285f4' },
+        markerOptions: { departureColor: '#34a853', destinationColor: '#ea4335' },
+        setMapToDeparture: false,
+        animatePathDrawing: true
+      });
+      
+      mapView.Camera.setScreenOffsets({ bottom: 100, type: 'pixel' });
+      await mapView.Camera.focusOn(directions.path, { maxZoomLevel: 18 });
+    }
+  });
 }
 
 async function startNavigationNewUIMode() {
