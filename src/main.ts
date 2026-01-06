@@ -1166,6 +1166,7 @@ function showDirectionsInNewUIMode(storeId: string) {
     <div style="margin: 16px 0;">
       <label>FROM</label>
       <select id="fromSelectNewUI" style="width:100%;padding:8px;border:1px solid #dadce0;border-radius:8px;">
+        <option value="">Choose starting point</option>
         ${stores.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
       </select>
     </div>
