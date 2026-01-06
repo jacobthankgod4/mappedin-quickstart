@@ -1312,7 +1312,7 @@ function setupDesktopControls() {
   });
 }
 
-(window as any).showDesktopDirections = (store: any) => {
+function showDesktopDirections(store: any) {
   const sidebar = document.getElementById('desktopSidebar');
   if (!sidebar) return;
   
@@ -1381,7 +1381,7 @@ function setupDesktopControls() {
       mapView.Camera.focusOn(activeDirections.instructions[0].coordinate);
     }
   });
-};
+}
 
 function renderDesktopStoreDetail(store: any) {
   const sidebar = document.getElementById('desktopSidebar');
