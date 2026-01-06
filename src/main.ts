@@ -202,7 +202,7 @@ function setupMapControls() {
     mapView.Camera.zoom = currentZoom * 0.8;
   });
   
-  if (floors.length > 1) {
+  if (floors.length >= 1) {
     console.log('Creating floor selector with', floors.length, 'floors');
     const floorSelector = document.createElement('div');
     floorSelector.id = 'floorSelector';
