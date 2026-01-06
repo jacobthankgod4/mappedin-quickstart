@@ -1005,27 +1005,82 @@ function showStoreListOverlay() {
 function showStoreDetailInCard(store: any) {
   const card = document.getElementById('storeDetailCard')!;
   
-  // Hide first to prevent reflows
   card.style.display = 'none';
   
-  card.innerHTML = `
-    <button onclick="closeStoreDetail()" style="
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: none;
-      border: none;
-      font-size: 24px;
-      cursor: pointer;
-    ">×</button>
-    <h2>${store.name}</h2>
-    <p>${store.floor?.name || 'Floor G'}</p>
-    <button onclick="showDirectionsInNewUIMode('${store.id}')" class="btn-primary">
-      Directions
-    </button>
+  const hasCategories = store.categories && store.categories.length > 0;
+  const hasHours = store.operationHours;
+  const hasImages = store.images && store.images.length > 0;
+  const hasLogo = store.logoImage?.url;
+  const hasDescription = store.description;
+  const hasPhone = store.phone;
+  const hasWebsite = store.website?.href;
+  
+  let html = `<button onclick="closeStoreDetail()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:24px;cursor:pointer;z-index:10;">×</button>`;
+  
+  if (hasImages) {
+    html += `<img src="${store.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" />`;
+  } else if (hasLogo) {
+    html += `<img src="${hasLogo}" style="width:100%;height:200px;object-fit:contain;border-radius:8px;margin-bottom:16px;background:#f8f9fa;padding:20px;" />`;
+  }
+  
+  html += `
+    <div style="display:flex;align-items:start;gap:12px;margin-bottom:16px;">
+      <div style="width:48px;height:48px;border-radius:24px;background:#1a73e8;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icons.location}</div>
+      <div style="flex:1;">
+        <div style="font-size:20px;font-weight:500;color:#202124;">${store.name}</div>
+        <div style="font-size:14px;color:#5f6368;margin-top:4px;">${store.floor?.name || 'Store'}</div>
+      </div>
+    </div>
   `;
   
-  // Show after DOM update complete
+  if (hasHours) {
+    const now = new Date();
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const today = days[now.getDay()];
+    const todayHours = store.operationHours[today];
+    if (todayHours) {
+      html += `
+        <div style="margin:16px 0;">
+          <div style="font-weight:500;margin-bottom:8px;font-size:14px;">Hours</div>
+          <div style="font-size:14px;color:#202124;">${todayHours.open} - ${todayHours.close}</div>
+        </div>
+      `;
+    }
+  }
+  
+  if (hasCategories) {
+    html += `
+      <div style="margin:16px 0;">
+        <div style="font-weight:500;margin-bottom:8px;font-size:14px;">Categories</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          ${store.categories.map((cat: any) => `<span style="background:#f1f3f4;color:#202124;padding:6px 12px;border-radius:16px;font-size:13px;">${cat.name}</span>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+  
+  if (hasDescription) {
+    html += `<p style="color:#5f6368;font-size:14px;line-height:1.5;margin:16px 0;">${hasDescription}</p>`;
+  }
+  
+  if (hasWebsite) {
+    html += `<a href="${hasWebsite}" target="_blank" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:12px;text-decoration:none;">🔗 Visit Website</a>`;
+  }
+  
+  if (hasPhone) {
+    html += `<a href="tel:${hasPhone}" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">📞 ${hasPhone}</a>`;
+  }
+  
+  html += `
+    <div style="display:flex;gap:12px;margin-top:16px;">
+      <button onclick="refreshStore()" style="flex:1;padding:10px;background:#f1f3f4;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">${icons.refresh}</button>
+      <button onclick="shareStore()" style="flex:1;padding:10px;background:#f1f3f4;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">${icons.share}</button>
+    </div>
+    <button class="btn-primary" onclick="showDirectionsInNewUIMode('${store.id}')" style="margin-top:12px;width:100%;">Directions</button>
+  `;
+  
+  card.innerHTML = html;
+  
   requestAnimationFrame(() => {
     card.style.display = 'block';
   });
