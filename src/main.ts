@@ -1500,5 +1500,6 @@ function returnToDesktopStoreList() {
 
 (window as any).renderDesktopStoreDetail = renderDesktopStoreDetail;
 (window as any).returnToDesktopStoreList = returnToDesktopStoreList;
+(window as any).showDesktopDirections = showDesktopDirections;
 
 init();
