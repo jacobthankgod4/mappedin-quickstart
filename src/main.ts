@@ -1218,17 +1218,8 @@ function showDirectionsInNewUIMode(storeId: string) {
 async function startNavigationNewUIMode() {
   if (!navStartPoint || !navEndPoint) return;
   
-  const directions = await mapView.getDirections(navStartPoint, navEndPoint);
-  if (!directions) return;
-  
-  activeDirections = directions;
-  await mapView.Navigation.draw(directions, {
-    pathOptions: { color: '#4285f4', nearRadius: 0.5, farRadius: 1.5 },
-    markerOptions: { departureColor: '#34a853', destinationColor: '#ea4335' },
-    setMapToDeparture: false,
-    animatePathDrawing: true
-  });
-  
+  // Don't redraw - path already exists from FROM selection
+  // Just start step-by-step navigation like legacy
   currentInstructionIndex = 0;
   
   // Clear camera offset and focus on start location (like legacy)
