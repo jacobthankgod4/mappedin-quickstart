@@ -313,7 +313,7 @@ function showDirections() {
   
   content.innerHTML = `
     <div class="directions-card" style="display:flex;flex-direction:column;height:100%;padding:12px;">
-      <div style="font-size:16px;font-weight:500;color:#202124;margin-bottom:12px;">Get Directions</div>
+      <div style="font-size:16px;font-weight:500;color:#202124;margin-bottom:12px;cursor:grab;" class="directions-page-header">Get Directions</div>
       
       <div style="margin-bottom:10px;">
         <label style="display:block;font-size:11px;color:#5f6368;margin-bottom:6px;">FROM</label>
@@ -384,6 +384,18 @@ function showDirections() {
     navEndPoint = selectedStore;
     await drawNavigation();
   });
+  
+  // Make directions header draggable
+  const directionsHeader = document.querySelector('.directions-page-header') as HTMLElement;
+  if (directionsHeader) {
+    directionsHeader.addEventListener('touchstart', (e) => {
+      const sheet = document.getElementById('bottomSheet')!;
+      sheetStartY = e.touches[0].clientY;
+      sheetCurrentHeight = sheet.offsetHeight;
+      sheetIsDragging = true;
+      sheet.style.transition = 'none';
+    });
+  }
 }
 
 async function drawNavigation() {
@@ -682,6 +694,10 @@ function hideSheet() {
 
 
 
+let sheetStartY = 0;
+let sheetCurrentHeight = 0;
+let sheetIsDragging = false;
+
 function setupUI() {
   const uiContainer = document.createElement('div');
   uiContainer.innerHTML = `
@@ -722,24 +738,20 @@ function setupUI() {
   
   const dragElements = [header, searchSection, categorySection, cardsSection].filter(el => el);
   
-  let startY = 0;
-  let currentHeight = 0;
-  let isDragging = false;
-  
   dragElements.forEach(element => {
     element.addEventListener('touchstart', (e) => {
-      startY = e.touches[0].clientY;
-      currentHeight = sheet.offsetHeight;
-      isDragging = true;
+      sheetStartY = e.touches[0].clientY;
+      sheetCurrentHeight = sheet.offsetHeight;
+      sheetIsDragging = true;
       sheet.style.transition = 'none';
     });
   });
   
   document.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
+    if (!sheetIsDragging) return;
     e.preventDefault();
-    const deltaY = e.touches[0].clientY - startY;
-    const newHeight = currentHeight - deltaY;
+    const deltaY = e.touches[0].clientY - sheetStartY;
+    const newHeight = sheetCurrentHeight - deltaY;
     const vh = window.innerHeight / 100;
     
     if (newHeight >= 20 * vh && newHeight <= 60 * vh) {
@@ -752,8 +764,8 @@ function setupUI() {
   }, { passive: false });
   
   document.addEventListener('touchend', () => {
-    if (!isDragging) return;
-    isDragging = false;
+    if (!sheetIsDragging) return;
+    sheetIsDragging = false;
     sheet.style.transition = 'max-height 0.3s ease';
     
     const vh = window.innerHeight / 100;
@@ -916,9 +928,9 @@ function updateStoreList() {
       if (detailHeader) {
         detailHeader.style.cursor = 'grab';
         detailHeader.addEventListener('touchstart', (e) => {
-          startY = e.touches[0].clientY;
-          currentHeight = sheet.offsetHeight;
-          isDragging = true;
+          sheetStartY = e.touches[0].clientY;
+          sheetCurrentHeight = sheet.offsetHeight;
+          sheetIsDragging = true;
           sheet.style.transition = 'none';
         });
       }
