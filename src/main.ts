@@ -858,6 +858,8 @@ function wireTopSearch() {
         s.name.toLowerCase().includes(query.toLowerCase())
       );
       showStoreListOverlay();
+    } else {
+      document.getElementById('storeDetailCard')!.style.display = 'none';
     }
   });
 }
