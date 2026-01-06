@@ -1312,7 +1312,10 @@ function setupDesktopControls() {
   });
 }
 
-function showDesktopDirections(store: any) {
+function showDesktopDirections() {
+  const store = selectedStore;
+  if (!store) return;
+  
   const sidebar = document.getElementById('desktopSidebar');
   if (!sidebar) return;
   
@@ -1456,7 +1459,7 @@ function renderDesktopStoreDetail(store: any) {
       <button onclick="refreshStore()" style="flex:1;padding:10px;background:#f1f3f4;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;">${icons.refresh}</button>
       <button onclick="shareStore()" style="flex:1;padding:10px;background:#f1f3f4;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;">${icons.share}</button>
     </div>
-    <button class="btn-primary" onclick="showDesktopDirections(selectedStore)" style="margin-top:12px;">Directions</button>
+    <button class="btn-primary" onclick="showDesktopDirections()" style="margin-top:12px;">Directions</button>
   `;
   
   sidebar.innerHTML = `
