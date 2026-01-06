@@ -1160,22 +1160,30 @@ function showDirectionsInNewUIMode(storeId: string) {
   const store = stores.find(s => s.id === storeId);
   if (!store) return;
   
+  // Hide search bar and show FROM/TO at top
+  document.getElementById('topBar')!.innerHTML = `
+    <div style="flex:1;">
+      <div style="margin-bottom:8px;">
+        <label style="font-size:12px;color:#5f6368;">FROM</label>
+        <select id="fromSelectNewUI" style="width:100%;padding:8px;border:1px solid #dadce0;border-radius:8px;">
+          <option value="">Choose starting point</option>
+          ${stores.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12px;color:#5f6368;">TO</label>
+        <input value="${store.name}" readonly style="width:100%;padding:8px;border:1px solid #dadce0;border-radius:8px;background:#f8f9fa;" />
+      </div>
+    </div>
+    <button onclick="endNavigationNewUIMode()" style="margin-left:12px;background:none;border:none;font-size:24px;cursor:pointer;">×</button>
+  `;
+  
+  // Show Start button at bottom
   const card = document.getElementById('storeDetailCard')!;
   card.innerHTML = `
-    <h3>Directions to ${store.name}</h3>
-    <div style="margin: 16px 0;">
-      <label>FROM</label>
-      <select id="fromSelectNewUI" style="width:100%;padding:8px;border:1px solid #dadce0;border-radius:8px;">
-        <option value="">Choose starting point</option>
-        ${stores.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
-      </select>
-    </div>
-    <div style="margin: 16px 0;">
-      <label>TO</label>
-      <input value="${store.name}" readonly style="width:100%;padding:8px;border:1px solid #dadce0;border-radius:8px;background:#f8f9fa;" />
-    </div>
-    <button id="startNavBtnNewUI" class="btn-primary">Start</button>
+    <button id="startNavBtnNewUI" class="btn-primary" style="width:100%;padding:12px;">Start</button>
   `;
+  card.style.display = 'block';
   
   document.getElementById('startNavBtnNewUI')!.addEventListener('click', async () => {
     const fromId = (document.getElementById('fromSelectNewUI') as HTMLSelectElement).value;
@@ -1227,21 +1235,26 @@ async function startNavigationNewUIMode() {
 
 function showActiveNavigationNewUIMode() {
   if (!activeDirections) return;
-  const card = document.getElementById('storeDetailCard')!;
   const inst = activeDirections.instructions[currentInstructionIndex];
   
-  card.innerHTML = `
-    <div style="background: #e8f0fe; padding: 16px; border-radius: 8px;">
-      <div>Step ${currentInstructionIndex + 1} of ${activeDirections.instructions.length}</div>
-      <div style="font-weight: 500; margin: 8px 0;">
+  // Update top bar to show current instruction
+  document.getElementById('topBar')!.innerHTML = `
+    <div style="flex:1;background:#e8f0fe;padding:12px;border-radius:8px;">
+      <div style="font-size:12px;color:#5f6368;">Step ${currentInstructionIndex + 1} of ${activeDirections.instructions.length}</div>
+      <div style="font-weight:500;margin-top:4px;">
         ${inst.action.type === 'Departure' ? 'Start walking' : 'Continue'}
       </div>
     </div>
-    <div style="display: flex; gap: 8px; margin-top: 12px;">
+    <button onclick="endNavigationNewUIMode()" style="margin-left:12px;background:none;border:none;font-size:24px;cursor:pointer;">×</button>
+  `;
+  
+  const card = document.getElementById('storeDetailCard')!;
+  card.innerHTML = `
+    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
       <button onclick="prevInstructionNewUIMode()" class="btn-secondary" style="flex: 1;">Previous</button>
       <button onclick="nextInstructionNewUIMode()" class="btn-primary" style="flex: 1;">Next</button>
     </div>
-    <button onclick="endNavigationNewUIMode()" class="btn-secondary" style="margin-top: 8px;">End Route</button>
+    <button onclick="endNavigationNewUIMode()" class="btn-secondary" style="width:100%;">End Route</button>
   `;
 }
 
@@ -1280,6 +1293,16 @@ function endNavigationNewUIMode() {
   currentInstructionIndex = 0;
   navStartPoint = null;
   navEndPoint = null;
+  
+  // Restore search bar at top
+  document.getElementById('topBar')!.innerHTML = `
+    <div style="position:relative;flex:1;">
+      <input id="topSearchInput" placeholder="Search" style="width:100%;padding:8px 12px;border:1px solid #dadce0;border-radius:24px;font-size:14px;" />
+      <div id="topSearchDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.15);margin-top:8px;max-height:300px;overflow-y:auto;z-index:10;"></div>
+    </div>
+    <button id="menuBtn" style="margin-left:12px;background:none;border:none;font-size:24px;cursor:pointer;">☰</button>
+  `;
+  
   closeStoreDetail();
 }
 
