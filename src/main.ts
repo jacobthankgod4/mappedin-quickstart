@@ -1016,7 +1016,7 @@ function showStoreDetailInCard(store: any) {
   const hasWebsite = store.website?.href;
   
   let html = `
-    <div class="detail-drag-handle" style="padding:12px 0;cursor:grab;user-select:none;-webkit-user-select:none;text-align:center;">
+    <div class="detail-drag-handle" style="padding:8px 0;cursor:grab;user-select:none;-webkit-user-select:none;text-align:center;">
       <div style="width:40px;height:4px;background:#dadce0;border-radius:2px;margin:0 auto;"></div>
     </div>
     <button onclick="closeStoreDetail()" style="position:absolute;top:20px;right:12px;background:none;border:none;font-size:24px;cursor:pointer;z-index:10;">×</button>
