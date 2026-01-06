@@ -49,10 +49,21 @@ async function init() {
   const container = document.getElementById('mappedin-map')!;
   container.style.position = 'relative';
 
+  // Create on-screen debug
+  const debugDiv = document.createElement('div');
+  debugDiv.id = 'mobileDebug';
+  debugDiv.style.cssText = 'position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:8px;border-radius:4px;font-size:10px;z-index:9999;max-width:200px;';
+  document.body.appendChild(debugDiv);
+  const log = (msg: string) => { debugDiv.innerHTML += msg + '<br>'; };
+
+  log('Init start');
   mapData = await getMapData(options);
+  log('Map data loaded');
   mapView = await show3dMap(container, mapData);
+  log('Map view created');
   setupStores(mapData);
   setupFloors(mapData);
+  log('Floors: ' + floors.length);
   setupCategories();
   setupFloorIndicator(mapData);
   addLabels();
@@ -60,6 +71,7 @@ async function init() {
   addDirectoryKiosks(mapData);
   setupMapControls();
   setupUI();
+  log('Init complete');
 }
 
 function setupStores(mapData: any) {
@@ -81,6 +93,8 @@ function setupStores(mapData: any) {
 function setupFloors(data: any) {
   floors = data.getByType?.('floor') || [];
   console.log('Floors found:', floors.length, floors);
+  const debugDiv = document.getElementById('mobileDebug');
+  if (debugDiv) debugDiv.innerHTML += 'Floors loaded: ' + floors.length + '<br>';
 }
 
 function setupCategories() {
