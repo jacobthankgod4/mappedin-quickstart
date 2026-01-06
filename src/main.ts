@@ -716,18 +716,26 @@ function setupUI() {
 
   const sheet = document.getElementById('bottomSheet')!;
   const header = document.getElementById('sheetHeader')!;
+  const searchSection = document.querySelector('#searchInput')?.parentElement?.parentElement as HTMLElement;
+  const categorySection = document.getElementById('categoryPills')?.parentElement as HTMLElement;
+  const cardsSection = document.getElementById('storeCardsRow')?.parentElement as HTMLElement;
+  
+  const dragElements = [header, searchSection, categorySection, cardsSection].filter(el => el);
+  
   let startY = 0;
   let currentHeight = 0;
   let isDragging = false;
   
-  header.addEventListener('touchstart', (e) => {
-    startY = e.touches[0].clientY;
-    currentHeight = sheet.offsetHeight;
-    isDragging = true;
-    sheet.style.transition = 'none';
+  dragElements.forEach(element => {
+    element.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+      currentHeight = sheet.offsetHeight;
+      isDragging = true;
+      sheet.style.transition = 'none';
+    });
   });
   
-  header.addEventListener('touchmove', (e) => {
+  document.addEventListener('touchmove', (e) => {
     if (!isDragging) return;
     e.preventDefault();
     const deltaY = e.touches[0].clientY - startY;
@@ -743,7 +751,7 @@ function setupUI() {
     }
   }, { passive: false });
   
-  header.addEventListener('touchend', () => {
+  document.addEventListener('touchend', () => {
     if (!isDragging) return;
     isDragging = false;
     sheet.style.transition = 'max-height 0.3s ease';
