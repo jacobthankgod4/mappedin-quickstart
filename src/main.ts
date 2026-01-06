@@ -907,9 +907,9 @@ function updateStoreList() {
     let html = `<div class="directions-card">`;
     
     if (hasImages) {
-      html += `<img src="${selectedStore.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" />`;
+      html += `<img src="${selectedStore.images[0].url}" class="store-detail-image" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;cursor:grab;" />`;
     } else if (hasLogo) {
-      html += `<img src="${hasLogo}" style="width:100%;height:200px;object-fit:contain;border-radius:8px;margin-bottom:16px;background:#f8f9fa;padding:20px;" />`;
+      html += `<img src="${hasLogo}" class="store-detail-image" style="width:100%;height:200px;object-fit:contain;border-radius:8px;margin-bottom:16px;background:#f8f9fa;padding:20px;cursor:grab;" />`;
     }
     
     html += `
@@ -925,9 +925,20 @@ function updateStoreList() {
     // Make header draggable
     setTimeout(() => {
       const detailHeader = content.querySelector('.directions-header') as HTMLElement;
+      const detailImage = content.querySelector('.store-detail-image') as HTMLElement;
+      
       if (detailHeader) {
         detailHeader.style.cursor = 'grab';
         detailHeader.addEventListener('touchstart', (e) => {
+          sheetStartY = e.touches[0].clientY;
+          sheetCurrentHeight = sheet.offsetHeight;
+          sheetIsDragging = true;
+          sheet.style.transition = 'none';
+        });
+      }
+      
+      if (detailImage) {
+        detailImage.addEventListener('touchstart', (e) => {
           sheetStartY = e.touches[0].clientY;
           sheetCurrentHeight = sheet.offsetHeight;
           sheetIsDragging = true;
