@@ -243,7 +243,7 @@ function setupMapControls() {
     document.body.appendChild(debugDiv);
     
     try {
-      const currentZoom = mapView.Camera.zoom;
+      const currentZoom = mapView.Camera.zoomLevel;
       debugDiv.textContent = `Zoom: ${currentZoom} -> ${currentZoom + 1}`;
       mapView.Camera.animateTo({ zoom: currentZoom + 1 });
       setTimeout(() => debugDiv.remove(), 2000);
@@ -260,7 +260,7 @@ function setupMapControls() {
     document.body.appendChild(debugDiv);
     
     try {
-      const currentZoom = mapView.Camera.zoom;
+      const currentZoom = mapView.Camera.zoomLevel;
       debugDiv.textContent = `Zoom: ${currentZoom} -> ${currentZoom - 1}`;
       mapView.Camera.animateTo({ zoom: currentZoom - 1 });
       setTimeout(() => debugDiv.remove(), 2000);
