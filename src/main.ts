@@ -95,10 +95,56 @@ function setupCategories() {
 function setupFloorIndicator(mapData: any) {
   const floors = mapData.getByType('floor');
   currentFloor = floors[0];
+  
   const indicator = document.createElement('div');
   indicator.className = 'floor-indicator';
   indicator.textContent = currentFloor?.shortName || currentFloor?.name || 'L1';
+  indicator.style.cursor = 'pointer';
   document.body.appendChild(indicator);
+  
+  const dropdown = document.createElement('div');
+  dropdown.className = 'floor-dropdown';
+  dropdown.style.display = 'none';
+  document.body.appendChild(dropdown);
+  
+  indicator.addEventListener('click', () => {
+    if (dropdown.style.display === 'none') {
+      dropdown.innerHTML = floors.map((floor: any) => `
+        <div class="floor-dropdown-item" data-floor-id="${floor.id}" style="
+          padding: 12px 16px;
+          cursor: pointer;
+          background: ${floor.id === currentFloor?.id ? '#e8f0fe' : 'white'};
+          font-weight: ${floor.id === currentFloor?.id ? '600' : '400'};
+          color: ${floor.id === currentFloor?.id ? '#1a73e8' : '#202124'};
+        ">
+          ${floor.shortName || floor.name}
+        </div>
+      `).join('');
+      dropdown.style.display = 'block';
+      
+      dropdown.querySelectorAll('.floor-dropdown-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const floorId = item.getAttribute('data-floor-id');
+          const floor = floors.find((f: any) => f.id === floorId);
+          if (floor) {
+            mapView.setFloor(floor);
+            currentFloor = floor;
+            indicator.textContent = floor.shortName || floor.name;
+            dropdown.style.display = 'none';
+          }
+        });
+      });
+    } else {
+      dropdown.style.display = 'none';
+    }
+  });
+  
+  document.addEventListener('click', (e) => {
+    if (!indicator.contains(e.target as Node) && !dropdown.contains(e.target as Node)) {
+      dropdown.style.display = 'none';
+    }
+  });
+  
   mapView.on('floor-change', (event: any) => {
     currentFloor = event.floor;
     indicator.textContent = currentFloor?.shortName || currentFloor?.name || 'L1';
