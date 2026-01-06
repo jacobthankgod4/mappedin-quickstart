@@ -904,23 +904,37 @@ function updateStoreList() {
     const hasPhone = selectedStore.phone;
     const hasWebsite = selectedStore.website?.href;
     
-    let html = `<div class="directions-card">`;
+    let html = `<div class="directions-card" style="padding-top:0;">`;
+    
+    html += `<div class="detail-drag-area" style="padding:20px 16px 12px;cursor:grab;user-select:none;-webkit-user-select:none;">`;
     
     if (hasImages) {
-      html += `<img src="${selectedStore.images[0].url}" class="store-detail-image" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;cursor:grab;" />`;
+      html += `<img src="${selectedStore.images[0].url}" class="store-detail-image" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;pointer-events:none;" />`;
     } else if (hasLogo) {
-      html += `<img src="${hasLogo}" class="store-detail-image" style="width:100%;height:200px;object-fit:contain;border-radius:8px;margin-bottom:16px;background:#f8f9fa;padding:20px;cursor:grab;" />`;
+      html += `<img src="${hasLogo}" class="store-detail-image" style="width:100%;height:200px;object-fit:contain;border-radius:8px;margin-bottom:16px;background:#f8f9fa;padding:20px;pointer-events:none;" />`;
     }
     
     html += `
-      <div class="directions-header">
+      <div class="directions-header" style="pointer-events:none;">
         <div class="directions-icon" style="background:#1a73e8;">${icons.location}</div>
         <div class="directions-info">
           <div style="font-size:20px;font-weight:500;color:#202124;">${selectedStore.name}</div>
           <div style="font-size:14px;color:#5f6368;margin-top:4px;">${selectedStore.floor?.name || 'Store'}</div>
         </div>
       </div>
-    `;
+    </div>`;
+    
+    setTimeout(() => {
+      const dragArea = content.querySelector('.detail-drag-area') as HTMLElement;
+      if (dragArea) {
+        dragArea.addEventListener('touchstart', (e) => {
+          sheetStartY = e.touches[0].clientY;
+          sheetCurrentHeight = sheet.offsetHeight;
+          sheetIsDragging = true;
+          sheet.style.transition = 'none';
+        });
+      }
+    }, 0);
     
     
     if (hasHours) {
