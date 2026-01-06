@@ -479,3 +479,67 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   transform: translateY(-2px);
 }
+
+/* Desktop Styles */
+#desktopSidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+#desktopSidebar::-webkit-scrollbar-thumb {
+  background: #dadce0;
+  border-radius: 4px;
+}
+
+.desktop-store-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.desktop-store-item:hover {
+  background: #f8f9fa !important;
+}
+
+.desktop-control-btn:hover {
+  background: #f1f3f4;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.desktop-category-pill:hover:not(.active) {
+  background: #e8eaed;
+}
+
+.desktop-search-item:hover {
+  background: #f1f3f4;
+}
+
+.desktop-popular-item:hover {
+  background: #e8eaed !important;
+}
+
+/* Responsive */
+@media (max-width: 1023px) {
+  #desktopSidebar,
+  #desktopControls,
+  .desktop-control-btn,
+  #desktopStoreModal {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  #bottomSheet,
+  .floor-indicator,
+  .floor-dropdown,
+  #floorSelector {
+    display: none !important;
+  }
+  
+  #mappedin-map {
+    margin-left: 380px !important;
+    width: calc(100% - 460px) !important;
+  }
+  
+  .map-control-btn {
+    display: none !important;
+  }
+}

@@ -30,6 +30,10 @@ const options = {
   mapId: '65c0ff7430b94e3fabd5bb8c'
 };
 
+const DESKTOP_BREAKPOINT = 1024;
+const isDesktop = () => window.innerWidth >= DESKTOP_BREAKPOINT;
+let currentLayout: 'mobile' | 'desktop' = isDesktop() ? 'desktop' : 'mobile';
+
 let mapView: any = null;
 let mapData: any = null;
 let stores: any[] = [];
@@ -59,8 +63,21 @@ async function init() {
   addPromotionalMarkers();
   addDirectoryKiosks(mapData);
   setupMapControls();
-  setupUI();
+  
+  if (isDesktop()) {
+    setupDesktopUI();
+  } else {
+    setupMobileUI();
+  }
 }
+
+window.addEventListener('resize', () => {
+  const newLayout = isDesktop() ? 'desktop' : 'mobile';
+  if (newLayout !== currentLayout) {
+    currentLayout = newLayout;
+    location.reload();
+  }
+});
 
 function setupStores(mapData: any) {
   try {
@@ -297,12 +314,16 @@ function selectStore(store: any) {
     } catch (err) {}
     
     try {
-      const vh = window.innerHeight / 100;
-      mapView.Camera.setScreenOffsets({ bottom: 60 * vh, type: 'pixel' });
-      mapView.Camera.focusOn(store);
+      if (isDesktop()) {
+        mapView.Camera.focusOn(store);
+        showDesktopStoreDetail(store);
+      } else {
+        const vh = window.innerHeight / 100;
+        mapView.Camera.setScreenOffsets({ bottom: 60 * vh, type: 'pixel' });
+        mapView.Camera.focusOn(store);
+        updateStoreList();
+      }
     } catch (err) {}
-    
-    updateStoreList();
   } catch (err) {}
 }
 
@@ -698,7 +719,7 @@ let sheetStartY = 0;
 let sheetCurrentHeight = 0;
 let sheetIsDragging = false;
 
-function setupUI() {
+function setupMobileUI() {
   const uiContainer = document.createElement('div');
   uiContainer.innerHTML = `
     <div id="bottomSheet" class="bottom-sheet">
@@ -1110,5 +1131,312 @@ function renderStoreCards() {
     });
   });
 }
+
+// Desktop UI Functions
+function setupDesktopUI() {
+  const sidebar = document.createElement('div');
+  sidebar.id = 'desktopSidebar';
+  sidebar.style.cssText = `position:fixed;left:0;top:0;width:380px;height:100vh;background:white;box-shadow:2px 0 16px rgba(0,0,0,0.1);z-index:1000;display:flex;flex-direction:column;overflow:hidden;`;
+  
+  sidebar.innerHTML = `
+    <div style="padding:20px;border-bottom:1px solid #e8eaed;">
+      <div style="position:relative;">
+        <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#5f6368;">${icons.search}</span>
+        <input id="desktopSearchInput" type="text" placeholder="Search the mall..." style="width:100%;padding:12px 48px;border:none;border-radius:24px;background:#f2f2f2;font-size:14px;outline:none;" />
+        <button id="desktopFilterBtn" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#5f6368;">${icons.filter}</button>
+        <div id="desktopSearchResults" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.15);margin-top:8px;max-height:300px;overflow-y:auto;z-index:10;"></div>
+      </div>
+    </div>
+    <div style="padding:16px;border-bottom:1px solid #e8eaed;">
+      <div id="desktopCategoryPills" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+    <div style="padding:16px;border-bottom:1px solid #e8eaed;overflow-x:auto;">
+      <div id="desktopStoreCards" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;"></div>
+    </div>
+    <div id="desktopStoreList" style="flex:1;overflow-y:auto;padding:16px;"></div>
+  `;
+  
+  document.body.appendChild(sidebar);
+  
+  const mapContainer = document.getElementById('mappedin-map')!;
+  mapContainer.style.marginLeft = '380px';
+  mapContainer.style.width = 'calc(100% - 460px)';
+  
+  renderDesktopCategories();
+  renderDesktopStoreCards();
+  renderDesktopStoreList();
+  attachDesktopEventHandlers();
+  setupDesktopControls();
+}
+
+function renderDesktopCategories() {
+  const container = document.getElementById('desktopCategoryPills');
+  if (!container) return;
+  const categories = ['all', ...allCategories.slice(0, 5)];
+  container.innerHTML = categories.map(cat => `
+    <button class="desktop-category-pill ${cat === activeCategory ? 'active' : ''}" data-category="${cat}" style="padding:8px 16px;border-radius:20px;border:none;background:${cat === activeCategory ? '#1a73e8' : '#f1f3f4'};color:${cat === activeCategory ? 'white' : '#202124'};font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;">${cat === 'all' ? 'All' : cat}</button>
+  `).join('');
+}
+
+function renderDesktopStoreCards() {
+  const container = document.getElementById('desktopStoreCards');
+  if (!container) return;
+  const featured = searchResults.slice(0, 10);
+  container.innerHTML = featured.map(store => {
+    const logo = store.logoImage?.url || store.images?.[0]?.url;
+    return `
+      <div class="desktop-store-card" data-id="${store.id}" style="min-width:140px;padding:16px;background:white;border:1px solid #e8eaed;border-radius:12px;text-align:center;cursor:pointer;transition:all 0.2s;">
+        ${logo ? `<img src="${logo}" style="width:80px;height:80px;object-fit:contain;border-radius:8px;margin-bottom:12px;" />` : `<div style="width:80px;height:80px;background:#f1f3f4;border-radius:8px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;color:#5f6368;">${icons.store}</div>`}
+        <div style="font-weight:500;font-size:14px;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${store.name}</div>
+        <div style="font-size:12px;color:#5f6368;">${store.floor?.shortName || 'L1'}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderDesktopStoreList() {
+  const container = document.getElementById('desktopStoreList');
+  if (!container) return;
+  container.innerHTML = searchResults.map(store => `
+    <div class="desktop-store-item" data-id="${store.id}" style="padding:12px;margin-bottom:8px;border-radius:8px;background:${selectedStore?.id === store.id ? '#e8f0fe' : 'white'};border:1px solid ${selectedStore?.id === store.id ? '#1a73e8' : '#e8eaed'};cursor:pointer;transition:all 0.2s;">
+      <div style="font-weight:500;font-size:14px;color:#202124;margin-bottom:4px;">${store.name}</div>
+      <div style="font-size:12px;color:#5f6368;">${store.floor?.name || 'Lower Level'}</div>
+    </div>
+  `).join('');
+}
+
+function attachDesktopEventHandlers() {
+  const searchInput = document.getElementById('desktopSearchInput') as HTMLInputElement;
+  const searchResults = document.getElementById('desktopSearchResults')!;
+  
+  searchInput?.addEventListener('input', (e) => {
+    const query = (e.target as HTMLInputElement).value;
+    if (query.trim()) {
+      const results = stores.filter(s => s.name.toLowerCase().includes(query.toLowerCase()));
+      if (results.length > 0) {
+        searchResults.innerHTML = results.map(s => `<div class="desktop-search-item" data-id="${s.id}" style="padding:12px 16px;cursor:pointer;border-bottom:1px solid #e8eaed;font-size:14px;color:#202124;">${s.name}</div>`).join('');
+        searchResults.style.display = 'block';
+      } else {
+        searchResults.style.display = 'none';
+      }
+    } else {
+      searchResults.style.display = 'none';
+    }
+  });
+  
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('.desktop-category-pill')) {
+      const btn = target.closest('.desktop-category-pill') as HTMLElement;
+      const category = btn.getAttribute('data-category')!;
+      activeCategory = category;
+      searchResults = category === 'all' ? stores : stores.filter(s => s.categories?.some((c: any) => c.name === category));
+      renderDesktopCategories();
+      renderDesktopStoreCards();
+      renderDesktopStoreList();
+      attachDesktopEventHandlers();
+    } else if (target.closest('.desktop-store-card')) {
+      const card = target.closest('.desktop-store-card') as HTMLElement;
+      const store = stores.find(s => s.id === card.getAttribute('data-id'));
+      if (store) selectStore(store);
+    } else if (target.closest('.desktop-store-item')) {
+      const item = target.closest('.desktop-store-item') as HTMLElement;
+      const store = stores.find(s => s.id === item.getAttribute('data-id'));
+      if (store) selectStore(store);
+    } else if (target.closest('.desktop-search-item')) {
+      const item = target.closest('.desktop-search-item') as HTMLElement;
+      const store = stores.find(s => s.id === item.getAttribute('data-id'));
+      if (store) {
+        selectStore(store);
+        searchInput.value = '';
+        searchResults.style.display = 'none';
+      }
+    }
+  });
+}
+
+function setupDesktopControls() {
+  const controls = document.createElement('div');
+  controls.id = 'desktopControls';
+  controls.style.cssText = `position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:1000;display:flex;flex-direction:column;gap:12px;`;
+  
+  controls.innerHTML = `
+    ${floors.map(floor => `<button class="desktop-floor-btn" data-floor-id="${floor.id}" style="width:56px;height:56px;border-radius:28px;background:${floor.id === currentFloor?.id ? '#1a73e8' : 'white'};color:${floor.id === currentFloor?.id ? 'white' : '#202124'};border:1px solid #dadce0;font-weight:600;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:all 0.2s;">${floor.shortName || floor.name}</button>`).join('')}
+    <div style="height:1px;background:#e8eaed;margin:8px 0;"></div>
+    <button id="desktopFullscreen" class="desktop-control-btn" title="Fullscreen" style="width:56px;height:56px;border-radius:28px;background:white;border:1px solid #dadce0;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5f6368;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:all 0.2s;">${icons.fullscreen}</button>
+    <button id="desktopZoomIn" class="desktop-control-btn" title="Zoom In" style="width:56px;height:56px;border-radius:28px;background:white;border:1px solid #dadce0;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5f6368;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:all 0.2s;">${icons.zoomIn}</button>
+    <button id="desktopZoomOut" class="desktop-control-btn" title="Zoom Out" style="width:56px;height:56px;border-radius:28px;background:white;border:1px solid #dadce0;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5f6368;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:all 0.2s;">${icons.zoomOut}</button>
+  `;
+  
+  document.body.appendChild(controls);
+  
+  document.querySelectorAll('.desktop-floor-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const floorId = btn.getAttribute('data-floor-id');
+      const floor = floors.find(f => f.id === floorId);
+      if (floor) {
+        mapView.setFloor(floor);
+        currentFloor = floor;
+        setupDesktopControls();
+      }
+    });
+  });
+  
+  document.getElementById('desktopFullscreen')?.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  });
+  
+  document.getElementById('desktopZoomIn')?.addEventListener('click', () => {
+    const currentZoom = mapView.Camera.zoomLevel;
+    mapView.Camera.animateTo({ zoomLevel: currentZoom + 1 });
+  });
+  
+  document.getElementById('desktopZoomOut')?.addEventListener('click', () => {
+    const currentZoom = mapView.Camera.zoomLevel;
+    mapView.Camera.animateTo({ zoomLevel: currentZoom - 1 });
+  });
+}
+
+function showDesktopStoreDetail(store: any) {
+  const modal = document.createElement('div');
+  modal.id = 'desktopStoreModal';
+  modal.style.cssText = `position:fixed;top:0;left:380px;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2000;display:flex;align-items:center;justify-content:center;padding:40px;`;
+  
+  const hasCategories = store.categories && store.categories.length > 0;
+  const hasImages = store.images && store.images.length > 0;
+  const hasLogo = store.logoImage?.url;
+  const hasDescription = store.description;
+  const hasPhone = store.phone;
+  const hasWebsite = store.website?.href;
+  
+  let content = '';
+  if (hasImages) {
+    content += `<img src="${store.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" />`;
+  } else if (hasLogo) {
+    content += `<img src="${hasLogo}" style="width:100%;height:200px;object-fit:contain;border-radius:8px;margin-bottom:16px;background:#f8f9fa;padding:20px;" />`;
+  }
+  
+  content += `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+      <div style="width:48px;height:48px;background:#1a73e8;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;">${icons.location}</div>
+      <div style="flex:1;">
+        <div style="font-size:20px;font-weight:500;color:#202124;">${store.name}</div>
+        <div style="font-size:14px;color:#5f6368;margin-top:4px;">${store.floor?.name || 'Store'}</div>
+      </div>
+    </div>
+  `;
+  
+  if (hasCategories) {
+    content += `
+      <div style="margin:16px 0;">
+        <div style="font-weight:500;margin-bottom:8px;font-size:14px;">Categories</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          ${store.categories.map((cat: any) => `<span style="background:#f1f3f4;color:#202124;padding:6px 12px;border-radius:16px;font-size:13px;">${cat.name}</span>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+  
+  if (hasDescription) {
+    content += `<p style="color:#5f6368;font-size:14px;line-height:1.5;margin:16px 0;">${hasDescription}</p>`;
+  }
+  
+  if (hasWebsite) {
+    content += `<a href="${hasWebsite}" target="_blank" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:12px;text-decoration:none;">🔗 Visit Website</a>`;
+  }
+  
+  if (hasPhone) {
+    content += `<a href="tel:${hasPhone}" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">📞 ${hasPhone}</a>`;
+  }
+  
+  content += `
+    <button class="btn-primary" onclick="document.getElementById('desktopStoreModal').remove();showDesktopDirections(selectedStore)" style="margin-top:12px;width:100%;padding:14px;background:#1a73e8;color:white;border:none;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;">Directions</button>
+    <button class="btn-secondary" onclick="document.getElementById('desktopStoreModal').remove()" style="margin-top:8px;width:100%;padding:14px;background:white;color:#1a73e8;border:1px solid #dadce0;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;">Close</button>
+  `;
+  
+  modal.innerHTML = `
+    <div style="background:white;border-radius:20px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.2);position:relative;">
+      <button onclick="document.getElementById('desktopStoreModal').remove()" style="position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:20px;background:#f1f3f4;border:none;cursor:pointer;font-size:20px;color:#5f6368;">×</button>
+      <div style="padding:24px;">${content}</div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+}
+
+(window as any).showDesktopDirections = (store: any) => {
+  const sidebar = document.getElementById('desktopSidebar');
+  if (!sidebar) return;
+  
+  sidebar.innerHTML = `
+    <div style="padding:20px;border-bottom:1px solid #e8eaed;">
+      <button onclick="location.reload()" style="background:none;border:none;cursor:pointer;color:#5f6368;font-size:14px;margin-bottom:12px;">← Back</button>
+      <h2 style="margin:0;font-size:20px;font-weight:600;">Directions</h2>
+    </div>
+    <div style="padding:20px;">
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:12px;color:#5f6368;margin-bottom:8px;">FROM</label>
+        <input id="desktopFromInput" type="text" placeholder="Choose starting point" readonly style="width:100%;padding:12px;border:1px solid #dadce0;border-radius:12px;cursor:pointer;" />
+        <div id="desktopFromDropdown" style="display:none;position:absolute;background:white;border:1px solid #dadce0;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.15);max-height:200px;overflow-y:auto;z-index:10;margin-top:4px;width:calc(100% - 40px);"></div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:12px;color:#5f6368;margin-bottom:8px;">TO</label>
+        <input type="text" value="${store.name}" readonly style="width:100%;padding:12px;border:1px solid #dadce0;border-radius:12px;background:#f8f9fa;" />
+      </div>
+      <button id="desktopStartNav" class="btn-primary" disabled style="width:100%;padding:14px;background:#1a73e8;color:white;border:none;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;">Start Navigation</button>
+    </div>
+    <div style="padding:20px;border-top:1px solid #e8eaed;">
+      <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;color:#5f6368;">Most Popular</h3>
+      ${stores.slice(0, 5).map(s => `
+        <div class="desktop-popular-item" data-id="${s.id}" style="padding:12px;margin-bottom:8px;border-radius:8px;background:#f8f9fa;cursor:pointer;">
+          <div style="font-weight:500;font-size:14px;">${s.name}</div>
+          <div style="font-size:12px;color:#5f6368;">${s.floor?.name || 'Lower Level'}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  
+  const fromInput = document.getElementById('desktopFromInput') as HTMLInputElement;
+  const fromDropdown = document.getElementById('desktopFromDropdown')!;
+  const startBtn = document.getElementById('desktopStartNav') as HTMLButtonElement;
+  
+  fromInput?.addEventListener('click', () => {
+    fromDropdown.innerHTML = stores.map(s => `<div class="dropdown-item" data-id="${s.id}" style="padding:12px 16px;cursor:pointer;font-size:14px;color:#202124;border-bottom:1px solid #e8eaed;">${s.name}</div>`).join('');
+    fromDropdown.style.display = 'block';
+    
+    fromDropdown.querySelectorAll('.dropdown-item').forEach(item => {
+      item.addEventListener('click', async () => {
+        navStartPoint = stores.find(st => st.id === item.getAttribute('data-id'));
+        fromInput.value = navStartPoint!.name;
+        fromDropdown.style.display = 'none';
+        startBtn.disabled = false;
+        
+        const directions = await mapView.getDirections(navStartPoint, store);
+        if (directions) {
+          activeDirections = directions;
+          navEndPoint = store;
+          await mapView.Navigation.draw(directions, {
+            pathOptions: { color: '#4285f4', nearRadius: 0.5, farRadius: 1.5, pulseColor: '#4285f4' },
+            markerOptions: { departureColor: '#34a853', destinationColor: '#ea4335' },
+            setMapToDeparture: false,
+            animatePathDrawing: true
+          });
+          await mapView.Camera.focusOn(directions.path, { maxZoomLevel: 18 });
+        }
+      });
+    });
+  });
+  
+  startBtn?.addEventListener('click', () => {
+    if (activeDirections) {
+      currentInstructionIndex = 0;
+      mapView.Camera.focusOn(activeDirections.instructions[0].coordinate);
+    }
+  });
+};
 
 init();
