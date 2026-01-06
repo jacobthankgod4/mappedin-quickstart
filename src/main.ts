@@ -919,7 +919,7 @@ function showStoreDetailInCard(store: any) {
     ">×</button>
     <h2>${store.name}</h2>
     <p>${store.floor?.name || 'Floor G'}</p>
-    <button onclick="showDirectionsInNewUI('${store.id}')" class="btn-primary">
+    <button onclick="showDirectionsInNewUIMode('${store.id}')" class="btn-primary">
       Directions
     </button>
   `;
@@ -939,6 +939,225 @@ function closeStoreDetail() {
 }
 
 (window as any).closeStoreDetail = closeStoreDetail;
+
+// Phase 4: Navigation in New UI
+function showDirectionsInNewUIMode(storeId: string) {
+  const store = stores.find(s => s.id === storeId);
+  if (!store) return;
+  
+  const card = document.getElementById('storeDetailCard')!;
+  card.innerHTML = `
+    <h3>Directions to ${store.name}</h3>
+    <div style="margin: 16px 0;">
+      <label>FROM</label>
+      <select id="fromSelectNewUI" style="width:100%;padding:8px;border:1px solid #dadce0;border-radius:8px;">
+        ${stores.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+      </select>
+    </div>
+    <div style="margin: 16px 0;">
+      <label>TO</label>
+      <input value="${store.name}" readonly style="width:100%;padding:8px;border:1px solid #dadce0;border-radius:8px;background:#f8f9fa;" />
+    </div>
+    <button id="startNavBtnNewUI" class="btn-primary">Start</button>
+  `;
+  
+  document.getElementById('startNavBtnNewUI')!.addEventListener('click', async () => {
+    const fromId = (document.getElementById('fromSelectNewUI') as HTMLSelectElement).value;
+    navStartPoint = stores.find(s => s.id === fromId);
+    navEndPoint = store;
+    await startNavigationNewUIMode();
+  });
+}
+
+async function startNavigationNewUIMode() {
+  if (!navStartPoint || !navEndPoint) return;
+  
+  const directions = await mapView.getDirections(navStartPoint, navEndPoint);
+  if (!directions) return;
+  
+  activeDirections = directions;
+  await mapView.Navigation.draw(directions, {
+    pathOptions: { color: '#4285f4', nearRadius: 0.5, farRadius: 1.5 },
+    markerOptions: { departureColor: '#34a853', destinationColor: '#ea4335' },
+    setMapToDeparture: false,
+    animatePathDrawing: true
+  });
+  
+  currentInstructionIndex = 0;
+  showActiveNavigationNewUIMode();
+}
+
+function showActiveNavigationNewUIMode() {
+  if (!activeDirections) return;
+  const card = document.getElementById('storeDetailCard')!;
+  const inst = activeDirections.instructions[currentInstructionIndex];
+  
+  card.innerHTML = `
+    <div style="background: #e8f0fe; padding: 16px; border-radius: 8px;">
+      <div>Step ${currentInstructionIndex + 1} of ${activeDirections.instructions.length}</div>
+      <div style="font-weight: 500; margin: 8px 0;">
+        ${inst.action.type === 'Departure' ? 'Start walking' : 'Continue'}
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px; margin-top: 12px;">
+      <button onclick="prevInstructionNewUIMode()" class="btn-secondary" style="flex: 1;">Previous</button>
+      <button onclick="nextInstructionNewUIMode()" class="btn-primary" style="flex: 1;">Next</button>
+    </div>
+    <button onclick="endNavigationNewUIMode()" class="btn-secondary" style="margin-top: 8px;">End Route</button>
+  `;
+}
+
+function prevInstructionNewUIMode() {
+  if (!activeDirections || currentInstructionIndex <= 0) return;
+  currentInstructionIndex--;
+  showActiveNavigationNewUIMode();
+}
+
+function nextInstructionNewUIMode() {
+  if (!activeDirections) return;
+  if (currentInstructionIndex < activeDirections.instructions.length - 1) {
+    currentInstructionIndex++;
+    showActiveNavigationNewUIMode();
+  } else {
+    showArrivalScreenNewUIMode();
+  }
+}
+
+function showArrivalScreenNewUIMode() {
+  const card = document.getElementById('storeDetailCard')!;
+  card.innerHTML = `
+    <div style="text-align: center; padding: 32px;">
+      <div style="font-size: 48px;">🎯</div>
+      <h2>You've Arrived!</h2>
+      <p>${navEndPoint.name}</p>
+      <button onclick="endNavigationNewUIMode()" class="btn-primary">Done</button>
+    </div>
+  `;
+}
+
+function endNavigationNewUIMode() {
+  mapView.Navigation.clear();
+  mapView.Navigation.clearHighlightedPathSection();
+  activeDirections = null;
+  currentInstructionIndex = 0;
+  navStartPoint = null;
+  navEndPoint = null;
+  closeStoreDetail();
+}
+
+(window as any).showDirectionsInNewUIMode = showDirectionsInNewUIMode;
+(window as any).prevInstructionNewUIMode = prevInstructionNewUIMode;
+(window as any).nextInstructionNewUIMode = nextInstructionNewUIMode;
+(window as any).endNavigationNewUIMode = endNavigationNewUIMode;
+
+function showDirectionsInNewUI(storeId: string) {
+  const store = stores.find(s => s.id === storeId);
+  if (!store) return;
+  
+  const card = document.getElementById('storeDetailCard')!;
+  card.innerHTML = `
+    <h3>Directions to ${store.name}</h3>
+    <div style="margin: 16px 0;">
+      <label>FROM</label>
+      <select id="fromSelect" style="width:100%;padding:8px;border:1px solid #dadce0;border-radius:8px;">
+        ${stores.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
+      </select>
+    </div>
+    <div style="margin: 16px 0;">
+      <label>TO</label>
+      <input value="${store.name}" readonly style="width:100%;padding:8px;border:1px solid #dadce0;border-radius:8px;background:#f8f9fa;" />
+    </div>
+    <button id="startNavNewUI" class="btn-primary">Start</button>
+  `;
+  
+  document.getElementById('startNavNewUI')!.addEventListener('click', () => {
+    const fromId = (document.getElementById('fromSelect') as HTMLSelectElement).value;
+    navStartPoint = stores.find(s => s.id === fromId);
+    navEndPoint = store;
+    startNavigationInNewUI();
+  });
+}
+
+async function startNavigationInNewUI() {
+  if (!navStartPoint || !navEndPoint) return;
+  
+  const directions = await mapView.getDirections(navStartPoint, navEndPoint);
+  if (!directions) return;
+  
+  activeDirections = directions;
+  await mapView.Navigation.draw(directions, {
+    pathOptions: { color: '#4285f4', nearRadius: 0.5, farRadius: 1.5 },
+    markerOptions: { departureColor: '#34a853', destinationColor: '#ea4335' },
+    setMapToDeparture: false,
+    animatePathDrawing: true
+  });
+  
+  currentInstructionIndex = 0;
+  showActiveNavigationInNewUI();
+}
+
+function showActiveNavigationInNewUI() {
+  if (!activeDirections) return;
+  const card = document.getElementById('storeDetailCard')!;
+  const inst = activeDirections.instructions[currentInstructionIndex];
+  
+  card.innerHTML = `
+    <div style="background: #e8f0fe; padding: 16px; border-radius: 8px;">
+      <div>Step ${currentInstructionIndex + 1} of ${activeDirections.instructions.length}</div>
+      <div style="font-weight: 500; margin: 8px 0;">
+        ${inst.action.type === 'Departure' ? 'Start walking' : 'Continue'}
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px; margin-top: 12px;">
+      <button onclick="prevInstructionNewUI()" class="btn-secondary" style="flex: 1;">Previous</button>
+      <button onclick="nextInstructionNewUI()" class="btn-primary" style="flex: 1;">Next</button>
+    </div>
+    <button onclick="endNavigationNewUI()" class="btn-secondary" style="margin-top: 8px;">End Route</button>
+  `;
+}
+
+function prevInstructionNewUI() {
+  if (!activeDirections || currentInstructionIndex <= 0) return;
+  currentInstructionIndex--;
+  showActiveNavigationInNewUI();
+}
+
+function nextInstructionNewUI() {
+  if (!activeDirections) return;
+  if (currentInstructionIndex < activeDirections.instructions.length - 1) {
+    currentInstructionIndex++;
+    showActiveNavigationInNewUI();
+  } else {
+    showArrivalScreenNewUI();
+  }
+}
+
+function showArrivalScreenNewUI() {
+  const card = document.getElementById('storeDetailCard')!;
+  card.innerHTML = `
+    <div style="text-align: center; padding: 32px;">
+      <div style="font-size: 48px;">🎯</div>
+      <h2>You've Arrived!</h2>
+      <p>${navEndPoint.name}</p>
+      <button onclick="endNavigationNewUI()" class="btn-primary">Done</button>
+    </div>
+  `;
+}
+
+function endNavigationNewUI() {
+  mapView.Navigation.clear();
+  mapView.Navigation.clearHighlightedPathSection();
+  activeDirections = null;
+  currentInstructionIndex = 0;
+  navStartPoint = null;
+  navEndPoint = null;
+  closeStoreDetail();
+}
+
+(window as any).showDirectionsInNewUI = showDirectionsInNewUI;
+(window as any).prevInstructionNewUI = prevInstructionNewUI;
+(window as any).nextInstructionNewUI = nextInstructionNewUI;
+(window as any).endNavigationNewUI = endNavigationNewUI;
 
 let sheetStartY = 0;
 let sheetCurrentHeight = 0;
