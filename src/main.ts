@@ -864,9 +864,8 @@ function wireTopSearch() {
   if (!input) return;
   
   input.addEventListener('focus', () => {
-    if (input.value.trim()) {
-      dropdown.style.display = 'block';
-    }
+    searchResults = stores;
+    showSearchDropdown();
   });
   
   input.addEventListener('input', (e) => {
@@ -875,10 +874,10 @@ function wireTopSearch() {
       searchResults = stores.filter(s => 
         s.name.toLowerCase().includes(query.toLowerCase())
       );
-      showSearchDropdown();
     } else {
-      dropdown.style.display = 'none';
+      searchResults = stores;
     }
+    showSearchDropdown();
   });
   
   document.addEventListener('click', (e) => {
