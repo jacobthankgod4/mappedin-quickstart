@@ -238,11 +238,13 @@ function setupMapControls() {
   });
   
   document.getElementById('zoomInBtn')!.addEventListener('click', () => {
-    mapView.Camera.zoomBy(1.2);
+    const currentZoom = mapView.Camera.zoom;
+    mapView.Camera.zoomTo(currentZoom + 1);
   });
   
   document.getElementById('zoomOutBtn')!.addEventListener('click', () => {
-    mapView.Camera.zoomBy(0.8);
+    const currentZoom = mapView.Camera.zoom;
+    mapView.Camera.zoomTo(currentZoom - 1);
   });
   
   if (floors.length > 1) {
