@@ -64,6 +64,13 @@ async function init() {
   addDirectoryKiosks(mapData);
   setupMapControls();
   
+  // Debug indicator
+  const debugDiv = document.createElement('div');
+  debugDiv.id = 'debugIndicator';
+  debugDiv.style.cssText = 'position:fixed;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:white;padding:8px 16px;border-radius:20px;font-size:12px;z-index:10000;pointer-events:none;';
+  debugDiv.textContent = `${window.innerWidth}px - ${isDesktop() ? 'DESKTOP' : 'MOBILE'}`;
+  document.body.appendChild(debugDiv);
+  
   if (isDesktop()) {
     setupDesktopUI();
   } else {
@@ -73,6 +80,10 @@ async function init() {
 
 window.addEventListener('resize', () => {
   const newLayout = isDesktop() ? 'desktop' : 'mobile';
+  const debugDiv = document.getElementById('debugIndicator');
+  if (debugDiv) {
+    debugDiv.textContent = `${window.innerWidth}px - ${newLayout.toUpperCase()}`;
+  }
   if (newLayout !== currentLayout) {
     currentLayout = newLayout;
     location.reload();
