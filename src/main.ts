@@ -80,6 +80,7 @@ function setupStores(mapData: any) {
 
 function setupFloors(data: any) {
   floors = data.getByType?.('floor') || [];
+  console.log('Floors found:', floors.length, floors);
 }
 
 function setupCategories() {
@@ -202,7 +203,9 @@ function setupMapControls() {
   });
   
   if (floors.length > 1) {
+    console.log('Creating floor selector with', floors.length, 'floors');
     const floorSelector = document.createElement('div');
+    floorSelector.id = 'floorSelector';
     floorSelector.style.cssText = 'position:fixed;right:16px;top:80px;z-index:50;display:flex;flex-direction:column;gap:8px;';
     
     floorSelector.innerHTML = floors.map((floor, index) => `
@@ -213,6 +216,7 @@ function setupMapControls() {
     `).join('');
     
     document.body.appendChild(floorSelector);
+    console.log('Floor selector appended to body');
     
     floorSelector.querySelectorAll('.floor-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -229,6 +233,8 @@ function setupMapControls() {
         }
       });
     });
+  } else {
+    console.log('Floor selector not created - only', floors.length, 'floor(s)');
   }
 }
 
