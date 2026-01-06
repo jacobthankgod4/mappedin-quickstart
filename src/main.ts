@@ -838,7 +838,7 @@ function createBottomTabBar() {
 function createStoreDetailCard() {
   const card = document.createElement('div');
   card.id = 'storeDetailCard';
-  card.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;background:white;border-radius:16px 16px 0 0;padding:20px;box-shadow:0 -4px 12px rgba(0,0,0,0.15);z-index:999;max-height:60vh;overflow-y:auto;display:none;';
+  card.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:white;border-radius:16px 16px 0 0;padding:20px;padding-bottom:100px;box-shadow:0 -4px 12px rgba(0,0,0,0.15);z-index:999;max-height:85vh;overflow-y:auto;display:none;';
   document.body.appendChild(card);
 }
 
