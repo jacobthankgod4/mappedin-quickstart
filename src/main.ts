@@ -1230,6 +1230,11 @@ async function startNavigationNewUIMode() {
   });
   
   currentInstructionIndex = 0;
+  
+  // Clear camera offset and focus on start location (like legacy)
+  mapView.Camera.setScreenOffsets({ bottom: 0, type: 'pixel' });
+  await mapView.Camera.focusOn(activeDirections.instructions[0].coordinate);
+  
   showActiveNavigationNewUIMode();
 }
 
