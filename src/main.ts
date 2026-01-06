@@ -1257,17 +1257,71 @@ function showActiveNavigationNewUIMode() {
 function prevInstructionNewUIMode() {
   if (!activeDirections || currentInstructionIndex <= 0) return;
   currentInstructionIndex--;
+  
+  const currentInst = activeDirections.instructions[currentInstructionIndex];
+  const startCoord = activeDirections.instructions[0].coordinate;
+  
+  if (currentInstructionIndex === 0) {
+    mapView.Navigation.clearHighlightedPathSection();
+  } else {
+    try {
+      mapView.Navigation.highlightPathSection(startCoord, currentInst.coordinate, {
+        color: '#34a853',
+        nearRadius: 0.6,
+        farRadius: 1.8
+      });
+    } catch (err) {}
+  }
+  
+  let bearing = 0;
+  if (currentInstructionIndex < activeDirections.instructions.length - 1) {
+    const nextInst = activeDirections.instructions[currentInstructionIndex + 1];
+    const dx = nextInst.coordinate.longitude - currentInst.coordinate.longitude;
+    const dy = nextInst.coordinate.latitude - currentInst.coordinate.latitude;
+    bearing = Math.atan2(dx, dy) * (180 / Math.PI);
+  }
+  
+  try {
+    mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 20, pitch: 45, bearing });
+  } catch (err) {}
+  
   showActiveNavigationNewUIMode();
 }
 
 function nextInstructionNewUIMode() {
   if (!activeDirections) return;
-  if (currentInstructionIndex < activeDirections.instructions.length - 1) {
-    currentInstructionIndex++;
-    showActiveNavigationNewUIMode();
-  } else {
+  
+  currentInstructionIndex++;
+  
+  if (currentInstructionIndex >= activeDirections.instructions.length) {
     showArrivalScreenNewUIMode();
+    return;
   }
+  
+  const currentInst = activeDirections.instructions[currentInstructionIndex];
+  const startCoord = activeDirections.instructions[0].coordinate;
+  
+  try {
+    mapView.Navigation.highlightPathSection(startCoord, currentInst.coordinate, {
+      color: '#34a853',
+      nearRadius: 0.6,
+      farRadius: 1.8
+    });
+  } catch (err) {}
+  
+  let bearing = 0;
+  if (currentInstructionIndex < activeDirections.instructions.length - 1) {
+    const nextInst = activeDirections.instructions[currentInstructionIndex + 1];
+    const dx = nextInst.coordinate.longitude - currentInst.coordinate.longitude;
+    const dy = nextInst.coordinate.latitude - currentInst.coordinate.latitude;
+    bearing = Math.atan2(dx, dy) * (180 / Math.PI);
+  }
+  
+  try {
+    mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 20, pitch: 45, bearing });
+  } catch (err) {}
+  
+  showActiveNavigationNewUIMode();
 }
 
 function showArrivalScreenNewUIMode() {
