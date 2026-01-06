@@ -567,20 +567,34 @@ function clearNavigation() {
 }
 
 function toggleSheet() {
-  const sheet = document.getElementById('bottomSheet')!;
-  const expandIcon = document.getElementById('expandIcon')!;
-  const allSteps = document.getElementById('allSteps')!;
-  
-  if (sheet.classList.contains('expanded')) {
-    sheet.classList.remove('expanded');
-    sheet.style.maxHeight = '70vh';
-    expandIcon.textContent = '▲';
-    allSteps.style.display = 'none';
+  if (isDesktop()) {
+    const expandIcon = document.getElementById('expandIcon');
+    const allSteps = document.getElementById('allSteps');
+    if (!expandIcon || !allSteps) return;
+    
+    if (allSteps.style.display === 'none') {
+      allSteps.style.display = 'block';
+      expandIcon.textContent = '▼';
+    } else {
+      allSteps.style.display = 'none';
+      expandIcon.textContent = '▲';
+    }
   } else {
-    sheet.classList.add('expanded');
-    sheet.style.maxHeight = '85vh';
-    expandIcon.textContent = '▼';
-    allSteps.style.display = 'block';
+    const sheet = document.getElementById('bottomSheet')!;
+    const expandIcon = document.getElementById('expandIcon')!;
+    const allSteps = document.getElementById('allSteps')!;
+    
+    if (sheet.classList.contains('expanded')) {
+      sheet.classList.remove('expanded');
+      sheet.style.maxHeight = '70vh';
+      expandIcon.textContent = '▲';
+      allSteps.style.display = 'none';
+    } else {
+      sheet.classList.add('expanded');
+      sheet.style.maxHeight = '85vh';
+      expandIcon.textContent = '▼';
+      allSteps.style.display = 'block';
+    }
   }
 }
 
@@ -627,17 +641,37 @@ function nextInstruction() {
   currentInstructionIndex++;
   
   if (currentInstructionIndex >= activeDirections.instructions.length) {
-    const content = document.getElementById('sheetContent')!;
-    content.innerHTML = `
-      <div class="directions-card" style="text-align:center;padding:32px;">
-        <div style="color:#34a853;margin-bottom:16px;">${icons.target}</div>
-        <div style="font-size:20px;font-weight:500;color:#202124;margin-bottom:8px;">You've Arrived!</div>
-        <div style="color:#5f6368;margin-bottom:24px;">${navEndPoint.name}</div>
-        <button class="btn-primary" onclick="clearNavigation()">Done</button>
-      </div>
-    `;
-    const sheet = document.getElementById('bottomSheet')!;
-    sheet.style.maxHeight = '40vh';
+    if (isDesktop()) {
+      const sidebar = document.getElementById('desktopSidebar');
+      if (sidebar) {
+        sidebar.innerHTML = `
+          <div style="padding:20px;border-bottom:1px solid #e8eaed;">
+            <button onclick="returnToDesktopStoreList()" style="background:none;border:none;cursor:pointer;color:#5f6368;font-size:14px;margin-bottom:12px;">← Back</button>
+            <h2 style="margin:0;font-size:20px;font-weight:600;">Arrived</h2>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:20px;">
+            <div class="directions-card" style="text-align:center;padding:32px;">
+              <div style="color:#34a853;margin-bottom:16px;">${icons.target}</div>
+              <div style="font-size:20px;font-weight:500;color:#202124;margin-bottom:8px;">You've Arrived!</div>
+              <div style="color:#5f6368;margin-bottom:24px;">${navEndPoint.name}</div>
+              <button class="btn-primary" onclick="clearNavigation()">Done</button>
+            </div>
+          </div>
+        `;
+      }
+    } else {
+      const content = document.getElementById('sheetContent')!;
+      content.innerHTML = `
+        <div class="directions-card" style="text-align:center;padding:32px;">
+          <div style="color:#34a853;margin-bottom:16px;">${icons.target}</div>
+          <div style="font-size:20px;font-weight:500;color:#202124;margin-bottom:8px;">You've Arrived!</div>
+          <div style="color:#5f6368;margin-bottom:24px;">${navEndPoint.name}</div>
+          <button class="btn-primary" onclick="clearNavigation()">Done</button>
+        </div>
+      `;
+      const sheet = document.getElementById('bottomSheet')!;
+      sheet.style.maxHeight = '40vh';
+    }
     return;
   }
   
@@ -654,7 +688,6 @@ function nextInstruction() {
     });
   } catch (err) {}
   
-  // Calculate bearing to next instruction for camera direction
   let bearing = 0;
   if (currentInstructionIndex < activeDirections.instructions.length - 1) {
     const nextInst = activeDirections.instructions[currentInstructionIndex + 1];
@@ -664,8 +697,10 @@ function nextInstruction() {
   }
   
   try {
-    const vh = window.innerHeight / 100;
-    mapView.Camera.setScreenOffsets({ bottom: 35 * vh, type: 'pixel' });
+    if (!isDesktop()) {
+      const vh = window.innerHeight / 100;
+      mapView.Camera.setScreenOffsets({ bottom: 35 * vh, type: 'pixel' });
+    }
     mapView.Camera.focusOn(currentInst.coordinate, { maxZoomLevel: 20, pitch: 45, bearing });
   } catch (err) {}
 }
