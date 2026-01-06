@@ -245,7 +245,7 @@ function setupMapControls() {
     try {
       const currentZoom = mapView.Camera.zoom;
       debugDiv.textContent = `Zoom: ${currentZoom} -> ${currentZoom + 1}`;
-      await mapView.Camera.zoomTo(currentZoom + 1);
+      await mapView.Camera.setZoom(currentZoom + 1);
       setTimeout(() => debugDiv.remove(), 2000);
     } catch (err) {
       debugDiv.textContent = `Error: ${err}`;
@@ -262,7 +262,7 @@ function setupMapControls() {
     try {
       const currentZoom = mapView.Camera.zoom;
       debugDiv.textContent = `Zoom: ${currentZoom} -> ${currentZoom - 1}`;
-      await mapView.Camera.zoomTo(currentZoom - 1);
+      await mapView.Camera.setZoom(currentZoom - 1);
       setTimeout(() => debugDiv.remove(), 2000);
     } catch (err) {
       debugDiv.textContent = `Error: ${err}`;
