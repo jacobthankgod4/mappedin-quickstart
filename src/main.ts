@@ -48,6 +48,7 @@ let currentInstructionIndex: number = 0;
 let activeCategory: string = 'all';
 let allCategories: string[] = [];
 let floors: any[] = [];
+let uiMode: 'legacy' | 'new' = 'legacy';
 
 async function init() {
   const container = document.getElementById('mappedin-map')!;
@@ -70,6 +71,13 @@ async function init() {
   debugDiv.style.cssText = 'position:fixed;top:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:white;padding:8px 16px;border-radius:20px;font-size:12px;z-index:10000;pointer-events:none;';
   debugDiv.textContent = `${window.innerWidth}px - ${isDesktop() ? 'DESKTOP' : 'MOBILE'}`;
   document.body.appendChild(debugDiv);
+  
+  if (!isDesktop()) {
+    createTopBar();
+    createBottomTabBar();
+    createStoreDetailCard();
+    createUIToggle();
+  }
   
   if (isDesktop()) {
     setupDesktopUI();
@@ -781,7 +789,62 @@ function hideSheet() {
 (window as any).toggleSheet = toggleSheet;
 (window as any).updateStoreList = updateStoreList;
 
+function createTopBar() {
+  const topBar = document.createElement('div');
+  topBar.id = 'topBar';
+  topBar.style.cssText = 'position:fixed;top:0;left:0;right:0;height:56px;background:white;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,0.1);display:none;align-items:center;padding:0 16px;';
+  topBar.innerHTML = `
+    <input id="topSearchInput" placeholder="Search" style="flex:1;padding:8px 12px;border:1px solid #dadce0;border-radius:24px;font-size:14px;" />
+    <button id="menuBtn" style="margin-left:12px;background:none;border:none;font-size:24px;cursor:pointer;">☰</button>
+  `;
+  document.body.appendChild(topBar);
+}
 
+function createBottomTabBar() {
+  const tabBar = document.createElement('div');
+  tabBar.id = 'bottomTabBar';
+  tabBar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;height:80px;background:white;z-index:1000;box-shadow:0 -2px 4px rgba(0,0,0,0.1);display:none;justify-content:space-around;align-items:center;';
+  tabBar.innerHTML = `
+    <button data-category="facility" style="display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-size:10px;">🚶<br>Facility</button>
+    <button data-category="food" style="display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-size:10px;">🍴<br>Food</button>
+    <button data-category="leisure" style="display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-size:10px;">🎫<br>Leisure</button>
+    <button data-category="shops" style="display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-size:10px;">🛍️<br>Shops</button>
+    <button data-category="promos" style="display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-size:10px;">%<br>Promos</button>
+    <button data-category="events" style="display:flex;flex-direction:column;align-items:center;gap:4px;background:none;border:none;cursor:pointer;font-size:10px;">📅<br>Events</button>
+  `;
+  document.body.appendChild(tabBar);
+}
+
+function createStoreDetailCard() {
+  const card = document.createElement('div');
+  card.id = 'storeDetailCard';
+  card.style.cssText = 'position:fixed;bottom:80px;left:16px;right:16px;background:white;border-radius:16px 16px 0 0;padding:20px;box-shadow:0 -4px 12px rgba(0,0,0,0.15);z-index:999;max-height:60vh;overflow-y:auto;display:none;';
+  document.body.appendChild(card);
+}
+
+function createUIToggle() {
+  const toggle = document.createElement('button');
+  toggle.id = 'uiToggle';
+  toggle.textContent = 'Switch UI';
+  toggle.style.cssText = 'position:fixed;top:70px;right:16px;z-index:10001;padding:8px 16px;background:#1a73e8;color:white;border:none;border-radius:20px;cursor:pointer;';
+  toggle.addEventListener('click', toggleUIMode);
+  document.body.appendChild(toggle);
+}
+
+function toggleUIMode() {
+  uiMode = uiMode === 'legacy' ? 'new' : 'legacy';
+  
+  if (uiMode === 'new') {
+    document.getElementById('bottomSheet')!.style.display = 'none';
+    document.getElementById('topBar')!.style.display = 'flex';
+    document.getElementById('bottomTabBar')!.style.display = 'flex';
+  } else {
+    document.getElementById('bottomSheet')!.style.display = 'block';
+    document.getElementById('topBar')!.style.display = 'none';
+    document.getElementById('bottomTabBar')!.style.display = 'none';
+    document.getElementById('storeDetailCard')!.style.display = 'none';
+  }
+}
 
 let sheetStartY = 0;
 let sheetCurrentHeight = 0;
