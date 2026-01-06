@@ -1218,20 +1218,20 @@ function renderDesktopStoreList() {
 
 function attachDesktopEventHandlers() {
   const searchInput = document.getElementById('desktopSearchInput') as HTMLInputElement;
-  const searchResults = document.getElementById('desktopSearchResults')!;
+  const searchResultsDiv = document.getElementById('desktopSearchResults')!;
   
   searchInput?.addEventListener('input', (e) => {
     const query = (e.target as HTMLInputElement).value;
     if (query.trim()) {
       const results = stores.filter(s => s.name.toLowerCase().includes(query.toLowerCase()));
       if (results.length > 0) {
-        searchResults.innerHTML = results.map(s => `<div class="desktop-search-item" data-id="${s.id}" style="padding:12px 16px;cursor:pointer;border-bottom:1px solid #e8eaed;font-size:14px;color:#202124;">${s.name}</div>`).join('');
-        searchResults.style.display = 'block';
+        searchResultsDiv.innerHTML = results.map(s => `<div class="desktop-search-item" data-id="${s.id}" style="padding:12px 16px;cursor:pointer;border-bottom:1px solid #e8eaed;font-size:14px;color:#202124;">${s.name}</div>`).join('');
+        searchResultsDiv.style.display = 'block';
       } else {
-        searchResults.style.display = 'none';
+        searchResultsDiv.style.display = 'none';
       }
     } else {
-      searchResults.style.display = 'none';
+      searchResultsDiv.style.display = 'none';
     }
   });
   
@@ -1260,7 +1260,7 @@ function attachDesktopEventHandlers() {
       if (store) {
         selectStore(store);
         searchInput.value = '';
-        searchResults.style.display = 'none';
+        searchResultsDiv.style.display = 'none';
       }
     }
   });
