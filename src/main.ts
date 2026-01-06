@@ -30,7 +30,7 @@ const options = {
   mapId: '65c0ff7430b94e3fabd5bb8c'
 };
 
-const DESKTOP_BREAKPOINT = 1024;
+const DESKTOP_BREAKPOINT = 768;
 const isDesktop = () => window.innerWidth >= DESKTOP_BREAKPOINT;
 let currentLayout: 'mobile' | 'desktop' = isDesktop() ? 'desktop' : 'mobile';
 
