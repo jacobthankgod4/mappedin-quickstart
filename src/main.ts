@@ -1015,16 +1015,21 @@ function showStoreDetailInCard(store: any) {
   const hasPhone = store.phone;
   const hasWebsite = store.website?.href;
   
-  let html = `<button onclick="closeStoreDetail()" style="position:absolute;top:12px;right:12px;background:none;border:none;font-size:24px;cursor:pointer;z-index:10;">×</button>`;
+  let html = `
+    <div class="detail-drag-handle" style="padding:12px 0;cursor:grab;user-select:none;-webkit-user-select:none;text-align:center;">
+      <div style="width:40px;height:4px;background:#dadce0;border-radius:2px;margin:0 auto;"></div>
+    </div>
+    <button onclick="closeStoreDetail()" style="position:absolute;top:20px;right:12px;background:none;border:none;font-size:24px;cursor:pointer;z-index:10;">×</button>
+  `;
   
   if (hasImages) {
-    html += `<img src="${store.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" />`;
+    html += `<img src="${store.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;pointer-events:none;" />`;
   } else if (hasLogo) {
-    html += `<img src="${hasLogo}" style="width:100%;height:200px;object-fit:contain;border-radius:8px;margin-bottom:16px;background:#f8f9fa;padding:20px;" />`;
+    html += `<img src="${hasLogo}" style="width:100%;height:200px;object-fit:contain;border-radius:8px;margin-bottom:16px;background:#f8f9fa;padding:20px;pointer-events:none;" />`;
   }
   
   html += `
-    <div style="display:flex;align-items:start;gap:12px;margin-bottom:16px;">
+    <div style="display:flex;align-items:start;gap:12px;margin-bottom:16px;pointer-events:none;">
       <div style="width:48px;height:48px;border-radius:24px;background:#1a73e8;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${icons.location}</div>
       <div style="flex:1;">
         <div style="font-size:20px;font-weight:500;color:#202124;">${store.name}</div>
@@ -1083,9 +1088,57 @@ function showStoreDetailInCard(store: any) {
   
   requestAnimationFrame(() => {
     card.style.display = 'block';
+    setupCardDragHandlers();
   });
   
   selectStore(store);
+}
+
+let cardStartY = 0;
+let cardCurrentHeight = 0;
+let cardIsDragging = false;
+
+function setupCardDragHandlers() {
+  const card = document.getElementById('storeDetailCard')!;
+  const dragHandle = card.querySelector('.detail-drag-handle') as HTMLElement;
+  
+  if (!dragHandle) return;
+  
+  dragHandle.addEventListener('touchstart', (e) => {
+    cardStartY = e.touches[0].clientY;
+    cardCurrentHeight = card.offsetHeight;
+    cardIsDragging = true;
+    card.style.transition = 'none';
+  });
+  
+  document.addEventListener('touchmove', (e) => {
+    if (!cardIsDragging) return;
+    e.preventDefault();
+    const deltaY = e.touches[0].clientY - cardStartY;
+    const newHeight = cardCurrentHeight - deltaY;
+    const vh = window.innerHeight / 100;
+    
+    if (newHeight >= 30 * vh && newHeight <= 85 * vh) {
+      card.style.maxHeight = `${newHeight}px`;
+    }
+  }, { passive: false });
+  
+  document.addEventListener('touchend', () => {
+    if (!cardIsDragging) return;
+    cardIsDragging = false;
+    card.style.transition = 'max-height 0.3s ease';
+    
+    const vh = window.innerHeight / 100;
+    const currentHeightVh = card.offsetHeight / vh;
+    
+    if (currentHeightVh < 40) {
+      card.style.maxHeight = '30vh';
+    } else if (currentHeightVh < 65) {
+      card.style.maxHeight = '50vh';
+    } else {
+      card.style.maxHeight = '85vh';
+    }
+  });
 }
 
 function closeStoreDetail() {
