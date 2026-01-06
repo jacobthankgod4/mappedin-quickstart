@@ -802,7 +802,10 @@ function createTopBar() {
   topBar.id = 'topBar';
   topBar.style.cssText = 'position:fixed;top:0;left:0;right:0;height:56px;background:white;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,0.1);display:none;align-items:center;padding:0 16px;';
   topBar.innerHTML = `
-    <input id="topSearchInput" placeholder="Search" style="flex:1;padding:8px 12px;border:1px solid #dadce0;border-radius:24px;font-size:14px;" />
+    <div style="position:relative;flex:1;">
+      <input id="topSearchInput" placeholder="Search" style="width:100%;padding:8px 12px;border:1px solid #dadce0;border-radius:24px;font-size:14px;" />
+      <div id="topSearchDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.15);margin-top:8px;max-height:300px;overflow-y:auto;z-index:10;"></div>
+    </div>
     <button id="menuBtn" style="margin-left:12px;background:none;border:none;font-size:24px;cursor:pointer;">☰</button>
   `;
   document.body.appendChild(topBar);
@@ -846,30 +849,77 @@ function toggleUIMode() {
     document.getElementById('bottomSheet')!.style.display = 'none';
     document.getElementById('topBar')!.style.display = 'flex';
     document.getElementById('bottomTabBar')!.style.display = 'flex';
-    searchResults = stores;
-    showStoreListOverlay();
   } else {
     document.getElementById('bottomSheet')!.style.display = 'block';
     document.getElementById('topBar')!.style.display = 'none';
     document.getElementById('bottomTabBar')!.style.display = 'none';
     document.getElementById('storeDetailCard')!.style.display = 'none';
+    document.getElementById('topSearchDropdown')!.style.display = 'none';
   }
 }
 
 function wireTopSearch() {
   const input = document.getElementById('topSearchInput') as HTMLInputElement;
+  const dropdown = document.getElementById('topSearchDropdown')!;
   if (!input) return;
+  
+  input.addEventListener('focus', () => {
+    if (input.value.trim()) {
+      dropdown.style.display = 'block';
+    }
+  });
+  
   input.addEventListener('input', (e) => {
     const query = (e.target as HTMLInputElement).value;
     if (query.trim()) {
       searchResults = stores.filter(s => 
         s.name.toLowerCase().includes(query.toLowerCase())
       );
-      showStoreListOverlay();
+      showSearchDropdown();
     } else {
-      searchResults = stores;
-      showStoreListOverlay();
+      dropdown.style.display = 'none';
     }
+  });
+  
+  document.addEventListener('click', (e) => {
+    if (!input.contains(e.target as Node) && !dropdown.contains(e.target as Node)) {
+      dropdown.style.display = 'none';
+    }
+  });
+}
+
+function showSearchDropdown() {
+  const dropdown = document.getElementById('topSearchDropdown')!;
+  
+  if (searchResults.length === 0) {
+    dropdown.innerHTML = '<div style="padding:16px;text-align:center;color:#5f6368;">No stores found</div>';
+    dropdown.style.display = 'block';
+    return;
+  }
+  
+  dropdown.innerHTML = searchResults.map(store => `
+    <div class="search-dropdown-item" data-id="${store.id}" style="
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid #e8eaed;
+    ">
+      <div style="font-weight: 500;">${store.name}</div>
+      <div style="font-size: 12px; color: #5f6368;">${store.floor?.name || 'Floor G'}</div>
+    </div>
+  `).join('');
+  
+  dropdown.style.display = 'block';
+  
+  dropdown.querySelectorAll('.search-dropdown-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const storeId = item.getAttribute('data-id');
+      const store = stores.find(s => s.id === storeId);
+      if (store) {
+        dropdown.style.display = 'none';
+        (document.getElementById('topSearchInput') as HTMLInputElement).value = '';
+        selectStore(store);
+      }
+    });
   });
 }
 
@@ -954,8 +1004,6 @@ function closeStoreDetail() {
   }
   selectedStore = null;
   mapView.Camera.setScreenOffsets({ bottom: 0, type: 'pixel' });
-  searchResults = stores;
-  showStoreListOverlay();
 }
 
 (window as any).closeStoreDetail = closeStoreDetail;
