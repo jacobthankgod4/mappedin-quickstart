@@ -863,21 +863,39 @@ function wireTopSearch() {
   const dropdown = document.getElementById('topSearchDropdown')!;
   if (!input) return;
   
+  // Single delegated event listener on dropdown (prevents memory leaks)
+  dropdown.addEventListener('click', (e) => {
+    const item = (e.target as HTMLElement).closest('.search-dropdown-item');
+    if (item) {
+      const storeId = item.getAttribute('data-id');
+      const store = stores.find(s => s.id === storeId);
+      if (store) {
+        dropdown.style.display = 'none';
+        input.value = '';
+        selectStore(store);
+      }
+    }
+  });
+  
   input.addEventListener('focus', () => {
     searchResults = stores;
     showSearchDropdown();
   });
   
+  let searchTimeout: any;
   input.addEventListener('input', (e) => {
-    const query = (e.target as HTMLInputElement).value;
-    if (query.trim()) {
-      searchResults = stores.filter(s => 
-        s.name.toLowerCase().includes(query.toLowerCase())
-      );
-    } else {
-      searchResults = stores;
-    }
-    showSearchDropdown();
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      const query = (e.target as HTMLInputElement).value;
+      if (query.trim()) {
+        searchResults = stores.filter(s => 
+          s.name.toLowerCase().includes(query.toLowerCase())
+        );
+      } else {
+        searchResults = stores;
+      }
+      showSearchDropdown();
+    }, 150);
   });
   
   document.addEventListener('click', (e) => {
@@ -908,18 +926,6 @@ function showSearchDropdown() {
   `).join('');
   
   dropdown.style.display = 'block';
-  
-  dropdown.querySelectorAll('.search-dropdown-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const storeId = item.getAttribute('data-id');
-      const store = stores.find(s => s.id === storeId);
-      if (store) {
-        dropdown.style.display = 'none';
-        (document.getElementById('topSearchInput') as HTMLInputElement).value = '';
-        selectStore(store);
-      }
-    });
-  });
 }
 
 function wireBottomTabs() {
