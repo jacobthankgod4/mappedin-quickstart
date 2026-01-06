@@ -77,6 +77,8 @@ async function init() {
     createBottomTabBar();
     createStoreDetailCard();
     createUIToggle();
+    wireTopSearch();
+    wireBottomTabs();
   }
   
   if (isDesktop()) {
@@ -845,6 +847,98 @@ function toggleUIMode() {
     document.getElementById('storeDetailCard')!.style.display = 'none';
   }
 }
+
+function wireTopSearch() {
+  const input = document.getElementById('topSearchInput') as HTMLInputElement;
+  if (!input) return;
+  input.addEventListener('input', (e) => {
+    const query = (e.target as HTMLInputElement).value;
+    if (query.trim()) {
+      searchResults = stores.filter(s => 
+        s.name.toLowerCase().includes(query.toLowerCase())
+      );
+      showStoreListOverlay();
+    }
+  });
+}
+
+function wireBottomTabs() {
+  const tabs = document.querySelectorAll('#bottomTabBar button');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const category = tab.getAttribute('data-category')!;
+      activeCategory = category;
+      
+      if (category === 'all') {
+        searchResults = stores;
+      } else {
+        searchResults = stores.filter(s => 
+          s.categories?.some((c: any) => c.name === category)
+        );
+      }
+      
+      showStoreListOverlay();
+    });
+  });
+}
+
+function showStoreListOverlay() {
+  const card = document.getElementById('storeDetailCard')!;
+  card.style.display = 'block';
+  card.innerHTML = searchResults.map(store => `
+    <div class="store-item" data-id="${store.id}" style="
+      padding: 12px;
+      border-bottom: 1px solid #e8eaed;
+      cursor: pointer;
+    ">
+      <div style="font-weight: 500;">${store.name}</div>
+      <div style="font-size: 12px; color: #5f6368;">${store.floor?.name || 'Floor G'}</div>
+    </div>
+  `).join('');
+  
+  card.querySelectorAll('.store-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const storeId = item.getAttribute('data-id');
+      const store = stores.find(s => s.id === storeId);
+      if (store) showStoreDetailInCard(store);
+    });
+  });
+}
+
+function showStoreDetailInCard(store: any) {
+  const card = document.getElementById('storeDetailCard')!;
+  card.innerHTML = `
+    <button onclick="closeStoreDetail()" style="
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    ">×</button>
+    <h2>${store.name}</h2>
+    <p>${store.floor?.name || 'Floor G'}</p>
+    <button onclick="showDirectionsInNewUI('${store.id}')" class="btn-primary">
+      Directions
+    </button>
+  `;
+  
+  selectStore(store);
+}
+
+function closeStoreDetail() {
+  document.getElementById('storeDetailCard')!.style.display = 'none';
+  if (selectedPolygon) {
+    try {
+      mapView.updateState(selectedPolygon, { color: 'initial' });
+    } catch (err) {}
+    selectedPolygon = null;
+  }
+  selectedStore = null;
+}
+
+(window as any).closeStoreDetail = closeStoreDetail;
 
 let sheetStartY = 0;
 let sheetCurrentHeight = 0;
