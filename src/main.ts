@@ -562,8 +562,13 @@ function clearNavigation() {
   currentInstructionIndex = 0;
   navStartPoint = null;
   navEndPoint = null;
-  document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'block';
-  clearSelection();
+  
+  if (isDesktop()) {
+    returnToDesktopStoreList();
+  } else {
+    document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'block';
+    clearSelection();
+  }
 }
 
 function toggleSheet() {
