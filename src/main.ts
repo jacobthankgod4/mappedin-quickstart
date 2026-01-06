@@ -238,37 +238,13 @@ function setupMapControls() {
   });
   
   document.getElementById('zoomInBtn')!.addEventListener('click', () => {
-    const debugDiv = document.createElement('div');
-    debugDiv.style.cssText = 'position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:8px;border-radius:4px;font-size:10px;z-index:9999;';
-    document.body.appendChild(debugDiv);
-    
-    try {
-      const currentZoom = mapView.Camera.zoomLevel;
-      debugDiv.textContent = `Zoom: ${currentZoom} -> ${currentZoom + 1}`;
-      mapView.Camera.animateTo({ zoomLevel: currentZoom + 1 });
-      setTimeout(() => debugDiv.remove(), 2000);
-    } catch (err) {
-      debugDiv.textContent = `Error: ${err}`;
-      debugDiv.style.color = '#f00';
-      setTimeout(() => debugDiv.remove(), 3000);
-    }
+    const currentZoom = mapView.Camera.zoomLevel;
+    mapView.Camera.animateTo({ zoomLevel: currentZoom + 1 });
   });
   
   document.getElementById('zoomOutBtn')!.addEventListener('click', () => {
-    const debugDiv = document.createElement('div');
-    debugDiv.style.cssText = 'position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.8);color:#0f0;padding:8px;border-radius:4px;font-size:10px;z-index:9999;';
-    document.body.appendChild(debugDiv);
-    
-    try {
-      const currentZoom = mapView.Camera.zoomLevel;
-      debugDiv.textContent = `Zoom: ${currentZoom} -> ${currentZoom - 1}`;
-      mapView.Camera.animateTo({ zoomLevel: currentZoom - 1 });
-      setTimeout(() => debugDiv.remove(), 2000);
-    } catch (err) {
-      debugDiv.textContent = `Error: ${err}`;
-      debugDiv.style.color = '#f00';
-      setTimeout(() => debugDiv.remove(), 3000);
-    }
+    const currentZoom = mapView.Camera.zoomLevel;
+    mapView.Camera.animateTo({ zoomLevel: currentZoom - 1 });
   });
   
   if (floors.length > 1) {
