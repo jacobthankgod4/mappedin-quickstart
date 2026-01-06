@@ -97,11 +97,11 @@ function setupFloorIndicator(mapData: any) {
   currentFloor = floors[0];
   const indicator = document.createElement('div');
   indicator.className = 'floor-indicator';
-  indicator.textContent = currentFloor?.name || 'Floor 1';
+  indicator.textContent = currentFloor?.shortName || currentFloor?.name || 'L1';
   document.body.appendChild(indicator);
   mapView.on('floor-change', (event: any) => {
     currentFloor = event.floor;
-    indicator.textContent = currentFloor?.name || 'Floor 1';
+    indicator.textContent = currentFloor?.shortName || currentFloor?.name || 'L1';
   });
 }
 
