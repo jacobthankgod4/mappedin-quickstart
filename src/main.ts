@@ -439,7 +439,9 @@ async function drawNavigation() {
     mapView.Camera.setScreenOffsets({ bottom: 0, type: 'pixel' });
     await mapView.Camera.focusOn(activeDirections.instructions[0].coordinate);
     
-    const content = document.getElementById('sheetContent')!;
+    const content = isDesktop() ? document.getElementById('desktopSidebar') : document.getElementById('sheetContent');
+    if (!content) return;
+    
     const distance = activeDirections.distance ? activeDirections.distance.toFixed(0) : 'N/A';
     const time = activeDirections.distance ? Math.ceil(activeDirections.distance / 1.4 / 60) : 'N/A';
     
@@ -481,7 +483,7 @@ async function drawNavigation() {
       </div>
     `).join('');
     
-    content.innerHTML = `
+    const navUI = `
       <div class="directions-card">
         <div id="currentInstruction" style="padding:16px;background:#e8f0fe;border-radius:8px;margin-bottom:12px;cursor:pointer;" onclick="toggleSheet()">
           <div style="display:flex;align-items:center;gap:12px;">
@@ -506,10 +508,25 @@ async function drawNavigation() {
         <button class="btn-secondary" onclick="clearNavigation()">End route</button>
       </div>
     `;
+    
+    if (isDesktop()) {
+      content.innerHTML = `
+        <div style="padding:20px;border-bottom:1px solid #e8eaed;">
+          <button onclick="returnToDesktopStoreList()" style="background:none;border:none;cursor:pointer;color:#5f6368;font-size:14px;margin-bottom:12px;">← Back</button>
+          <h2 style="margin:0;font-size:20px;font-weight:600;">Navigation</h2>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:20px;">
+          ${navUI}
+        </div>
+      `;
+    } else {
+      content.innerHTML = navUI;
+      document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'none';
+      const sheet = document.getElementById('bottomSheet')!;
+      sheet.style.maxHeight = '35vh';
+    }
+    
     updateCurrentInstruction();
-    document.getElementById('searchInput')!.parentElement!.parentElement!.style.display = 'none';
-    const sheet = document.getElementById('bottomSheet')!;
-    sheet.style.maxHeight = '35vh';
   } catch (err) {}
 }
 
@@ -1378,11 +1395,9 @@ function showDesktopDirections() {
     });
   });
   
-  startBtn?.addEventListener('click', () => {
-    if (activeDirections) {
-      currentInstructionIndex = 0;
-      mapView.Camera.focusOn(activeDirections.instructions[0].coordinate);
-    }
+  startBtn?.addEventListener('click', async () => {
+    navEndPoint = selectedStore;
+    await drawNavigation();
   });
 }
 
