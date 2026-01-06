@@ -100,6 +100,7 @@
   padding: 0;
   overflow-y: auto;
   max-height: calc(70vh - 260px);
+  pointer-events: auto;
 }
 
 .bottom-sheet.expanded .sheet-content {
