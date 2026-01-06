@@ -922,10 +922,20 @@ function updateStoreList() {
       </div>
     `;
     
-    // Make header draggable
+    // Make header, image, and drag handle draggable
     setTimeout(() => {
+      const sheetHeader = document.getElementById('sheetHeader') as HTMLElement;
       const detailHeader = content.querySelector('.directions-header') as HTMLElement;
       const detailImage = content.querySelector('.store-detail-image') as HTMLElement;
+      
+      if (sheetHeader) {
+        sheetHeader.addEventListener('touchstart', (e) => {
+          sheetStartY = e.touches[0].clientY;
+          sheetCurrentHeight = sheet.offsetHeight;
+          sheetIsDragging = true;
+          sheet.style.transition = 'none';
+        });
+      }
       
       if (detailHeader) {
         detailHeader.style.cursor = 'grab';
