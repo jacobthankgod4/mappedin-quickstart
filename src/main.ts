@@ -809,7 +809,7 @@ function hideSheet() {
 function createTopBar() {
   const topBar = document.createElement('div');
   topBar.id = 'topBar';
-  topBar.style.cssText = 'position:fixed;top:0;left:0;right:0;height:56px;background:white;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,0.1);display:none;align-items:center;padding:0 16px;';
+  topBar.style.cssText = 'position:fixed;top:0;left:0;right:0;height:auto;min-height:56px;background:white;z-index:1000;box-shadow:0 2px 4px rgba(0,0,0,0.1);display:none;align-items:center;padding:12px 16px;';
   topBar.innerHTML = `
     <div style="position:relative;flex:1;">
       <input id="topSearchInput" placeholder="Search" style="width:100%;padding:8px 12px;border:1px solid #dadce0;border-radius:24px;font-size:14px;" />
@@ -1162,20 +1162,20 @@ function showDirectionsInNewUIMode(storeId: string) {
   
   // Hide search bar and show FROM/TO at top
   document.getElementById('topBar')!.innerHTML = `
-    <div style="flex:1;">
-      <div style="margin-bottom:8px;">
-        <label style="font-size:12px;color:#5f6368;">FROM</label>
-        <select id="fromSelectNewUI" style="width:100%;padding:8px;border:1px solid #dadce0;border-radius:8px;">
+    <div style="flex:1;padding:8px 0;">
+      <div style="margin-bottom:12px;">
+        <label style="font-size:14px;font-weight:600;color:#202124;display:block;margin-bottom:4px;">FROM</label>
+        <select id="fromSelectNewUI" style="width:100%;padding:12px;border:1px solid #dadce0;border-radius:8px;font-size:16px;min-height:44px;">
           <option value="">Choose starting point</option>
           ${stores.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
         </select>
       </div>
       <div>
-        <label style="font-size:12px;color:#5f6368;">TO</label>
-        <input value="${store.name}" readonly style="width:100%;padding:8px;border:1px solid #dadce0;border-radius:8px;background:#f8f9fa;" />
+        <label style="font-size:14px;font-weight:600;color:#202124;display:block;margin-bottom:4px;">TO</label>
+        <input value="${store.name}" readonly style="width:100%;padding:12px;border:1px solid #dadce0;border-radius:8px;background:#f8f9fa;font-size:16px;min-height:44px;" />
       </div>
     </div>
-    <button onclick="endNavigationNewUIMode()" style="margin-left:12px;background:none;border:none;font-size:24px;cursor:pointer;">×</button>
+    <button onclick="endNavigationNewUIMode()" style="margin-left:12px;background:none;border:none;font-size:24px;cursor:pointer;min-width:44px;min-height:44px;">×</button>
   `;
   
   // Show Start button at bottom
