@@ -327,7 +327,7 @@ function selectStore(store: any) {
     try {
       if (isDesktop()) {
         mapView.Camera.focusOn(store);
-        showDesktopStoreDetail(store);
+        renderDesktopStoreDetail(store);
       } else {
         const vh = window.innerHeight / 100;
         mapView.Camera.setScreenOffsets({ bottom: 60 * vh, type: 'pixel' });
@@ -1312,73 +1312,6 @@ function setupDesktopControls() {
   });
 }
 
-function showDesktopStoreDetail(store: any) {
-  const modal = document.createElement('div');
-  modal.id = 'desktopStoreModal';
-  modal.style.cssText = `position:fixed;top:0;left:380px;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:2000;display:flex;align-items:center;justify-content:center;padding:40px;`;
-  
-  const hasCategories = store.categories && store.categories.length > 0;
-  const hasImages = store.images && store.images.length > 0;
-  const hasLogo = store.logoImage?.url;
-  const hasDescription = store.description;
-  const hasPhone = store.phone;
-  const hasWebsite = store.website?.href;
-  
-  let content = '';
-  if (hasImages) {
-    content += `<img src="${store.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" />`;
-  } else if (hasLogo) {
-    content += `<img src="${hasLogo}" style="width:100%;height:200px;object-fit:contain;border-radius:8px;margin-bottom:16px;background:#f8f9fa;padding:20px;" />`;
-  }
-  
-  content += `
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
-      <div style="width:48px;height:48px;background:#1a73e8;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;flex-shrink:0;">${icons.location}</div>
-      <div style="flex:1;">
-        <div style="font-size:20px;font-weight:500;color:#202124;">${store.name}</div>
-        <div style="font-size:14px;color:#5f6368;margin-top:4px;">${store.floor?.name || 'Store'}</div>
-      </div>
-    </div>
-  `;
-  
-  if (hasCategories) {
-    content += `
-      <div style="margin:16px 0;">
-        <div style="font-weight:500;margin-bottom:8px;font-size:14px;">Categories</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          ${store.categories.map((cat: any) => `<span style="background:#f1f3f4;color:#202124;padding:6px 12px;border-radius:16px;font-size:13px;">${cat.name}</span>`).join('')}
-        </div>
-      </div>
-    `;
-  }
-  
-  if (hasDescription) {
-    content += `<p style="color:#5f6368;font-size:14px;line-height:1.5;margin:16px 0;">${hasDescription}</p>`;
-  }
-  
-  if (hasWebsite) {
-    content += `<a href="${hasWebsite}" target="_blank" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:12px;text-decoration:none;">🔗 Visit Website</a>`;
-  }
-  
-  if (hasPhone) {
-    content += `<a href="tel:${hasPhone}" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">📞 ${hasPhone}</a>`;
-  }
-  
-  content += `
-    <button class="btn-primary" onclick="document.getElementById('desktopStoreModal').remove();showDesktopDirections(selectedStore)" style="margin-top:12px;width:100%;padding:14px;background:#1a73e8;color:white;border:none;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;">Directions</button>
-    <button class="btn-secondary" onclick="document.getElementById('desktopStoreModal').remove()" style="margin-top:8px;width:100%;padding:14px;background:white;color:#1a73e8;border:1px solid #dadce0;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;">Close</button>
-  `;
-  
-  modal.innerHTML = `
-    <div style="background:white;border-radius:20px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.2);position:relative;">
-      <button onclick="document.getElementById('desktopStoreModal').remove()" style="position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:20px;background:#f1f3f4;border:none;cursor:pointer;font-size:20px;color:#5f6368;">×</button>
-      <div style="padding:24px;">${content}</div>
-    </div>
-  `;
-  
-  document.body.appendChild(modal);
-}
-
 (window as any).showDesktopDirections = (store: any) => {
   const sidebar = document.getElementById('desktopSidebar');
   if (!sidebar) return;
@@ -1449,5 +1382,123 @@ function showDesktopStoreDetail(store: any) {
     }
   });
 };
+
+function renderDesktopStoreDetail(store: any) {
+  const sidebar = document.getElementById('desktopSidebar');
+  if (!sidebar) return;
+  
+  const hasCategories = store.categories && store.categories.length > 0;
+  const hasHours = store.operationHours;
+  const hasImages = store.images && store.images.length > 0;
+  const hasLogo = store.logoImage?.url;
+  const hasDescription = store.description;
+  const hasPhone = store.phone;
+  const hasWebsite = store.website?.href;
+  
+  let content = '';
+  
+  if (hasImages) {
+    content += `<img src="${store.images[0].url}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:16px;" />`;
+  } else if (hasLogo) {
+    content += `<img src="${hasLogo}" style="width:100%;height:200px;object-fit:contain;border-radius:8px;margin-bottom:16px;background:#f8f9fa;padding:20px;" />`;
+  }
+  
+  content += `
+    <div class="directions-header">
+      <div class="directions-icon" style="background:#1a73e8;">${icons.location}</div>
+      <div class="directions-info">
+        <div style="font-size:20px;font-weight:500;color:#202124;">${store.name}</div>
+        <div style="font-size:14px;color:#5f6368;margin-top:4px;">${store.floor?.name || 'Store'}</div>
+      </div>
+    </div>
+  `;
+  
+  if (hasHours) {
+    const now = new Date();
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const today = days[now.getDay()];
+    const todayHours = store.operationHours[today];
+    if (todayHours) {
+      content += `
+        <div style="margin:16px 0;">
+          <div style="font-weight:500;margin-bottom:8px;font-size:14px;">Hours</div>
+          <div style="font-size:14px;color:#202124;">${todayHours.open} - ${todayHours.close}</div>
+        </div>
+      `;
+    }
+  }
+  
+  if (hasCategories) {
+    content += `
+      <div style="margin:16px 0;">
+        <div style="font-weight:500;margin-bottom:8px;font-size:14px;">Categories</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          ${store.categories.map((cat: any) => `<span style="background:#f1f3f4;color:#202124;padding:6px 12px;border-radius:16px;font-size:13px;">${cat.name}</span>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+  
+  if (hasDescription) {
+    content += `<p style="color:#5f6368;font-size:14px;line-height:1.5;margin:16px 0;">${hasDescription}</p>`;
+  }
+  
+  if (hasWebsite) {
+    content += `<a href="${hasWebsite}" target="_blank" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:12px;text-decoration:none;">🔗 Visit Website</a>`;
+  }
+  
+  if (hasPhone) {
+    content += `<a href="tel:${hasPhone}" style="display:block;color:#1a73e8;font-size:14px;margin-bottom:16px;text-decoration:none;">📞 ${hasPhone}</a>`;
+  }
+  
+  content += `
+    <div style="display:flex;gap:12px;margin-top:16px;">
+      <button onclick="refreshStore()" style="flex:1;padding:10px;background:#f1f3f4;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;">${icons.refresh}</button>
+      <button onclick="shareStore()" style="flex:1;padding:10px;background:#f1f3f4;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;">${icons.share}</button>
+    </div>
+    <button class="btn-primary" onclick="showDesktopDirections(selectedStore)" style="margin-top:12px;">Directions</button>
+  `;
+  
+  sidebar.innerHTML = `
+    <div style="padding:20px;border-bottom:1px solid #e8eaed;">
+      <button onclick="returnToDesktopStoreList()" style="background:none;border:none;cursor:pointer;color:#5f6368;font-size:14px;margin-bottom:12px;">← Back</button>
+      <h2 style="margin:0;font-size:20px;font-weight:600;">${store.name}</h2>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:20px;">
+      ${content}
+    </div>
+  `;
+}
+
+function returnToDesktopStoreList() {
+  const sidebar = document.getElementById('desktopSidebar');
+  if (!sidebar) return;
+  
+  sidebar.innerHTML = `
+    <div style="padding:20px;border-bottom:1px solid #e8eaed;">
+      <div style="position:relative;">
+        <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#5f6368;">${icons.search}</span>
+        <input id="desktopSearchInput" type="text" placeholder="Search the mall..." style="width:100%;padding:12px 48px;border:none;border-radius:24px;background:#f2f2f2;font-size:14px;outline:none;" />
+        <button id="desktopFilterBtn" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#5f6368;">${icons.filter}</button>
+        <div id="desktopSearchResults" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.15);margin-top:8px;max-height:300px;overflow-y:auto;z-index:10;"></div>
+      </div>
+    </div>
+    <div style="padding:16px;border-bottom:1px solid #e8eaed;">
+      <div id="desktopCategoryPills" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+    <div style="padding:16px;border-bottom:1px solid #e8eaed;overflow-x:auto;">
+      <div id="desktopStoreCards" style="display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;"></div>
+    </div>
+    <div id="desktopStoreList" style="flex:1;overflow-y:auto;padding:16px;"></div>
+  `;
+  
+  renderDesktopCategories();
+  renderDesktopStoreCards();
+  renderDesktopStoreList();
+  attachDesktopEventHandlers();
+}
+
+(window as any).renderDesktopStoreDetail = renderDesktopStoreDetail;
+(window as any).returnToDesktopStoreList = returnToDesktopStoreList;
 
 init();
